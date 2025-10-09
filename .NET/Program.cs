@@ -1,4 +1,4 @@
-using _NET.Components;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +22,7 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
-app.MapRazorComponents<App>()
+app.MapRazorComponents<SportEventManager.Components.App>() 
     .AddInteractiveServerRenderMode();
 
 app.Run();

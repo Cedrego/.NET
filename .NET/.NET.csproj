@@ -4,8 +4,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>.NET</RootNamespace>
+   
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
+
+    <RootNamespace>SportEventManager</RootNamespace> 
   </PropertyGroup>
 
 </Project>

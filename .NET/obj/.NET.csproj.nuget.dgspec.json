@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Descargas v2.0\\.NET\\.NET\\.NET.csproj": {}
+    "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\.NET\\.NET.csproj": {}
   },
   "projects": {
-    "D:\\Descargas v2.0\\.NET\\.NET\\.NET.csproj": {
+    "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\.NET\\.NET.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Descargas v2.0\\.NET\\.NET\\.NET.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\.NET\\.NET.csproj",
         "projectName": ".NET",
-        "projectPath": "D:\\Descargas v2.0\\.NET\\.NET\\.NET.csproj",
-        "packagesPath": "C:\\Users\\cedre\\.nuget\\packages\\",
-        "outputPath": "D:\\Descargas v2.0\\.NET\\.NET\\obj\\",
+        "projectPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\.NET\\.NET.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\.NET\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\cedre\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -62,7 +62,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
