@@ -1,6 +1,6 @@
-﻿@page "/info_corredor"
+@page "/info_corredores"
 
-<PageTitle>Información Corredor</PageTitle>
+<PageTitle>Información Corredores</PageTitle>
 
 <div class="page">
     <div class="container-box">
@@ -9,40 +9,31 @@
         </aside>
 
         <main class="content">
-            <h1 class="title">Información del Corredor</h1>
+            <h1 class="title">Información del Corredores</h1>
 
             <div class="info-section">
-                <p><strong>Nombre:</strong></p>
+                <p><strong>Título:</strong></p>
+                <select class="combo-carrera">
+                    <option value="">Nombre de la carrera</option>
+                </select>
+                <p><strong>Nacionalidad:</strong></p>
+                <select class="combo-carrera">
+                    <option value="">Nacionalidad</option>
+                </select>
                 <p><strong>Edad:</strong></p>
-                <p><strong>Fecha de Nacimiento:</strong></p>
-                <p><strong>Lugar de Nacimiento:</strong></p>
+                <select class="combo-carrera">
+                    <option value="">Edad</option>
+                </select>
             </div>
 
-            <h3>Tiempos de la carrera actual:</h3>
+            <h3>Corredores:</h3>
             <table class="info-table">
                 <thead>
                     <tr>
-                        <th>Título</th>
-                        <th>Tipo de Carrera</th>
-                        <th>N° Dorsal</th>
-                        <th>Ultimo Tiempo</th>
-                        <th>Posición</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="5">&nbsp;</td></tr>
-                </tbody>
-            </table>
-
-            <h3>Mejores Tiempos:</h3>
-            <table class="info-table">
-                <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Tipo de Carrera</th>
-                        <th>N° Dorsal</th>
-                        <th>Tiempo T</th>
-                        <th>Posición</th>
+                        <th>Nombre</th>
+                        <th>Edad</th>
+                        <th>Fecha de Nacimiento</th>
+                        <th>Nacionalidad</th>
                     </tr>
                 </thead>
                 <tbody>
