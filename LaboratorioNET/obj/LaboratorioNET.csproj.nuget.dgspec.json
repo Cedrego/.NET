@@ -1,25 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Descargas v2.0\\LaboratorioNET\\LaboratorioNET\\LaboratorioNET.csproj": {}
+    "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {}
   },
   "projects": {
-    "D:\\Descargas v2.0\\LaboratorioNET\\LaboratorioNET\\LaboratorioNET.csproj": {
+    "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Descargas v2.0\\LaboratorioNET\\LaboratorioNET\\LaboratorioNET.csproj",
+        "projectUniqueName": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
         "projectName": "LaboratorioNET",
-        "projectPath": "D:\\Descargas v2.0\\LaboratorioNET\\LaboratorioNET\\LaboratorioNET.csproj",
-        "packagesPath": "C:\\Users\\cedre\\.nuget\\packages\\",
-        "outputPath": "D:\\Descargas v2.0\\LaboratorioNET\\LaboratorioNET\\obj\\",
+        "projectPath": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+        "packagesPath": "C:\\Users\\camin\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "C:\\Users\\cedre\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\camin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
