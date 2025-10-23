@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {}
+    "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {}
   },
   "projects": {
-    "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {
+    "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
         "projectName": "LaboratorioNET",
-        "projectPath": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
-        "packagesPath": "C:\\Users\\camin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\NET\\.NET\\LaboratorioNET\\obj\\",
+        "projectPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\camin\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -49,6 +43,28 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "FirebaseAdmin": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
+            "FirebaseAuthentication.net": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            },
+            "FirebaseDatabase.net": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "Google.Cloud.Firestore": {
+              "target": "Package",
+              "version": "[3.8.0, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.5.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -68,7 +84,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
