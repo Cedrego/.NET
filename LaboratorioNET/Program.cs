@@ -1,10 +1,16 @@
 using LaboratorioNET.Components;
+using LaboratorioNET.Models;
+using LaboratorioNET.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.Configure<FirebaseSettings>(
+    builder.Configuration.GetSection("Firebase"));
+builder.Services.AddScoped<FirebaseService>();
 
 var app = builder.Build();
 
