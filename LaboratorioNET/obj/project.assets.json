@@ -18,7 +18,7 @@
           }
         }
       },
-      "FirebaseAdmin/3.0.1": {
+      "FirebaseAdmin/3.4.0": {
         "type": "package",
         "dependencies": {
           "Google.Api.Gax.Rest": "4.8.0",
@@ -720,15 +720,15 @@
         "lib/netstandard2.1/DnsClient.xml"
       ]
     },
-    "FirebaseAdmin/3.0.1": {
-      "sha512": "CvWwqFE0mIQBHFDrV9A0YXcwGNKbCH4q2JWkm/4HQ+huU/Kkj9VIrmjcXiqg7l2KydZQu3Pfeobo7L81BtQMdA==",
+    "FirebaseAdmin/3.4.0": {
+      "sha512": "sQyVEOYRe4HSSmRCJQhKr33DxZk10lpDE2otdTgNkqPn4BRul2JG7TCQC7N7X0wO9ShnPLbVS4xuSUHlaPBbug==",
       "type": "package",
-      "path": "firebaseadmin/3.0.1",
+      "path": "firebaseadmin/3.4.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "README.md",
-        "firebaseadmin.3.0.1.nupkg.sha512",
+        "firebaseadmin.3.4.0.nupkg.sha512",
         "firebaseadmin.nuspec",
         "lib/net462/FirebaseAdmin.dll",
         "lib/net462/FirebaseAdmin.xml",
@@ -1829,7 +1829,7 @@
   },
   "projectFileDependencyGroups": {
     "net9.0": [
-      "FirebaseAdmin >= 3.0.1",
+      "FirebaseAdmin >= 3.4.0",
       "FirebaseAuthentication.net >= 4.1.0",
       "FirebaseDatabase.net >= 5.0.0",
       "Google.Cloud.Firestore >= 3.11.0",
@@ -1837,19 +1837,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\User\\.nuget\\packages\\": {}
+    "C:\\Users\\cedre\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "projectUniqueName": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
       "projectName": "LaboratorioNET",
-      "projectPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
-      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\obj\\",
+      "projectPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "packagesPath": "C:\\Users\\cedre\\.nuget\\packages\\",
+      "outputPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\cedre\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -1881,7 +1881,7 @@
         "dependencies": {
           "FirebaseAdmin": {
             "target": "Package",
-            "version": "[3.0.1, )"
+            "version": "[3.4.0, )"
           },
           "FirebaseAuthentication.net": {
             "target": "Package",
@@ -1919,7 +1919,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

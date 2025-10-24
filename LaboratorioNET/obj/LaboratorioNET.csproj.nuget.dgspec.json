@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {}
+    "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {
+    "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+        "projectUniqueName": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
         "projectName": "LaboratorioNET",
-        "projectPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\obj\\",
+        "projectPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+        "packagesPath": "C:\\Users\\cedre\\.nuget\\packages\\",
+        "outputPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\cedre\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -46,7 +46,7 @@
           "dependencies": {
             "FirebaseAdmin": {
               "target": "Package",
-              "version": "[3.0.1, )"
+              "version": "[3.4.0, )"
             },
             "FirebaseAuthentication.net": {
               "target": "Package",
@@ -84,7 +84,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

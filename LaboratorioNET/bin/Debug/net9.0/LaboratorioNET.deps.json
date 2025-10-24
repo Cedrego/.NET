@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v9.0": {
       "LaboratorioNET/1.0.0": {
         "dependencies": {
-          "FirebaseAdmin": "3.0.1",
+          "FirebaseAdmin": "3.4.0",
           "FirebaseAuthentication.net": "4.1.0",
           "FirebaseDatabase.net": "5.0.0",
           "Google.Cloud.Firestore": "3.11.0",
@@ -29,7 +29,7 @@
           }
         }
       },
-      "FirebaseAdmin/3.0.1": {
+      "FirebaseAdmin/3.4.0": {
         "dependencies": {
           "Google.Api.Gax.Rest": "4.8.0",
           "Google.Apis.Auth": "1.69.0",
@@ -37,8 +37,8 @@
         },
         "runtime": {
           "lib/net6.0/FirebaseAdmin.dll": {
-            "assemblyVersion": "3.0.1.0",
-            "fileVersion": "3.0.1.0"
+            "assemblyVersion": "3.4.0.0",
+            "fileVersion": "3.4.0.0"
           }
         }
       },
@@ -410,12 +410,12 @@
       "path": "dnsclient/1.6.1",
       "hashPath": "dnsclient.1.6.1.nupkg.sha512"
     },
-    "FirebaseAdmin/3.0.1": {
+    "FirebaseAdmin/3.4.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-CvWwqFE0mIQBHFDrV9A0YXcwGNKbCH4q2JWkm/4HQ+huU/Kkj9VIrmjcXiqg7l2KydZQu3Pfeobo7L81BtQMdA==",
-      "path": "firebaseadmin/3.0.1",
-      "hashPath": "firebaseadmin.3.0.1.nupkg.sha512"
+      "sha512": "sha512-sQyVEOYRe4HSSmRCJQhKr33DxZk10lpDE2otdTgNkqPn4BRul2JG7TCQC7N7X0wO9ShnPLbVS4xuSUHlaPBbug==",
+      "path": "firebaseadmin/3.4.0",
+      "hashPath": "firebaseadmin.3.4.0.nupkg.sha512"
     },
     "FirebaseAuthentication.net/4.1.0": {
       "type": "package",

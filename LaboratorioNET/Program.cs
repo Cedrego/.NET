@@ -9,7 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.Configure<FirebaseSettings>(
-    builder.Configuration.GetSection("Firebase"));
+    builder.Configuration.GetSection("FirebaseSettings"));
 builder.Services.AddScoped<FirebaseService>();
 
 var app = builder.Build();
