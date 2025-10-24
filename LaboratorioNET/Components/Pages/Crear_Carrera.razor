@@ -1,0 +1,189 @@
+@page "/crear_carrera"
+@rendermode InteractiveServer
+@using LaboratorioNET.Entities
+@using LaboratorioNET.Services 
+@inject NavigationManager NavigationManager
+@inject FirebaseService FirebaseService
+
+<style>
+    /* Estilos base */
+    .submit-button {
+        position: relative;
+        z-index: 10;
+    }
+    .form-group-custom {
+        margin-bottom: 10px; 
+    }
+    .form-input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        box-sizing: border-box;
+    }
+    .return-link {
+        display: block;
+        margin-top: 15px;
+        text-align: center;
+    }
+    .error-message {
+        color: red; 
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .success-message {
+        color: green; 
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+</style>
+
+<PageTitle>Crear Carrera</PageTitle>
+
+<div class="main-container">
+
+    <header class="page-title-box">
+        <h1>SportEvent Manager</h1>
+    </header>
+
+    <div class="menu-box">
+        <h2>Crear Carrera</h2>
+
+        <div class="form-container">
+            
+            @if (!string.IsNullOrWhiteSpace(mensajeError))
+            {
+                <p class="@(mensajeError.StartsWith("✅") ? "success-message" : "error-message")">
+                    @mensajeError
+                </p>
+            }
+
+            <div class="form-group-custom">
+                <p><strong>Nombre:</strong></p>
+                <InputText @bind-Value="nombre" class="form-input" placeholder="Nombre de la carrera" />
+            </div>
+
+            <div class="form-group-custom">
+                <p><strong>Lugar de Salida:</strong></p>
+                <InputText @bind-Value="lugar" class="form-input" placeholder="Lugar de salida" />
+            </div>
+
+            <div class="form-group-custom">
+                <p><strong>Fecha de la Carrera:</strong></p>
+                <InputDate @bind-Value="fechaCarrera" class="form-input" />
+            </div>
+            
+            <div class="form-group-custom">
+                <p><strong>Fecha Inicio Inscripción:</strong></p>
+                <InputDate @bind-Value="fechaInicioInsc" class="form-input" />
+            </div>
+
+            <div class="form-group-custom">
+                <p><strong>Límite de Participantes:</strong></p>
+                <InputNumber @bind-Value="limiteParticipantes" class="form-input" placeholder="Cupo máximo" />
+            </div>
+            
+            <div class="form-group-custom">
+                <p><strong>Cantidad de Secciones/Checkpoints:</strong></p>
+                <InputNumber @bind-Value="cantSecciones" class="form-input" placeholder="Número de secciones/checkpoints" />
+            </div>
+            
+            <button @onclick="CrearCarrera" 
+                    class="menu-button submit-button"
+                    disabled="@estaCargando">
+                @if (estaCargando)
+                {
+                    <span>Guardando...</span>
+                }
+                else
+                {
+                    <span>Crear Carrera</span>
+                }
+            </button>
+        
+            <a href="/" class="return-link">Volver</a>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    // Variables del Formulario. Usamos tipos nulos (?) para InputDate e InputNumber.
+    private string nombre = string.Empty;
+    private string lugar = string.Empty;
+    private DateTime? fechaCarrera;          // Mapea a Carrera.FechaInicio
+    private DateTime? fechaInicioInsc;       // Mapea a Carrera.FechaInicioInsc
+    private int? limiteParticipantes;        // Mapea a Carrera.LimiteParticipantes
+    private double? cantSecciones;           // Mapea a Carrera.CantSecciones
+    
+    private string mensajeError = string.Empty;
+    private bool estaCargando = false; 
+
+    private async Task CrearCarrera()
+    {
+        mensajeError = string.Empty;
+        
+        // === 1. Validación de Datos (Evita las advertencias CS8629) ===
+        if (string.IsNullOrWhiteSpace(nombre)) { mensajeError = "El campo Nombre está vacío."; }
+        else if (string.IsNullOrWhiteSpace(lugar)) { mensajeError = "El campo Lugar de Salida está vacío."; }
+        else if (fechaCarrera == null) { mensajeError = "El campo Fecha de la Carrera está vacío."; }
+        else if (fechaInicioInsc == null) { mensajeError = "El campo Fecha de Inscripción está vacío."; }
+        else if (limiteParticipantes == null || limiteParticipantes <= 0) { mensajeError = "El Límite de Participantes es inválido o está vacío."; }
+        else if (cantSecciones == null || cantSecciones <= 0) { mensajeError = "La Cantidad de Secciones/Checkpoints es inválida o está vacía."; }
+        
+        // Si hay un error de validación, se detiene
+        if (!string.IsNullOrWhiteSpace(mensajeError))
+        {
+            StateHasChanged();
+            return;
+        }
+
+        estaCargando = true;
+        StateHasChanged(); // Muestra "Guardando..."
+
+        // === 2. Mapeo a la Entidad Carrera ===
+        // ⭐️ Usamos .Value de forma segura después de la comprobación de null ⭐️
+        var nuevaCarrera = new Carrera
+        {
+            IdCarrera = 0, 
+            Nombre = nombre,
+            LugarSalida = lugar,
+            
+            // Mapeo a las propiedades ACTUALIZADAS de Carrera.cs
+            FechaInicio = fechaCarrera.Value.ToUniversalTime(), 
+            FechaInicioInsc = fechaInicioInsc.Value.ToUniversalTime(),
+            LimiteParticipantes = limiteParticipantes.Value,
+            CantSecciones = cantSecciones.Value
+        };
+
+        // === 3. Lógica para guardar en Firebase ===
+        try
+        {
+            // Usa el servicio inyectado para guardar en la colección "carreras"
+            await FirebaseService.Carreras.AddAsync(nuevaCarrera); 
+
+            // Éxito:
+            mensajeError = $"✅ ¡Carrera '{nuevaCarrera.Nombre}' creada con éxito!";
+            ResetearCampos();
+        }
+        catch (Exception ex)
+        {
+            // Falla: (Esto captura problemas de red, credenciales o permisos)
+            mensajeError = $"❌ Error al guardar: {ex.Message}. Revise la consola del servidor (terminal) para el [ERROR FATAL DE FIREBASE].";
+            Console.WriteLine($"[ERROR FATAL DE FIREBASE]: {ex.ToString()}"); 
+        }
+        
+        estaCargando = false;
+        StateHasChanged(); // Actualiza el mensaje final y habilita el botón
+    }
+    
+    // Método auxiliar para limpiar el formulario
+    private void ResetearCampos()
+    {
+        nombre = string.Empty;
+        lugar = string.Empty;
+        fechaCarrera = null;
+        fechaInicioInsc = null;
+        limiteParticipantes = null;
+        cantSecciones = null;
+    }
+}
