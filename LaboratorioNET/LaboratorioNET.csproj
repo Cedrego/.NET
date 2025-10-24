@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="3.0.1" />
-    <PackageReference Include="Google.Cloud.Firestore" Version="3.8.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.11.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FirebaseAdmin" Version="3.4.0" />

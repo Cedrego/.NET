@@ -1,21 +1,23 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using Google.Cloud.Firestore;
 
 namespace LaboratorioNET.Entities
 {
+    [FirestoreData]
     public class Registro
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
+        [FirestoreDocumentId]
         public string? Id { get; set; }
 
-        [BsonElement("CICorredor")]
-        public string CICorredor { get; set; } = string.Empty;
-
-        [BsonElement("IDCarrera")]
+        [FirestoreProperty("IDCarrera")]
         public string IDCarrera { get; set; } = string.Empty;
 
-        [BsonElement("FechaRegistro")]
-        public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
+        [FirestoreProperty("IdentifiCorredor")]
+        public string IdentifiCorredor { get; set; } = string.Empty;
+
+        [FirestoreProperty("NumDorsal")]
+        public int NumDorsal { get; set; }
+
+        [FirestoreProperty("Tiempos")]
+        public List<Timestamp> Tiempos { get; set; } = new List<Timestamp>();
     }
 }
