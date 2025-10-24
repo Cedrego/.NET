@@ -19,7 +19,7 @@ namespace LaboratorioNET.Entities
 
         [FirestoreProperty("LugarSalida")]
         public string LugarSalida { get; set; } = string.Empty;
-
+ 
         [FirestoreProperty("FechaInicioInsc")]
         public DateTime FechaInicioInsc { get; set; }
 
