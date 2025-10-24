@@ -1,0 +1,43 @@
+﻿@page "/admin"
+
+<style>
+    .submit-button {
+        position: relative;
+        z-index: 10;
+    }
+</style>
+
+<PageTitle>Admin</PageTitle>
+
+@using System.Globalization
+
+<!-- Contenedor principal -->
+<div class="main-container">
+
+    <!-- Encabezado -->
+    <header class="page-title-box">
+        <h1>SportEvent Manager</h1>
+    </header>
+
+    <!-- Caja central -->
+    <div class="menu-box">
+        <h2>ADMIN</h2>
+
+        <div class="form-container">
+            <button type="button" @onclick="CrearCarrera">Crear Carrera</button>
+            <br><br><br>
+            <button type="button" @onclick="InfoCorredores">Información de Corredores</button>
+            <br><br><br>
+        </div>
+    </div>
+</div>
+
+@code {
+    private async Task CrearCarrera(){
+        
+    }
+
+    private async Task InfoCorredores(){
+        
+    }
+}
