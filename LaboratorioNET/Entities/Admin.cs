@@ -1,18 +1,17 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using Google.Cloud.Firestore;
 
 namespace LaboratorioNET.Entities
-{
+{  
+    [FirestoreData]
     public class Admin
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
+        [FirestoreDocumentId]
         public string? Id { get; set; }
 
-        [BsonElement("Contrasena")]
+        [FirestoreProperty("contrasena")]
         public string Contrasena { get; set; } = string.Empty;
 
-        [BsonElement("IDAdmin")]
+        [FirestoreProperty("idAdmin")]
         public string IDAdmin { get; set; } = string.Empty;
     }
 }

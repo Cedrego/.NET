@@ -1,36 +1,35 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using Google.Cloud.Firestore;
 
 namespace LaboratorioNET.Entities
 {
+    [FirestoreData]
     public class Carrera
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
+        [FirestoreDocumentId]
         public string? Id { get; set; }
-
-        [BsonElement("idCarrera")]
+        
+        [FirestoreProperty("idCarrera")]
         public int IdCarrera { get; set; }
 
-        [BsonElement("nombre")]
+        [FirestoreProperty("nombre")]
         public string Nombre { get; set; } = string.Empty;
-
-        [BsonElement("fecha")]
+        
+        [FirestoreProperty("fecha")]
         public DateTime Fecha { get; set; }
 
-        [BsonElement("lugarSalida")]
+        [FirestoreProperty("lugarSalida")]
         public string LugarSalida { get; set; } = string.Empty;
 
-        [BsonElement("fechaInicioInsc")]
+        [FirestoreProperty("fechaInicioInsc")]
         public DateTime FechaInicioInsc { get; set; }
 
-        [BsonElement("cupoParticipantes")]
+        [FirestoreProperty("cupoParticipantes")]
         public int CupoParticipantes { get; set; }
 
-        [BsonElement("distanciaOCheckpoint")]
+        [FirestoreProperty("distanciaOCheckpoint")]
         public double DistanciaOCheckpoint { get; set; }
 
-        [BsonElement("seccTorres")]
+        [FirestoreProperty("seccTorres")]
         public int SeccTorres { get; set; }
     }
 }

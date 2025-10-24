@@ -1,5 +1,6 @@
 ﻿@page "/"
-
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
 <PageTitle>Menu Inicial</PageTitle>
 
 <!-- Contenedor principal para el fondo azul -->
@@ -17,25 +18,53 @@
         <!-- Contenedor para los botones -->
         <div class="button-group">
             <!-- Botones principales (color lila/púrpura claro) -->
-            <button class="menu-button primary">Informacion de corredores</button>
-            <button class="menu-button primary">Informacion de la carrera</button>
-            <button class="menu-button primary">Ingresar como Corredor</button>
+            <button class="menu-button primary" @onclick="NavigateToInfoCorredores">
+                Informacion de corredores
+            </button>
+            <button class="menu-button primary" @onclick="NavigateToInfoCarrera">
+                Informacion de la carrera
+            </button>
+            <button class="menu-button primary" @onclick="NavigateToIngresoCorredor">
+                Ingresar como Corredor
+            </button>
             
             <!-- Botón gris (inactivo o secundario) -->
-            <button class="menu-button secondary">Crear Carrera</button>
+            <button class="menu-button secondary" @onclick="NavigateToCrearCarrera">
+                Crear Carrera
+            </button>
             
             <!-- Botón de Administrador (color verde) -->
-            <button class="menu-button admin">Opciones Admin</button>
+            <button class="menu-button admin" @onclick="NavigateToAdmin">
+                Opciones Admin
+            </button>
         </div>
     </div>
 
 </div>
 
-@code {
-    // Aquí puedes añadir métodos C# para manejar el evento Click de cada botón.
-    // Por ejemplo:
-    // private void NavigateToAdminOptions()
-    // {
-    //     // Lógica de navegación o validación
-    // }
+@code { // Métodos de navegación
+    private void NavigateToInfoCorredores()
+    {
+        Navigation.NavigateTo("/info_corredor");
+    }
+
+    private void NavigateToInfoCarrera()
+    {
+        Navigation.NavigateTo("/info_corredores");
+    }
+
+    private void NavigateToIngresoCorredor()
+    {
+        Navigation.NavigateTo("/crear_cuenta");
+    }
+
+    private void NavigateToCrearCarrera()
+    {
+        Navigation.NavigateTo("/error");
+    }
+
+    private void NavigateToAdmin()
+    {
+        Navigation.NavigateTo("/admin");
+    }
 }

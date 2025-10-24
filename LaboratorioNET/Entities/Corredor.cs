@@ -1,27 +1,23 @@
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
+using Google.Cloud.Firestore;
 
 namespace LaboratorioNET.Entities
 {
+    [FirestoreData]
     public class Corredor
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
+        [FirestoreDocumentId]
         public string? Id { get; set; }
 
-        [BsonElement("DocumentoIdentidad")]
+        [FirestoreProperty("documentoIdentidad")]
         public string DocumentoIdentidad { get; set; } = string.Empty;
 
-        [BsonElement("Nombre")]
+        [FirestoreProperty("nombre")]
         public string Nombre { get; set; } = string.Empty;
 
-        [BsonElement("Origen")]
+        [FirestoreProperty("origen")]
         public string Origen { get; set; } = string.Empty;
 
-        [BsonElement("Telefono")]
+        [FirestoreProperty("telefono")]
         public string Telefono { get; set; } = string.Empty;
-
-        [BsonElement("Registros")]
-        public List<string> Registros { get; set; } = new List<string>();
     }
 }
