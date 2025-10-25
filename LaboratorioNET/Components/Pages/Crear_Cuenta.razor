@@ -1,15 +1,11 @@
 ﻿@page "/crear_cuenta"
-
-<style>
-    .submit-button {
-        position: relative;
-        z-index: 10;
-    }
-</style>
+@rendermode InteractiveServer
+@using LaboratorioNET.Entities
+@using LaboratorioNET.Services 
+@inject NavigationManager NavigationManager
+@inject FirebaseService FirebaseService
 
 <PageTitle>Crear Cuenta</PageTitle>
-
-@using System.Globalization
 
 <!-- Contenedor principal -->
 <div class="main-container">
@@ -35,7 +31,7 @@
 
             <!-- Contraseña -->
             <p><strong>Contraseña:</strong></p>
-            <InputText @bind-Value="contraseña" class="form-input" type="password" />
+            <InputText @bind-Value="contrasena" class="form-input" type="password" />
 
             <!-- Fecha de nacimiento -->
             <p><strong>Fecha de nacimiento:</strong></p>
@@ -52,11 +48,12 @@
 
             <!-- Cédula -->
             <p><strong>Cédula:</strong></p>
-            <InputText @bind-Value="cedula" class="form-input" />
+            <InputText @bind-Value="documentoIdentidad" class="form-input" />
 
             <!-- Botón -->
             <br><br>
-            @if (!string.IsNullOrEmpty(mensajeError)){
+            @if (!string.IsNullOrEmpty(mensajeError))
+            {
                 <p style="color:red;">@mensajeError</p>
             }
             <button type="button" class="submit-button" @onclick="CrearCuenta">Crear cuenta</button>
@@ -65,82 +62,84 @@
 </div>
 
 @code {
-    [Inject] private NavigationManager NavigationManager { get; set; }
-    private string mensajeError = "";
-
-    private string nombre = "";
-    private string correo = "";
-    private string contraseña = "";
-    private string nacionalidad = "";
-    private string cedula = "";
+    // Campos del formulario
+    private string documentoIdentidad = string.Empty;
+    private string nombre = string.Empty;
+    private string correo = string.Empty;
+    private string contrasena = string.Empty;
     private DateTime? fechaNacimiento = null;
+    private string nacionalidad = string.Empty;
 
-    // Lista de países
-    private List<string> paises = new List<string>();
+    private string mensajeError = string.Empty;
+    private bool estaCargando = false;
 
-    protected override void OnInitialized()
+    private List<string> paises = new()
     {
-        // Carga dinámica de todos los países según la cultura del sistema
-        paises = CultureInfo
-        .GetCultures(CultureTypes.SpecificCultures)
-        .Select(c =>
-        {
-            try
-            {
-                var region = new RegionInfo(c.Name);
-                return new { Codigo = region.TwoLetterISORegionName, Nombre = region.DisplayName };
-                //DisplayName muestra el nombre completo del país según el idioma del sistema
-            }
-            catch
-            {
-                return null;
-            }
-        })
-        .Where(p => p != null)
-        .GroupBy(p => p.Codigo) // agrupa por código ISO para evitar duplicados
-        .Select(g => g.First().Nombre)
-        .OrderBy(p => p)
-        .ToList();
-
-    }
+        "Uruguay", "Argentina", "Chile", "Brasil", "Paraguay", "Perú", "México", "España"
+    };
 
     private async Task CrearCuenta()
     {
-        if (string.IsNullOrWhiteSpace(nombre)){
-            mensajeError = "El campo Nombre completo está vacío.";
-            StateHasChanged();
-            return;
-        }
+        mensajeError = string.Empty;
 
-        if (string.IsNullOrWhiteSpace(correo)){
-            mensajeError = "El campo Correo electrónico está vacío.";
-            StateHasChanged();
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(contraseña)){
+        // === 1. Validaciones ===
+        if (string.IsNullOrWhiteSpace(documentoIdentidad))
+            mensajeError = "El campo Documento de Identidad está vacío.";
+        else if (string.IsNullOrWhiteSpace(nombre))
+            mensajeError = "El campo Nombre está vacío.";
+        else if (string.IsNullOrWhiteSpace(correo))
+            mensajeError = "El campo Correo está vacío.";
+        else if (string.IsNullOrWhiteSpace(contrasena))
             mensajeError = "El campo Contraseña está vacío.";
+        else if (fechaNacimiento == null)
+            mensajeError = "Debe ingresar una Fecha de Nacimiento.";
+        else if (string.IsNullOrWhiteSpace(nacionalidad))
+            mensajeError = "Debe ingresar una Nacionalidad.";
+
+        if (!string.IsNullOrWhiteSpace(mensajeError))
+        {
             StateHasChanged();
             return;
         }
 
-        if (fechaNacimiento == null){
-            mensajeError = "El campo Fecha de nacimiento está vacío.";
-            StateHasChanged();
-            return;
+        estaCargando = true;
+        StateHasChanged();
+
+        // === 2. Crear objeto Corredor ===
+        var nuevoCorredor = new Corredor
+        {
+            DocumentoIdentidad = documentoIdentidad,
+            Nombre = nombre,
+            Correo = correo,
+            Contraseña = contrasena,
+            FechaNacimiento = fechaNacimiento?.ToString("yyyy-MM-dd") ?? "",
+            Nacionalidad = nacionalidad
+        };
+
+        // === 3. Guardar en Firebase ===
+        try
+        {
+            await FirebaseService.Corredores.AddAsync(nuevoCorredor);
+            mensajeError = $"✅ ¡Cuenta creada con éxito para {nuevoCorredor.Nombre}!";
+            ResetearCampos();
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"❌ Error al guardar: {ex.Message}";
+            Console.WriteLine($"[ERROR FIREBASE]: {ex}");
         }
 
-        if (string.IsNullOrWhiteSpace(nacionalidad)){
-            mensajeError = "El campo Nacionalidad está vacío.";
-            StateHasChanged();
-            return;
-        }
+        estaCargando = false;
+        StateHasChanged();
+    }
 
-        if (string.IsNullOrWhiteSpace(cedula)){
-            mensajeError = "El campo Cédula está vacío.";
-            StateHasChanged();
-            return;
-        }
-        NavigationManager.NavigateTo("/");
+    private void ResetearCampos()
+    {
+        documentoIdentidad = string.Empty;
+        nombre = string.Empty;
+        correo = string.Empty;
+        contrasena = string.Empty;
+        fechaNacimiento = null;
+        nacionalidad = string.Empty;
     }
 }
