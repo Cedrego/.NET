@@ -1,150 +1,224 @@
 ﻿@page "/menu-corredor"
 @rendermode InteractiveServer
+@using LaboratorioNET.Services
 @inject NavigationManager Navigation
+@inject SesionService SesionService
+@implements IDisposable
 
+<PageTitle>Menú Corredor</PageTitle>
 
-<PageTitle>Menu Corredor</PageTitle>
-
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    .main-container {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        background-color: #2a2a2a;
-    }
-
-    .header {
-        background-color: #2a2a2a;
-        padding: 15px 20px;
-        border-bottom: 2px solid #555;
-    }
-
-        .header h1 {
-            color: #888;
-            font-size: 18px;
-            font-weight: normal;
-            font-family: Arial, sans-serif;
-        }
-
-    .content-area {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 20px;
-        background-color: #00CED1;
-    }
-
-    .title-box {
-        background-color: #D3D3D3;
-        border: 3px solid #000;
-        border-radius: 25px;
-        padding: 30px;
-        width: 100%;
-        max-width: 450px;
-        text-align: center;
-    }
-
-        .title-box h2 {
-            font-family: 'Courier New', monospace;
-            font-size: 40px;
-            font-weight: bold;
-            margin-bottom: 40px;
-            color: #000;
-            letter-spacing: 1px;
-        }
-
-    .menu-box {
-        background-color: #D3D3D3;
-        border: 3px solid #000;
-        border-radius: 25px;
-        padding: 50px 40px;
-        width: 100%;
-        max-width: 500px;
-        display: flex;
-        flex-direction: column;
-        gap: 35px;
-        margin-top: 30px;
-    }
-
-    .menu-button {
-        background-color: #D4C5F9;
-        border: 2px solid #000;
-        border-radius: 20px;
-        padding: 15px 30px;
-        font-size: 16px;
-        font-weight: 600;
-        color: #000;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-family: Arial, sans-serif;
-    }
-
-        .menu-button:hover {
-            background-color: #C4B5E8;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .menu-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-    @@media (max-width: 600px) {
-        .title-box h2 {
-            font-size: 32px;
-        }
-
-        .menu-box {
-            padding: 40px 30px;
-            gap: 25px;
-        }
-
-        .menu-button {
-            padding: 12px 24px;
-            font-size: 14px;
-        }
-    }
-</style>
-
-<div class="main-container">
-    <header class="header">
-        <h1>Menu Corredor</h1>
-    </header>
-
-    <div class="content-area">
-        <div style="width: 100%; max-width: 500px;">
-            <div class="title-box">
-                <h2>SportEvent Manager,</h2>
-            </div>
-
-            <div class="menu-box">
-                <button class="menu-button" @onclick="IrAPreinscripcion">
-                    Preinscribirse a Carrera
+@if (!SesionService.EstaAutenticado)
+{
+    <div class="no-autenticado">
+        <p>⚠️ No has iniciado sesión</p>
+        <button @onclick='() => Navigation.NavigateTo("/iniciar_sesion")'>
+            Ir a Iniciar Sesión
+        </button>
+    </div>
+}
+else
+{
+    <div class="main-container">
+        <header class="page-title-box">
+            <h1>SportEvent Manager</h1>
+            <div class="user-info">
+                <span>👤 Bienvenido, <strong>@SesionService.NombreUsuario</strong></span>
+                <button class="btn-cerrar-sesion" @onclick="CerrarSesion">
+                    🚪 Cerrar Sesión
                 </button>
-                <button class="menu-button" @onclick="IrAEstadoCarrera">
-                    Estado de Carrera
+            </div>
+        </header>
+
+        <div class="menu-box">
+            <h2>Menú Principal</h2>
+
+            <div class="menu-grid">
+                <button class="menu-button" @onclick='() => Navigation.NavigateTo("/info_corredor")'>
+                    📊 Mi Información
+                </button>
+
+                <button class="menu-button" @onclick='() => Navigation.NavigateTo("/carreras")'>
+                    🏃 Ver Carreras
+                </button>
+
+                <button class="menu-button" @onclick='() => Navigation.NavigateTo("/mis-inscripciones")'>
+                    📝 Mis Inscripciones
+                </button>
+
+                <button class="menu-button" @onclick='() => Navigation.NavigateTo("/ranking")'>
+                    🏆 Rankings
                 </button>
             </div>
         </div>
     </div>
-</div>
+}
 
-@code {
-    private void IrAPreinscripcion()
-    {
-        Navigation.NavigateTo("/preinscripcion");
+<style>
+    .main-container {
+        background-color: #79c9e0;
+        min-height: 100vh;
+        padding: 20px;
     }
 
-    private void IrAEstadoCarrera()
+    .page-title-box {
+        background-color: #efefef;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title-box h1 {
+        font-size: 32px;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .user-info span {
+        font-size: 16px;
+        color: #333;
+    }
+
+    .btn-cerrar-sesion {
+        padding: 10px 20px;
+        background-color: #f44336;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-cerrar-sesion:hover {
+        background-color: #d32f2f;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-box {
+        background-color: #efefef;
+        padding: 40px;
+        border-radius: 15px;
+        max-width: 800px;
+        margin: 0 auto;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-box h2 {
+        text-align: center;
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 40px;
+        border-bottom: 3px solid #79c9e0;
+        padding-bottom: 15px;
+    }
+
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .menu-button {
+        padding: 30px 20px;
+        background-color: #6da571;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-button:hover {
+        background-color: #578a5b;
+        transform: translateY(-5px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .no-autenticado {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background-color: #79c9e0;
+        gap: 20px;
+    }
+
+    .no-autenticado p {
+        font-size: 24px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .no-autenticado button {
+        padding: 15px 30px;
+        background-color: #6da571;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    @@media (max-width: 768px) {
+        .page-title-box {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .user-info {
+            flex-direction: column;
+            width: 100%;
+            text-align: center;
+        }
+
+        .menu-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@code {
+    protected override void OnInitialized()
     {
-        Navigation.NavigateTo("/estado-carrera");
+        // Verificar si hay sesión activa
+        if (!SesionService.EstaAutenticado)
+        {
+            Navigation.NavigateTo("/iniciar_sesion");
+            return;
+        }
+
+        // Suscribirse a cambios de sesión
+        SesionService.OnCambioSesion += StateHasChanged;
+    }
+
+    private void CerrarSesion()
+    {
+        SesionService.CerrarSesion();
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        // Desuscribirse al destruir el componente
+        SesionService.OnCambioSesion -= StateHasChanged;
     }
 }

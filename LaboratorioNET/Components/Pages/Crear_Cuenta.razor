@@ -4,6 +4,7 @@
 @using LaboratorioNET.Services 
 @inject NavigationManager NavigationManager
 @inject FirebaseService FirebaseService
+@inject SesionService SesionService
 
 <PageTitle>Crear Cuenta</PageTitle>
 
@@ -59,7 +60,7 @@
                 <p style="color:@(mensajeError.StartsWith("✅") ? "green" : "red");">@mensajeError</p>
             }
             
-            <button type="button" class="submit-button" @onclick="CrearCuenta" disabled="@estaCargando">
+           <button type="button" class="submit-button" @onclick="CrearCuenta" disabled="@estaCargando">
                 @if (estaCargando)
                 {
                     <span>Guardando...</span>
@@ -69,6 +70,11 @@
                     <span>Crear cuenta</span>
                 }
             </button>
+
+            <!-- NUEVO: Enlace para iniciar sesión -->
+            <div class="login-link">
+                <p>¿Ya tienes una cuenta? <a href="/iniciar_sesion">Iniciar Sesión</a></p>
+            </div>
         </div>
     </div>
 </div>
@@ -140,7 +146,15 @@
             await FirebaseService.Corredores.Document(documentoIdentidad).SetAsync(nuevoCorredor);
             
             mensajeError = $"✅ ¡Cuenta creada con éxito para {nuevoCorredor.Nombre}!";
-            ResetearCampos();
+            
+            // ✅ NUEVO: Iniciar sesión automáticamente
+            SesionService.IniciarSesion(nuevoCorredor.DocumentoIdentidad, nuevoCorredor.Nombre);
+            
+            // Esperar un momento para que se vea el mensaje de éxito
+            await Task.Delay(1500);
+            
+            // ✅ NUEVO: Redirigir al menú del corredor
+            NavigationManager.NavigateTo("/menu-corredor", forceLoad: true);
         }
         catch (Exception ex)
         {

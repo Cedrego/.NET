@@ -12,6 +12,9 @@ builder.Services.Configure<FirebaseSettings>(
     builder.Configuration.GetSection("FirebaseSettings"));
 builder.Services.AddScoped<FirebaseService>();
 
+// Registrar servicio de sesión (Scoped para que sea por usuario)
+builder.Services.AddSingleton<SesionService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
