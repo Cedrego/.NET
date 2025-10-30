@@ -6,22 +6,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-<ItemGroup>
-    <None Update="firebase-credentials.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+  <ItemGroup>
+    <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.11.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FirebaseAdmin" Version="3.0.1" />
-    <PackageReference Include="Google.Cloud.Firestore" Version="3.11.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
-    <PackageReference Include="FirebaseAuthentication.net" Version="4.1.0" />
-    <PackageReference Include="FirebaseDatabase.net" Version="5.0.0" />
-    <PackageReference Include="Google.Cloud.Firestore" Version="3.11.0" />
-    <PackageReference Include="MongoDB.Driver" Version="3.5.0" />
+    <None Update="firebase-credentials.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -8,16 +8,16 @@ namespace LaboratorioNET.Entities
         [FirestoreDocumentId]
         public string? Id { get; set; }
 
-        [FirestoreProperty("documentoIdentidad")]
+        [FirestoreProperty("DocumentoIdentidad")]
         public string DocumentoIdentidad { get; set; } = string.Empty;
 
-        [FirestoreProperty("nombre")]
+        [FirestoreProperty("Nombre")]
         public string Nombre { get; set; } = string.Empty;
 
-        [FirestoreProperty("origen")]
+        [FirestoreProperty("Origen")]
         public string Origen { get; set; } = string.Empty;
 
-        [FirestoreProperty("telefono")]
+        [FirestoreProperty("Telefono")]
         public string Telefono { get; set; } = string.Empty;
     }
 }
