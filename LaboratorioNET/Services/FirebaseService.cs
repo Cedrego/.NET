@@ -15,64 +15,78 @@ namespace LaboratorioNET.Services
         {
             try
             {
-                // Buscar el archivo en múltiples ubicaciones
-                string credentialsPath = settings.Value.ServiceAccountKeyPath;
+                GoogleCredential credential;
                 
-                // Si la ruta no es absoluta, buscar en diferentes ubicaciones
-                if (!Path.IsPathRooted(credentialsPath))
+                // PRIORIDAD 1: Variable de entorno (para CI/CD y producción)
+                string? credentialsJson = Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS_JSON");
+                
+                if (!string.IsNullOrEmpty(credentialsJson))
                 {
-                    // 1. Intentar en el directorio de ejecución
-                    string execPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, credentialsPath);
+                    Console.WriteLine("✅ Usando credenciales desde variable de entorno");
+                    credential = GoogleCredential.FromJson(credentialsJson);
+                }
+                // PRIORIDAD 2: Archivo local (para desarrollo)
+                else if (!string.IsNullOrEmpty(settings.Value.ServiceAccountKeyPath))
+                {
+                    string credentialsPath = settings.Value.ServiceAccountKeyPath;
                     
-                    // 2. Intentar en el directorio actual del proyecto
-                    string currentPath = Path.Combine(Directory.GetCurrentDirectory(), credentialsPath);
-                    
-                    // 3. Intentar subiendo dos niveles desde bin/Debug/net9.0 para llegar a la raíz del proyecto
-                    string projectPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", credentialsPath);
-                    string normalizedProjectPath = Path.GetFullPath(projectPath);
-                    
-                    if (File.Exists(execPath))
+                    // Si la ruta no es absoluta, buscar en diferentes ubicaciones
+                    if (!Path.IsPathRooted(credentialsPath))
                     {
-                        credentialsPath = execPath;
-                        Console.WriteLine($"✅ Credenciales encontradas en: {execPath}");
-                    }
-                    else if (File.Exists(currentPath))
-                    {
-                        credentialsPath = currentPath;
-                        Console.WriteLine($"✅ Credenciales encontradas en: {currentPath}");
-                    }
-                    else if (File.Exists(normalizedProjectPath))
-                    {
-                        credentialsPath = normalizedProjectPath;
-                        Console.WriteLine($"✅ Credenciales encontradas en: {normalizedProjectPath}");
-                    }
-                    else
-                    {
-                        string errorMsg = $"ERROR: No se encontró firebase-credentials.json\n" +
-                            $"Ubicaciones buscadas:\n" +
-                            $"  1. {execPath}\n" +
-                            $"  2. {currentPath}\n" +
-                            $"  3. {normalizedProjectPath}\n\n" +
-                            $"Ruta configurada en appsettings: '{settings.Value.ServiceAccountKeyPath}'\n" +
-                            $"SOLUCIÓN: El archivo debe copiarse al directorio de salida.\n" +
-                            $"Verifica que en el .csproj esté configurado para copiarse.";
+                        // 1. Intentar en el directorio de ejecución
+                        string execPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, credentialsPath);
                         
-                        Console.WriteLine(errorMsg);
-                        Console.WriteLine($"\nDEBUG - BaseDirectory: {AppDomain.CurrentDomain.BaseDirectory}");
-                        Console.WriteLine($"DEBUG - CurrentDirectory: {Directory.GetCurrentDirectory()}");
-                        Console.WriteLine($"DEBUG - credentialsPath original: '{credentialsPath}'");
-                        throw new FileNotFoundException(errorMsg, credentialsPath);
+                        // 2. Intentar en el directorio actual del proyecto
+                        string currentPath = Path.Combine(Directory.GetCurrentDirectory(), credentialsPath);
+                        
+                        // 3. Intentar subiendo niveles desde bin/Debug/net9.0
+                        string projectPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", credentialsPath);
+                        string normalizedProjectPath = Path.GetFullPath(projectPath);
+                        
+                        if (File.Exists(execPath))
+                        {
+                            credentialsPath = execPath;
+                            Console.WriteLine($"✅ Credenciales encontradas en: {execPath}");
+                        }
+                        else if (File.Exists(currentPath))
+                        {
+                            credentialsPath = currentPath;
+                            Console.WriteLine($"✅ Credenciales encontradas en: {currentPath}");
+                        }
+                        else if (File.Exists(normalizedProjectPath))
+                        {
+                            credentialsPath = normalizedProjectPath;
+                            Console.WriteLine($"✅ Credenciales encontradas en: {normalizedProjectPath}");
+                        }
+                        else
+                        {
+                            string errorMsg = $"ERROR: No se encontró firebase-credentials.json\n" +
+                                $"Ubicaciones buscadas:\n" +
+                                $"  1. {execPath}\n" +
+                                $"  2. {currentPath}\n" +
+                                $"  3. {normalizedProjectPath}\n\n" +
+                                $"SOLUCIÓN: Configure variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON o coloque el archivo.";
+                            
+                            Console.WriteLine(errorMsg);
+                            throw new FileNotFoundException(errorMsg, credentialsPath);
+                        }
                     }
-                }
-                else if (!File.Exists(credentialsPath))
-                {
-                    throw new FileNotFoundException($"No se encontró el archivo de credenciales: {credentialsPath}");
-                }
+                    else if (!File.Exists(credentialsPath))
+                    {
+                        throw new FileNotFoundException($"No se encontró el archivo de credenciales: {credentialsPath}");
+                    }
 
-                // Configurar credenciales desde el archivo JSON
-                var credential = GoogleCredential.FromFile(credentialsPath);
+                    credential = GoogleCredential.FromFile(credentialsPath);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        "No se encontraron credenciales de Firebase. Configure:\n" +
+                        "1. Variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON, o\n" +
+                        "2. Archivo firebase-credentials.json en el proyecto");
+                }
                 
-                // Inicializar Firebase Admin solo una vez
+                // Inicializar Firebase Admin
                 if (FirebaseApp.DefaultInstance == null)
                 {
                     FirebaseApp.Create(new AppOptions
@@ -82,10 +96,10 @@ namespace LaboratorioNET.Services
                     });
                 }
 
-                // Crear instancia de Firestore usando las credenciales configuradas
+                // Crear instancia de Firestore usando las credenciales
                 var firestoreClientBuilder = new Google.Cloud.Firestore.V1.FirestoreClientBuilder
                 {
-                    CredentialsPath = credentialsPath
+                    Credential = credential
                 };
                 var firestoreClient = firestoreClientBuilder.Build();
                 _firestoreDb = FirestoreDb.Create(settings.Value.ProjectId, firestoreClient);
@@ -94,7 +108,7 @@ namespace LaboratorioNET.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al inicializar Firebase: {ex.Message}");
+                Console.WriteLine($"❌ Error al inicializar Firebase: {ex.Message}");
                 throw;
             }
         }

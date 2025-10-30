@@ -1,0 +1,150 @@
+﻿@page "/menu-corredor"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+
+<PageTitle>Menu Corredor</PageTitle>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: #2a2a2a;
+    }
+
+    .header {
+        background-color: #2a2a2a;
+        padding: 15px 20px;
+        border-bottom: 2px solid #555;
+    }
+
+        .header h1 {
+            color: #888;
+            font-size: 18px;
+            font-weight: normal;
+            font-family: Arial, sans-serif;
+        }
+
+    .content-area {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background-color: #00CED1;
+    }
+
+    .title-box {
+        background-color: #D3D3D3;
+        border: 3px solid #000;
+        border-radius: 25px;
+        padding: 30px;
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+    }
+
+        .title-box h2 {
+            font-family: 'Courier New', monospace;
+            font-size: 40px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: #000;
+            letter-spacing: 1px;
+        }
+
+    .menu-box {
+        background-color: #D3D3D3;
+        border: 3px solid #000;
+        border-radius: 25px;
+        padding: 50px 40px;
+        width: 100%;
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+        gap: 35px;
+        margin-top: 30px;
+    }
+
+    .menu-button {
+        background-color: #D4C5F9;
+        border: 2px solid #000;
+        border-radius: 20px;
+        padding: 15px 30px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #000;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: Arial, sans-serif;
+    }
+
+        .menu-button:hover {
+            background-color: #C4B5E8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+    @@media (max-width: 600px) {
+        .title-box h2 {
+            font-size: 32px;
+        }
+
+        .menu-box {
+            padding: 40px 30px;
+            gap: 25px;
+        }
+
+        .menu-button {
+            padding: 12px 24px;
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <header class="header">
+        <h1>Menu Corredor</h1>
+    </header>
+
+    <div class="content-area">
+        <div style="width: 100%; max-width: 500px;">
+            <div class="title-box">
+                <h2>SportEvent Manager,</h2>
+            </div>
+
+            <div class="menu-box">
+                <button class="menu-button" @onclick="IrAPreinscripcion">
+                    Preinscribirse a Carrera
+                </button>
+                <button class="menu-button" @onclick="IrAEstadoCarrera">
+                    Estado de Carrera
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private void IrAPreinscripcion()
+    {
+        Navigation.NavigateTo("/preinscripcion");
+    }
+
+    private void IrAEstadoCarrera()
+    {
+        Navigation.NavigateTo("/estado-carrera");
+    }
+}

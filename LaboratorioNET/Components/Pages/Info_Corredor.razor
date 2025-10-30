@@ -37,7 +37,7 @@
                 <div class="info-section">
                     <p><strong>Documento:</strong> @corredorSeleccionado.DocumentoIdentidad</p>
                     <p><strong>Nombre:</strong> @corredorSeleccionado.Nombre</p>
-                    <p><strong>Origen:</strong> @corredorSeleccionado.Origen</p>
+                    <p><strong>Nacionalidad:</strong> @corredorSeleccionado.Nacionalidad</p>
                     <p><strong>Teléfono:</strong> @corredorSeleccionado.Telefono</p>
                 </div>
 
@@ -391,7 +391,7 @@ h3 {
                             NumDorsal = registro.NumDorsal,
                             CantidadTiempos = registro.Tiempos.Count,
                             UltimoTiempo = registro.Tiempos.Any() 
-                                ? registro.Tiempos.Last().ToDateTime().ToString("dd/MM/yyyy HH:mm") 
+                                ? registro.Tiempos.Last().ToDateTime().ToString("dd/MM/yyyy HH:mm:ss") 
                                 : "Sin tiempos",
                             Posicion = 0 // Calcular posición si es necesario
                         };
