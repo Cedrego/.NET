@@ -1,0 +1,413 @@
+﻿@page "/preinscripcion"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject LaboratorioNET.Services.FirebaseService FirebaseService
+
+<PageTitle>Preinscripción</PageTitle>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #2a2a2a;
+    }
+
+    .main-container {
+        min-height: 100vh;
+        background-color: #2a2a2a;
+        padding: 40px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-container {
+        background-color: #D3D3D3;
+        border-radius: 25px;
+        padding: 40px;
+        max-width: 450px;
+        width: 100%;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+        .form-container h2 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        .form-container .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #fff;
+            color: #000;
+            font-family: Arial, sans-serif;
+        }
+
+            .form-group input::placeholder {
+                color: #bbb;
+            }
+
+            .form-group input:focus,
+            .form-group select:focus {
+                outline: none;
+                box-shadow: 0 0 5px rgba(124, 77, 255, 0.3);
+            }
+
+    .btn {
+        width: 100%;
+        padding: 14px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #2a2a2a;
+        color: #fff;
+        margin-top: 25px;
+    }
+
+        .btn:hover {
+            background-color: #1a1a1a;
+        }
+
+        .btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+    .message {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+    }
+
+        .message.success {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .message.error {
+            background-color: #f44336;
+            color: white;
+        }
+
+    @@media (max-width: 600px) {
+        .form-container {
+            padding: 30px 20px;
+        }
+
+            .form-container h2 {
+                font-size: 24px;
+            }
+    }
+</style>
+
+<div class="main-container">
+    <div class="form-container">
+        <h2>Preinscripción</h2>
+        <div class="subtitle">Carreras Disponibles</div>
+
+        <div class="form-group">
+            <label>Carreras Disponibles</label>
+            <select @bind="FormData.IDCarrera">
+                <option value="">Seleccione una carrera</option>
+                @foreach (var carrera in CarrerasDisponibles)
+                {
+                    <option value="@carrera.IdCarrera">@carrera.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Nombre Completo</label>
+            <input type="text" placeholder="Ingrese su nombre completo" @bind="FormData.NombreCompleto" />
+        </div>
+
+        <div class="form-group">
+            <label>Documento de Identidad</label>
+            <input type="text" placeholder="Ingrese su documento" @bind="FormData.IdentifiCorredor" />
+        </div>
+
+        <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" placeholder="Ingrese su teléfono" @bind="FormData.Telefono" />
+        </div>
+
+        <div class="form-group">
+            <label>Location</label>
+            <select @bind="FormData.Ubicacion">
+                <option value="">Seleccione una ubicación</option>
+                @foreach (var ubicacion in Ubicaciones)
+                {
+                    <option value="@ubicacion">@ubicacion</option>
+                }
+            </select>
+        </div>
+
+        <button class="btn" @onclick="SubmitForm" disabled="@IsLoading">
+            @(IsLoading ? "Enviando..." : "Inscribir")
+        </button>
+
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <div class="message @MessageType">
+                @Message
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private PreinscripcionForm FormData = new PreinscripcionForm();
+    private List<CarreraInfo> CarrerasDisponibles = new List<CarreraInfo>();
+    private List<string> Ubicaciones = new List<string>
+    {
+        "Montevideo",
+        "Maldonado",
+        "Punta del Este",
+        "Canelones"
+    };
+    private bool IsLoading = false;
+    private string Message = "";
+    private string MessageType = "";
+
+    private class PreinscripcionForm
+    {
+        public string IDCarrera { get; set; } = "";
+        public string IdentifiCorredor { get; set; } = "";
+        public string NombreCompleto { get; set; } = "";
+        public string Telefono { get; set; } = "";
+        public string Ubicacion { get; set; } = "";
+    }
+
+    private class CarreraInfo
+    {
+        public string IdCarrera { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public int LimiteParticipantes { get; set; }
+        public DateTime FechaInicio { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await CargarCarreras();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error inicializando: {ex.Message}");
+            Message = "Error al cargar las carreras disponibles";
+            MessageType = "error";
+        }
+    }
+
+    private async Task CargarCarreras()
+    {
+        try
+        {
+            var snapshot = await FirebaseService.Carreras.GetSnapshotAsync();
+
+            CarrerasDisponibles.Clear();
+            foreach (var document in snapshot.Documents)
+            {
+                var data = document.ToDictionary();
+
+                // Filtrar solo carreras que están en período de inscripción
+                var fechaInicioInsc = document.GetValue<DateTime>("FechaInicioIsnc");
+                var fechaInicio = document.GetValue<DateTime>("FechaInicio");
+
+                if (DateTime.Now >= fechaInicioInsc && DateTime.Now < fechaInicio)
+                {
+                    CarrerasDisponibles.Add(new CarreraInfo
+                    {
+                        IdCarrera = document.Id,
+                        Nombre = document.GetValue<string>("Nombre"),
+                        LimiteParticipantes = document.GetValue<int>("LimiteParticipantes"),
+                        FechaInicio = fechaInicio
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando carreras: {ex.Message}");
+        }
+    }
+
+    private async Task SubmitForm()
+    {
+        // Validaciones
+        if (string.IsNullOrWhiteSpace(FormData.IDCarrera))
+        {
+            Message = "Por favor seleccione una carrera";
+            MessageType = "error";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FormData.NombreCompleto))
+        {
+            Message = "Por favor ingrese su nombre completo";
+            MessageType = "error";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FormData.IdentifiCorredor))
+        {
+            Message = "Por favor ingrese su documento";
+            MessageType = "error";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FormData.Telefono))
+        {
+            Message = "Por favor ingrese su teléfono";
+            MessageType = "error";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FormData.Ubicacion))
+        {
+            Message = "Por favor seleccione una ubicación";
+            MessageType = "error";
+            return;
+        }
+
+        IsLoading = true;
+        Message = "";
+
+        try
+        {
+            // Verificar que el corredor no esté ya registrado en esta carrera
+            var registrosQuery = await FirebaseService.Registros
+                .WhereEqualTo("IDCarrera", FormData.IDCarrera)
+                .WhereEqualTo("IdentifiCorredor", FormData.IdentifiCorredor)
+                .GetSnapshotAsync();
+
+            if (registrosQuery.Documents.Count > 0)
+            {
+                Message = "Ya está inscrito en esta carrera";
+                MessageType = "error";
+                IsLoading = false;
+                return;
+            }
+
+            // Verificar límite de participantes
+            var carreraSnapshot = await FirebaseService.Carreras.Document(FormData.IDCarrera).GetSnapshotAsync();
+            var limiteParticipantes = carreraSnapshot.GetValue<int>("LimiteParticipantes");
+
+            var registrosCarreraQuery = await FirebaseService.Registros
+                .WhereEqualTo("IDCarrera", FormData.IDCarrera)
+                .GetSnapshotAsync();
+
+            if (registrosCarreraQuery.Documents.Count >= limiteParticipantes)
+            {
+                Message = "Lo sentimos, esta carrera ya alcanzó el límite de participantes";
+                MessageType = "error";
+                IsLoading = false;
+                return;
+            }
+
+            // Generar número de dorsal aleatorio único
+            string numDorsal = await GenerarNumDorsalUnico(FormData.IDCarrera);
+
+            // Guardar corredor si no existe
+            var corredorQuery = await FirebaseService.Corredores
+                .WhereEqualTo("Documento", FormData.IdentifiCorredor)
+                .GetSnapshotAsync();
+
+            if (corredorQuery.Documents.Count == 0)
+            {
+                await FirebaseService.Corredores.AddAsync(new Dictionary<string, object>
+                {
+                    { "Nombre", FormData.NombreCompleto },
+                    { "Documento", FormData.IdentifiCorredor },
+                    { "Telefono", FormData.Telefono },
+                    { "Ubicacion", FormData.Ubicacion }
+                });
+            }
+
+            // Crear registro de inscripción
+            await FirebaseService.Registros.AddAsync(new Dictionary<string, object>
+            {
+                { "IDCarrera", FormData.IDCarrera },
+                { "IdentifiCorredor", FormData.IdentifiCorredor },
+                { "NumDorsal", numDorsal },
+                { "Tiempos", new Dictionary<string, object>() }
+            });
+
+            Message = $"¡Preinscripción exitosa! Su número de dorsal es: {numDorsal}";
+            MessageType = "success";
+
+            // Limpiar formulario después de 3 segundos
+            await Task.Delay(3000);
+            FormData = new PreinscripcionForm();
+            Message = "";
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error guardando: {ex.Message}");
+            Message = "Error al guardar la preinscripción. Intente nuevamente.";
+            MessageType = "error";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task<string> GenerarNumDorsalUnico(string idCarrera)
+    {
+        Random random = new Random();
+        string numDorsal;
+        bool existe;
+
+        do
+        {
+            // Generar número aleatorio de 4 dígitos
+            numDorsal = random.Next(1000, 9999).ToString();
+
+            // Verificar si ya existe este dorsal para esta carrera
+            var query = await FirebaseService.Registros
+                .WhereEqualTo("IDCarrera", idCarrera)
+                .WhereEqualTo("NumDorsal", numDorsal)
+                .GetSnapshotAsync();
+
+            existe = query.Documents.Count > 0;
+        } while (existe);
+
+        return numDorsal;
+    }
+}

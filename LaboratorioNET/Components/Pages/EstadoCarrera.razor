@@ -1,0 +1,391 @@
+﻿@page "/estado-carrera"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject LaboratorioNET.Services.FirebaseService FirebaseService
+
+<PageTitle>Estado de la Carrera</PageTitle>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #2a2a2a;
+    }
+
+    .main-container {
+        min-height: 100vh;
+        background-color: #2a2a2a;
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .info-text {
+        color: #fff;
+        font-size: 13px;
+        text-align: center;
+        margin-bottom: 40px;
+        max-width: 700px;
+        line-height: 1.6;
+        font-family: Arial, sans-serif;
+    }
+
+    .forms-wrapper {
+        display: flex;
+        gap: 30px;
+        max-width: 1000px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .form-container {
+        background-color: #D3D3D3;
+        border-radius: 25px;
+        padding: 35px;
+        width: 100%;
+        max-width: 320px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+        .form-container h2 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            color: #000;
+        }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 10px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #fff;
+            color: #000;
+            font-family: Arial, sans-serif;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+            .form-group input::placeholder,
+            .form-group textarea::placeholder {
+                color: #bbb;
+            }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                box-shadow: 0 0 5px rgba(124, 77, 255, 0.3);
+            }
+
+    .btn {
+        width: 100%;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #2a2a2a;
+        color: #fff;
+        margin-top: 20px;
+    }
+
+        .btn:hover {
+            background-color: #1a1a1a;
+        }
+
+        .btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+    .message {
+        margin-top: 15px;
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+        .message.success {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .message.error {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .message.info {
+            background-color: #2196F3;
+            color: white;
+        }
+
+    @@media (max-width: 800px) {
+        .forms-wrapper {
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-container {
+            max-width: 100%;
+        }
+
+        .info-text {
+            margin-bottom: 25px;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .form-container {
+            padding: 25px 20px;
+        }
+
+            .form-container h2 {
+                font-size: 20px;
+            }
+
+        .info-text {
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="info-text">
+        El corredor ingresará su documento de Identidad o número de dorsal y se le mostrará el estado de la carrera en la que esta inscripto mas próxima
+    </div>
+
+    <div class="forms-wrapper">
+        <!-- Panel Izquierdo: Corredor -->
+        <div class="form-container">
+            <h2>Corredor</h2>
+
+            <div class="form-group">
+                <label>Documento de Identidad/Nº Dorsal</label>
+                <input type="text" placeholder="Ingrese documento o dorsal" @bind="BusquedaInput" />
+            </div>
+
+            <button class="btn" @onclick="BuscarCorredor" disabled="@IsSearching">
+                @(IsSearching ? "Buscando..." : "Buscar Carreras inscritas")
+            </button>
+
+            @if (!string.IsNullOrEmpty(SearchMessage))
+            {
+                <div class="message @SearchMessageType">
+                    @SearchMessage
+                </div>
+            }
+        </div>
+
+        <!-- Panel Derecho: Estado de la Carrera -->
+        <div class="form-container">
+            <h2>Estado de la Carrera</h2>
+
+            <div class="form-group">
+                <label>Carreras Inscripto</label>
+                <select @bind="CarreraSeleccionada" @bind:after="CargarDetallesCarrera">
+                    <option value="">Seleccione una carrera</option>
+                    @foreach (var carrera in CarrerasInscrito)
+                    {
+                        <option value="@carrera.IdCarrera">@carrera.NombreCarrera (Dorsal: @carrera.NumDorsal)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha y hora de inicio</label>
+                <input type="text" placeholder="Fecha de inicio" @bind="DetalleCarrera.FechaInicio" readonly />
+            </div>
+
+            <div class="form-group">
+                <label>Lugar de salida</label>
+                <input type="text" placeholder="Lugar de salida" @bind="DetalleCarrera.LugarSalida" readonly />
+            </div>
+
+            <div class="form-group">
+                <label>Número de Dorsal</label>
+                <input type="text" placeholder="Número de dorsal" @bind="DetalleCarrera.NumDorsal" readonly />
+            </div>
+
+            <button class="btn" @onclick="IrAlMenu">
+                Volver
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string BusquedaInput = "";
+    private string CarreraSeleccionada = "";
+    private List<CarreraInscrita> CarrerasInscrito = new List<CarreraInscrita>();
+    private DetalleCarreraInfo DetalleCarrera = new DetalleCarreraInfo();
+    private bool IsSearching = false;
+    private string SearchMessage = "";
+    private string SearchMessageType = "";
+
+    private class CarreraInscrita
+    {
+        public string IdCarrera { get; set; } = "";
+        public string NombreCarrera { get; set; } = "";
+        public string NumDorsal { get; set; } = "";
+        public string IdentifiCorredor { get; set; } = "";
+    }
+
+    private class DetalleCarreraInfo
+    {
+        public string FechaInicio { get; set; } = "";
+        public string LugarSalida { get; set; } = "";
+        public string NumDorsal { get; set; } = "";
+    }
+
+    private async Task BuscarCorredor()
+    {
+        if (string.IsNullOrWhiteSpace(BusquedaInput))
+        {
+            SearchMessage = "Por favor ingrese un documento o número de dorsal";
+            SearchMessageType = "error";
+            return;
+        }
+
+        IsSearching = true;
+        SearchMessage = "";
+        CarrerasInscrito.Clear();
+        DetalleCarrera = new DetalleCarreraInfo();
+        CarreraSeleccionada = "";
+
+        try
+        {
+            // Buscar por documento o dorsal
+            var registrosPorDocumento = await FirebaseService.Registros
+                .WhereEqualTo("IdentifiCorredor", BusquedaInput)
+                .GetSnapshotAsync();
+
+            var registrosPorDorsal = await FirebaseService.Registros
+                .WhereEqualTo("NumDorsal", BusquedaInput)
+                .GetSnapshotAsync();
+
+            // Combinar resultados
+            var registros = registrosPorDocumento.Documents
+                .Concat(registrosPorDorsal.Documents)
+                .DistinctBy(d => d.Id)
+                .ToList();
+
+            if (!registros.Any())
+            {
+                SearchMessage = "No se encontraron registros con ese documento o dorsal";
+                SearchMessageType = "error";
+                return;
+            }
+
+            // Obtener detalles de cada carrera
+            foreach (var registro in registros)
+            {
+                var idCarrera = registro.GetValue<string>("IDCarrera");
+                var carreraDoc = await FirebaseService.Carreras.Document(idCarrera).GetSnapshotAsync();
+
+                if (carreraDoc.Exists)
+                {
+                    CarrerasInscrito.Add(new CarreraInscrita
+                    {
+                        IdCarrera = idCarrera,
+                        NombreCarrera = carreraDoc.GetValue<string>("Nombre"),
+                        NumDorsal = registro.GetValue<string>("NumDorsal"),
+                        IdentifiCorredor = registro.GetValue<string>("IdentifiCorredor")
+                    });
+                }
+            }
+
+            if (CarrerasInscrito.Any())
+            {
+                SearchMessage = $"Se encontraron {CarrerasInscrito.Count} carrera(s)";
+                SearchMessageType = "success";
+
+                // Seleccionar automáticamente la primera carrera
+                if (CarrerasInscrito.Count == 1)
+                {
+                    CarreraSeleccionada = CarrerasInscrito[0].IdCarrera;
+                    await CargarDetallesCarrera();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error buscando corredor: {ex.Message}");
+            SearchMessage = "Error al buscar. Intente nuevamente.";
+            SearchMessageType = "error";
+        }
+        finally
+        {
+            IsSearching = false;
+        }
+    }
+
+    private async Task CargarDetallesCarrera()
+    {
+        if (string.IsNullOrWhiteSpace(CarreraSeleccionada))
+        {
+            DetalleCarrera = new DetalleCarreraInfo();
+            return;
+        }
+
+        try
+        {
+            var carreraDoc = await FirebaseService.Carreras.Document(CarreraSeleccionada).GetSnapshotAsync();
+
+            if (carreraDoc.Exists)
+            {
+                var fechaInicio = carreraDoc.GetValue<DateTime>("FechaInicio");
+                var lugarSalida = carreraDoc.GetValue<string>("LugarSalida");
+
+                // Obtener el número de dorsal de la carrera seleccionada
+                var carreraInscrita = CarrerasInscrito.FirstOrDefault(c => c.IdCarrera == CarreraSeleccionada);
+
+                DetalleCarrera = new DetalleCarreraInfo
+                {
+                    FechaInicio = fechaInicio.ToString("dd/MM/yyyy HH:mm"),
+                    LugarSalida = lugarSalida,
+                    NumDorsal = carreraInscrita?.NumDorsal ?? ""
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando detalles: {ex.Message}");
+        }
+    }
+
+    private void IrAlMenu()
+    {
+        Navigation.NavigateTo("/menu-corredor");
+    }
+}
