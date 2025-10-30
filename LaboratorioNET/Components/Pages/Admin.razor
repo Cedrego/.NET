@@ -1,5 +1,8 @@
 ﻿@page "/admin"
 
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
 <style>
     .submit-button {
         position: relative;
@@ -23,9 +26,10 @@
     <div class="menu-box">
         <h2>ADMIN</h2>
 
-        <div class="form-container">
-            <button type="button" @onclick="CrearCarrera">Crear Carrera</button>
-            <br><br><br>
+        <div class="button-group">
+            <button class="menu-button secondary" @onclick="NavigateToCrearCarrera">
+                Crear carreras
+            </button>
             <button type="button" @onclick="InfoCorredores">Información de Corredores</button>
             <br><br><br>
         </div>
@@ -33,9 +37,11 @@
 </div>
 
 @code {
-    private async Task CrearCarrera(){
-        
+    private void NavigateToCrearCarrera()
+    {
+        Navigation.NavigateTo("/crear_carrera");
     }
+
 
     private async Task InfoCorredores(){
         

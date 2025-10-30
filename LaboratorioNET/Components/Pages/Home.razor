@@ -19,20 +19,24 @@
         <div class="button-group">
             <!-- Botones principales (color lila/púrpura claro) -->
             <button class="menu-button primary" @onclick="NavigateToInfoCorredores">
-                Informacion de corredores
+                Informacion de corredor
             </button>
             <button class="menu-button primary" @onclick="NavigateToInfoCarrera">
-                Informacion de la carrera
+                Informacion de los corredores
+            </button>
+            <button class="menu-button primary" @onclick="NavigateToInfoCarreras">
+                Informacion de carreras
             </button>
             <button class="menu-button primary" @onclick="NavigateToIngresoCorredor">
                 Ingresar como Corredor
             </button>
             
             <!-- Botón gris (inactivo o secundario) -->
-            <button class="menu-button secondary" @onclick="NavigateToCrearCarrera">
+            <button class="menu-button secondary" @onclick="NavigateToCrearCuenta">
                 Crear Cuenta
             </button>
             
+
             <!-- Botón de Administrador (color verde) -->
             <button class="menu-button admin" @onclick="NavigateToAdmin">
                 Opciones Admin
@@ -53,15 +57,21 @@
         Navigation.NavigateTo("/info_corredores");
     }
 
+        private void NavigateToCrearCuenta()
+    {
+        Navigation.NavigateTo("/crear_cuenta");
+    }
+
+ private void NavigateToInfoCarreras()
+    {
+        Navigation.NavigateTo("/info_carreras");
+    }
+    
     private void NavigateToIngresoCorredor()
     {
         Navigation.NavigateTo("/crear_cuenta");
     }
 
-    private void NavigateToCrearCarrera()
-    {
-        Navigation.NavigateTo("/crear_carrera");
-    }
 
     private void NavigateToAdmin()
     {

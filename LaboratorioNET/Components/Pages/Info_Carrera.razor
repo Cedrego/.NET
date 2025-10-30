@@ -1,0 +1,328 @@
+@page "/info_carreras"
+@rendermode InteractiveServer
+
+@using LaboratorioNET.Entities
+@using LaboratorioNET.Services
+@inject FirebaseService FirebaseService
+@inject NavigationManager Navigation
+
+<PageTitle>Información Carreras</PageTitle>
+
+<style>
+    /* Estilos adaptados de Info_Corredores.razor y tu snippet */
+    .page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f0f0f0;
+    }
+
+    /* Caja blanca redondeada con los dos paneles */
+    .container-box {
+        display: flex;
+        background-color: #efefef; /* Color base para el fondo del contenido */
+        border: 2px solid #79c9e0;
+        border-radius: 20px;
+        width: 95%;
+        max-width: 1200px;
+        height: 90vh;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Sidebar izquierda */
+    .sidebar {
+        background-color: #79c9e0; /* Color diferente para la barra lateral */
+        border-right: 2px solid #79c9e0;
+        border-radius: 20px 0 0 20px;
+        width: 25%;
+        min-width: 220px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    /* Panel principal */
+    .content {
+        flex: 1;
+        background-color: #efefef;
+        border-radius: 0 20px 20px 0;
+        padding: 40px;
+        overflow-y: auto;
+    }
+
+    /* Título principal */
+    .title {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+    }
+    
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .info-table th, .info-table td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .info-table th {
+        background-color: #e0e0e0;
+    }
+</style>
+
+<div class="page">
+    <div class="container-box">
+        <aside class="sidebar">
+            <h2>SportEvent<br />Manager,</h2>
+        </aside>
+
+        <main class="content">
+            <button @onclick="NavigateToHome" class="btn btn-secondary mb-4" style="display:flex; align-items:center;">
+                <span class="oi oi-arrow-left" aria-hidden="true" style="margin-right: 5px;"></span>
+                Volver
+            </button>
+
+            <h1 class="title">Información de Carrera</h1>
+
+            <div class="info-section">
+                <p><strong>Seleccionar Carrera:</strong></p>
+                <select @bind="selectedCarreraId" @bind:after="OnCarreraSelected" class="form-control">
+                    <option value="">-- Seleccione una Carrera --</option>
+                    @if (carreras != null)
+                    {
+                        @foreach (var carrera in carreras)
+                        {
+                            <option value="@carrera.Id">@carrera.Nombre</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            @if (selectedCarrera != null)
+            {
+                <h3 class="mt-4">@selectedCarrera.Nombre</h3>
+                <p><strong>Fecha Inicio:</strong> @selectedCarrera.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Lugar:</strong> @selectedCarrera.LugarSalida</p>
+
+                <h4 class="mt-4">Corredores Registrados:</h4>
+                <table class="info-table">
+                    <thead>
+                        <tr>
+                            <th>Dorsal</th>
+                            <th>Corredor</th>
+                            <th>Tiempos Registrados</th>
+                            <th>Tiempo Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (corredorRegistros.Any())
+                        {
+                            @foreach (var registro in corredorRegistros)
+                            {
+                                <tr>
+                                    <td>@registro.NumDorsal</td>
+                                    <td>@GetCorredorNombre(registro.IdentifiCorredor)</td>
+                                    @* Uso del método corregido: FormatTiempos *@
+                                    <td>@FormatTiempos(registro.Tiempos)</td> 
+                                    <td>@FormatTiempoTotal(registro.Tiempos)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="4" class="text-center">No hay corredores registrados para esta carrera.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger mt-4">@errorMessage</div>
+            }
+
+        </main>
+    </div>
+</div>
+
+@code {
+    // =================================================================
+    // PROPIEDADES
+    // =================================================================
+    private IEnumerable<Carrera> carreras = new List<Carrera>();
+    private string selectedCarreraId = string.Empty;
+    private Carrera? selectedCarrera;
+    private IEnumerable<Registro> corredorRegistros = new List<Registro>();
+    private Dictionary<string, Corredor> corredoresMap = new Dictionary<string, Corredor>();
+    private string errorMessage = string.Empty;
+    private bool isLoading = true;
+    private bool isCorredoresLoading = true;
+
+    // =================================================================
+    // MÉTODOS DE INICIALIZACIÓN Y CARGA DE DATOS
+    // =================================================================
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCarrerasAsync();
+    }
+
+    private async Task LoadCarrerasAsync()
+    {
+        try
+        {
+            isLoading = true;
+            // Carga todas las carreras de Firestore
+            carreras = await FirebaseService.Carreras.GetSnapshotAsync().ContinueWith(task =>
+                task.Result.Documents.Select(doc => doc.ConvertTo<Carrera>())
+            );
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar carreras: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void NavigateToHome()
+    {
+        // Asumiendo que su página de inicio es la ruta base "/"
+        Navigation.NavigateTo("/");
+    }
+    
+    private async Task OnCarreraSelected()
+    {
+        errorMessage = string.Empty;
+        selectedCarrera = null;
+        corredorRegistros = new List<Registro>();
+        corredoresMap.Clear();
+
+        if (string.IsNullOrEmpty(selectedCarreraId))
+        {
+            StateHasChanged();
+            return;
+        }
+
+        // 1. Cargar la información de la carrera seleccionada
+        selectedCarrera = carreras.FirstOrDefault(c => c.Id == selectedCarreraId);
+
+        if (selectedCarrera != null)
+        {
+            await LoadCorredoresYRegistrosAsync();
+        }
+        StateHasChanged();
+    }
+
+    private async Task LoadCorredoresYRegistrosAsync()
+    {
+        try
+        {
+            isCorredoresLoading = true;
+            
+            // 2. Cargar registros (Tiempos) para la carrera seleccionada
+            // Filtrar la colección 'registros' por el campo 'IDCarrera'
+            var query = FirebaseService.Registros.WhereEqualTo("IDCarrera", selectedCarreraId);
+            
+            corredorRegistros = await query.GetSnapshotAsync().ContinueWith(task =>
+                task.Result.Documents.Select(doc => doc.ConvertTo<Registro>())
+            );
+
+            // 3. Cargar información de corredores (solo los IDs que están en los registros)
+            var corredorIds = corredorRegistros.Select(r => r.IdentifiCorredor).Distinct().ToList();
+            
+            if (corredorIds.Any())
+            {
+                 // Carga por ID para cada corredor.
+                foreach (var id in corredorIds)
+                {
+                    var corredorDoc = await FirebaseService.Corredores.Document(id).GetSnapshotAsync();
+                    if (corredorDoc.Exists)
+                    {
+                        var corredor = corredorDoc.ConvertTo<Corredor>();
+                        corredoresMap[id] = corredor;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar corredores: {ex.Message}";
+            Console.WriteLine(ex.ToString());
+        }
+        finally
+        {
+            isCorredoresLoading = false;
+        }
+    }
+
+
+    // =================================================================
+    // MÉTODOS AUXILIARES
+    // =================================================================
+
+    private string GetCorredorNombre(string idCorredor)
+    {
+        return corredoresMap.ContainsKey(idCorredor) ? corredoresMap[idCorredor].Nombre : idCorredor;
+    }
+
+    /// <summary>
+    /// Convierte la lista de Timestamp a una cadena legible de tiempos de sección.
+    /// </summary>
+    // **LÍNEA 164 CORREGIDA**: Esta firma soluciona los errores CS0305, CS0119 y CS0103.
+    private string FormatTiempos(List<Google.Cloud.Firestore.Timestamp> tiempos)
+    {
+        if (tiempos == null || !tiempos.Any())
+        {
+            return "N/A";
+        }
+
+        var startTime = selectedCarrera?.FechaInicio.ToLocalTime();
+        if (startTime == null) return "Error: Sin inicio";
+
+        var formattedTimes = new List<string>();
+        
+        // Recalcular el tiempo transcurrido respecto a la hora de inicio (startTime)
+        for (int i = 0; i < tiempos.Count; i++)
+        {
+            // Convertir Timestamp a DateTime y luego a la hora local del servidor
+            var timeValue = tiempos[i].ToDateTime().ToLocalTime();
+            var elapsed = timeValue - startTime.Value;
+            
+            // Formatear: S[i+1]: HH:mm:ss.ff
+            formattedTimes.Add($"S{i + 1}: {elapsed.Hours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}.{elapsed.Milliseconds:D3}");
+        }
+
+        return string.Join(" | ", formattedTimes);
+    }
+
+    /// <summary>
+    /// Calcula el tiempo total del corredor.
+    /// </summary>
+    private string FormatTiempoTotal(List<Google.Cloud.Firestore.Timestamp> tiempos)
+    {
+        if (tiempos == null || !tiempos.Any())
+        {
+            return "N/A";
+        }
+
+        var startTime = selectedCarrera?.FechaInicio.ToLocalTime();
+        if (startTime == null) return "Error: Sin inicio";
+
+        // El tiempo total es la diferencia entre el ÚLTIMO tiempo registrado y la hora de inicio.
+        var finalTime = tiempos.Last().ToDateTime().ToLocalTime();
+        var totalElapsed = finalTime - startTime.Value;
+
+        // Formato total: HH:mm:ss.ff
+        return $"{totalElapsed.Hours:D2}:{totalElapsed.Minutes:D2}:{totalElapsed.Seconds:D2}.{totalElapsed.Milliseconds:D3}";
+    }
+}

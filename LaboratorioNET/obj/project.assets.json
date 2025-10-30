@@ -1837,31 +1837,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\camin\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\cedre\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\.NET-main\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "projectUniqueName": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
       "projectName": "LaboratorioNET",
-      "projectPath": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\.NET-main\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
-      "packagesPath": "C:\\Users\\camin\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\camin\\OneDrive\\Escritorio\\UTEC\\.NET-main\\.NET\\LaboratorioNET\\obj\\",
+      "projectPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "packagesPath": "C:\\Users\\cedre\\.nuget\\packages\\",
+      "outputPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\camin\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\cedre\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
