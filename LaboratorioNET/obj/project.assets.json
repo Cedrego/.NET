@@ -1837,22 +1837,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Franco\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\cedre\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Franco\\Source\\Repos\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "projectUniqueName": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
       "projectName": "LaboratorioNET",
-      "projectPath": "C:\\Users\\Franco\\Source\\Repos\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
-      "packagesPath": "C:\\Users\\Franco\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Franco\\Source\\Repos\\.NET\\LaboratorioNET\\obj\\",
+      "projectPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "packagesPath": "C:\\Users\\cedre\\.nuget\\packages\\",
+      "outputPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Franco\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\cedre\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"

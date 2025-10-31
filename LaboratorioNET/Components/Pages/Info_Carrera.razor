@@ -110,7 +110,7 @@
             @if (selectedCarrera != null)
             {
                 <h3 class="mt-4">@selectedCarrera.Nombre</h3>
-                <p><strong>Fecha Inicio:</strong> @selectedCarrera.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Fecha Inicio:</strong> @selectedCarrera.FechaInicio.ToDateTime().ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
                 <p><strong>Lugar:</strong> @selectedCarrera.LugarSalida</p>
 
                 <h4 class="mt-4">Corredores Registrados:</h4>
@@ -286,7 +286,7 @@
             return "N/A";
         }
 
-        var startTime = selectedCarrera?.FechaInicio.ToLocalTime();
+        var startTime = selectedCarrera?.FechaInicio.ToDateTime().ToLocalTime();
         if (startTime == null) return "Error: Sin inicio";
 
         var formattedTimes = new List<string>();
@@ -315,7 +315,7 @@
             return "N/A";
         }
 
-        var startTime = selectedCarrera?.FechaInicio.ToLocalTime();
+        var startTime = selectedCarrera?.FechaInicio.ToDateTime().ToLocalTime();
         if (startTime == null) return "Error: Sin inicio";
 
         // El tiempo total es la diferencia entre el ÚLTIMO tiempo registrado y la hora de inicio.
