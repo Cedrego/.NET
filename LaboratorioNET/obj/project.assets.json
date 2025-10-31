@@ -1837,19 +1837,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\cedre\\.nuget\\packages\\": {}
+    "C:\\Users\\User\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "projectUniqueName": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
       "projectName": "LaboratorioNET",
-      "projectPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
-      "packagesPath": "C:\\Users\\cedre\\.nuget\\packages\\",
-      "outputPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\obj\\",
+      "projectPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\cedre\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -1919,7 +1919,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

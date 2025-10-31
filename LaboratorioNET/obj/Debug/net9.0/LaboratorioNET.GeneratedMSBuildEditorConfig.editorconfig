@@ -9,93 +9,93 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = LaboratorioNET
 build_property.RootNamespace = LaboratorioNET
-build_property.ProjectDir = D:\Descargas v2.0\.NET\LaboratorioNET\
+build_property.ProjectDir = C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = D:\Descargas v2.0\.NET\LaboratorioNET
+build_property.MSBuildProjectDirectory = C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/App.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/App.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Admin.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Admin.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Counter.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb3VudGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Crear_Carrera.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Crear_Carrera.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDcmVhcl9DYXJyZXJhLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Crear_Cuenta.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Crear_Cuenta.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDcmVhcl9DdWVudGEucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Error.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Error.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFcnJvci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/EstadoCarrera.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/EstadoCarrera.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFc3RhZG9DYXJyZXJhLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Home.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Info_Carrera.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Info_Carrera.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmZvX0NhcnJlcmEucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Info_Corredor.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Info_Corredor.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmZvX0NvcnJlZG9yLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Info_Corredores.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Info_Corredores.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmZvX0NvcnJlZG9yZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Iniciar_sesion.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Iniciar_sesion.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmljaWFyX3Nlc2lvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/MenuCorredor.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/MenuCorredor.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xNZW51Q29ycmVkb3IucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Preinscripcion.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Preinscripcion.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcmVpbnNjcmlwY2lvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Ranking.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Ranking.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSYW5raW5nLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Pages/Weather.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Weather.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xXZWF0aGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Routes.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Routes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/_Imports.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Layout/MainLayout.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Layout/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTWFpbkxheW91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-lpx88ztdvc
 
-[D:/Descargas v2.0/.NET/LaboratorioNET/Components/Layout/NavMenu.razor]
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Layout/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-2kw9se22xi
