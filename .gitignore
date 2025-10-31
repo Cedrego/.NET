@@ -13,3 +13,5 @@
 firebase-credentials.json
 **/firebase-credentials.json
 *-firebase-adminsdk-*.json
+appsettings.Development.json
+firebase-credentials.json
