@@ -4,7 +4,7 @@
 @using LaboratorioNET.Services 
 @inject NavigationManager NavigationManager
 @inject FirebaseService FirebaseService
-
+@using Google.Cloud.Firestore
 
 <style>
     /* Estilos base */
@@ -142,18 +142,18 @@
         StateHasChanged(); // Muestra "Guardando..."
 
         // === 2. Mapeo a la Entidad Carrera ===
-        // ⭐️ Usamos .Value de forma segura después de la comprobación de null ⭐️
         var nuevaCarrera = new Carrera
         {
-            IdCarrera = 0, 
+            IdCarrera = Guid.NewGuid().ToString(), // Genera un ID único
             Nombre = nombre,
             LugarSalida = lugar,
             
-            // Mapeo a las propiedades ACTUALIZADAS de Carrera.cs
-            FechaInicio = fechaCarrera.Value.ToUniversalTime(), 
-            FechaInicioInsc = fechaInicioInsc.Value.ToUniversalTime(),
+            // Convertir DateTime a Timestamp de Firestore
+            FechaInicio = Timestamp.FromDateTime(fechaCarrera.Value.ToUniversalTime()),
+            FechaInicioInsc = Timestamp.FromDateTime(fechaInicioInsc.Value.ToUniversalTime()),
+            
             LimiteParticipantes = limiteParticipantes.Value,
-            CantSecciones = cantSecciones.Value
+            CantSecciones = (int)cantSecciones.Value // Conversión explícita de double a int
         };
 
         // === 3. Lógica para guardar en Firebase ===
