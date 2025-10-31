@@ -1,5 +1,15 @@
-# Firebase Credentials - NEVER COMMIT
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Firebase
 firebase-credentials.json
 **/firebase-credentials.json
-LaboratorioNET/firebase-credentials.json
 *-firebase-adminsdk-*.json
