@@ -5,29 +5,31 @@ namespace LaboratorioNET.Entities
     [FirestoreData]
     public class Carrera
     {
-        [FirestoreDocumentId]
+        [FirestoreProperty("id")]
         public string? Id { get; set; }
-        
-        [FirestoreProperty("IdCarrera")]
-        public int IdCarrera { get; set; }
 
-        [FirestoreProperty("Nombre")]
+        [FirestoreProperty("idCarrera")]
+        public string IdCarrera { get; set; } = string.Empty;
+
+        [FirestoreProperty("nombre")]
         public string Nombre { get; set; } = string.Empty;
-        
-        [FirestoreProperty("FechaInicio")]
-        public DateTime FechaInicio { get; set; }
 
-        [FirestoreProperty("LugarSalida")]
+        [FirestoreProperty("fechaInicio")]
+        public Timestamp FechaInicio { get; set; }
+
+        [FirestoreProperty("lugarSalida")]
         public string LugarSalida { get; set; } = string.Empty;
- 
-        [FirestoreProperty("FechaInicioInsc")]
-        public DateTime FechaInicioInsc { get; set; }
 
-        [FirestoreProperty("LimiteParticipantes")]
+        [FirestoreProperty("fechaInicioInsc")]
+        public Timestamp FechaInicioInsc { get; set; }
+
+        [FirestoreProperty("limiteParticipantes")]
         public int LimiteParticipantes { get; set; }
 
-        [FirestoreProperty("CantSecciones")]
-        public double CantSecciones { get; set; }
+        [FirestoreProperty("cantSecciones")]
+        public int CantSecciones { get; set; }
 
+        [FirestoreProperty("tipo")]
+        public string Tipo { get; set; } = string.Empty;
     }
 }

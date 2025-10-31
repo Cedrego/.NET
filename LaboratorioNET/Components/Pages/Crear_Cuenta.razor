@@ -4,22 +4,24 @@
 @using LaboratorioNET.Services 
 @inject NavigationManager NavigationManager
 @inject FirebaseService FirebaseService
+@inject SesionService SesionService
 
 <PageTitle>Crear Cuenta</PageTitle>
 
-<!-- Contenedor principal -->
 <div class="main-container">
 
-    <!-- Encabezado -->
     <header class="page-title-box">
         <h1>SportEvent Manager</h1>
     </header>
 
-    <!-- Caja central -->
     <div class="menu-box">
         <h2>Crear Cuenta</h2>
 
         <div class="form-container">
+
+            <!-- Documento de Identidad -->
+            <p><strong>Documento de Identidad:</strong></p>
+            <InputText @bind-Value="documentoIdentidad" class="form-input" />
 
             <!-- Nombre -->
             <p><strong>Nombre completo:</strong></p>
@@ -33,6 +35,10 @@
             <p><strong>Contraseña:</strong></p>
             <InputText @bind-Value="contrasena" class="form-input" type="password" />
 
+            <!-- Teléfono -->
+            <p><strong>Teléfono:</strong></p>
+            <InputText @bind-Value="telefono" class="form-input" />
+
             <!-- Fecha de nacimiento -->
             <p><strong>Fecha de nacimiento:</strong></p>
             <InputDate @bind-Value="fechaNacimiento" class="form-input" />
@@ -40,23 +46,35 @@
             <!-- Nacionalidad -->
             <p><strong>Nacionalidad:</strong></p>
             <InputSelect @bind-Value="nacionalidad" class="form-input">
+                <option value="">Seleccione...</option>
                 @foreach (var pais in paises)
                 {
                     <option value="@pais">@pais</option>
                 }
             </InputSelect>
 
-            <!-- Cédula -->
-            <p><strong>Cédula:</strong></p>
-            <InputText @bind-Value="documentoIdentidad" class="form-input" />
-
-            <!-- Botón -->
             <br><br>
+            
             @if (!string.IsNullOrEmpty(mensajeError))
             {
-                <p style="color:red;">@mensajeError</p>
+                <p style="color:@(mensajeError.StartsWith("✅") ? "green" : "red");">@mensajeError</p>
             }
-            <button type="button" class="submit-button" @onclick="CrearCuenta">Crear cuenta</button>
+            
+           <button type="button" class="submit-button" @onclick="CrearCuenta" disabled="@estaCargando">
+                @if (estaCargando)
+                {
+                    <span>Guardando...</span>
+                }
+                else
+                {
+                    <span>Crear cuenta</span>
+                }
+            </button>
+
+            <!-- NUEVO: Enlace para iniciar sesión -->
+            <div class="login-link">
+                <p>¿Ya tienes una cuenta? <a href="/iniciar_sesion">Iniciar Sesión</a></p>
+            </div>
         </div>
     </div>
 </div>
@@ -67,6 +85,7 @@
     private string nombre = string.Empty;
     private string correo = string.Empty;
     private string contrasena = string.Empty;
+    private string telefono = string.Empty;
     private DateTime? fechaNacimiento = null;
     private string nacionalidad = string.Empty;
 
@@ -91,10 +110,12 @@
             mensajeError = "El campo Correo está vacío.";
         else if (string.IsNullOrWhiteSpace(contrasena))
             mensajeError = "El campo Contraseña está vacío.";
+        else if (string.IsNullOrWhiteSpace(telefono))
+            mensajeError = "El campo Teléfono está vacío.";
         else if (fechaNacimiento == null)
             mensajeError = "Debe ingresar una Fecha de Nacimiento.";
         else if (string.IsNullOrWhiteSpace(nacionalidad))
-            mensajeError = "Debe ingresar una Nacionalidad.";
+            mensajeError = "Debe seleccionar una Nacionalidad.";
 
         if (!string.IsNullOrWhiteSpace(mensajeError))
         {
@@ -109,19 +130,31 @@
         var nuevoCorredor = new Corredor
         {
             DocumentoIdentidad = documentoIdentidad,
+            Nacionalidad = nacionalidad,
+            FechaNacimiento = fechaNacimiento.Value.ToString("yyyy-MM-dd"),
             Nombre = nombre,
-            Correo = correo,
             Contraseña = contrasena,
-            FechaNacimiento = fechaNacimiento?.ToString("yyyy-MM-dd") ?? "",
-            Nacionalidad = nacionalidad
+            Telefono = telefono,
+            Correo = correo,
+            Registros = new List<string>()
         };
 
         // === 3. Guardar en Firebase ===
         try
         {
-            await FirebaseService.Corredores.AddAsync(nuevoCorredor);
+            // Usar el DocumentoIdentidad como ID del documento
+            await FirebaseService.Corredores.Document(documentoIdentidad).SetAsync(nuevoCorredor);
+            
             mensajeError = $"✅ ¡Cuenta creada con éxito para {nuevoCorredor.Nombre}!";
-            ResetearCampos();
+            
+            // ✅ NUEVO: Iniciar sesión automáticamente
+            SesionService.IniciarSesion(nuevoCorredor.DocumentoIdentidad, nuevoCorredor.Nombre);
+            
+            // Esperar un momento para que se vea el mensaje de éxito
+            await Task.Delay(1500);
+            
+            // ✅ NUEVO: Redirigir al menú del corredor
+            NavigationManager.NavigateTo("/menu-corredor", forceLoad: true);
         }
         catch (Exception ex)
         {
@@ -139,6 +172,7 @@
         nombre = string.Empty;
         correo = string.Empty;
         contrasena = string.Empty;
+        telefono = string.Empty;
         fechaNacimiento = null;
         nacionalidad = string.Empty;
     }

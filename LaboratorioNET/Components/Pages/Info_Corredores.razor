@@ -1,6 +1,8 @@
 @page "/info_corredores"
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
+@inject LaboratorioNET.Services.FirebaseService FirebaseService
+@using LaboratorioNET.Entities
 
 <PageTitle>Información Corredores</PageTitle>
 
@@ -11,37 +13,72 @@
         </aside>
 
         <main class="content">
-            <h1 class="title">Información del Corredores</h1>
+            <h1 class="title">Información de Corredores</h1>
 
-            <div class="info-section">
-                <p><strong>Título:</strong></p>
-                <select class="combo-carrera">
-                    <option value="">Nombre de la carrera</option>
-                </select>
-                <p><strong>Nacionalidad:</strong></p>
-                <select class="combo-carrera">
-                    <option value="">Nacionalidad</option>
-                </select>
-                <p><strong>Edad:</strong></p>
-                <select class="combo-carrera">
-                    <option value="">Edad</option>
-                </select>
-            </div>
+            @if (isLoading)
+            {
+                <div class="loading-container">
+                    <p>Cargando datos...</p>
+                </div>
+            }
+            else
+            {
+                <div class="info-section">
+                    <p><strong>Carrera:</strong></p>
+                    <select class="combo-carrera" @onchange="OnCarreraChange">
+                        <option value="">Todas las carreras</option>
+                        @foreach (var carrera in carreras)
+                        {
+                            <option value="@carrera.IdCarrera">@carrera.Nombre</option>
+                        }
+                    </select>
 
-            <h3>Corredores:</h3>
-            <table class="info-table">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Edad</th>
-                        <th>Fecha de Nacimiento</th>
-                        <th>Nacionalidad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="5">&nbsp;</td></tr>
-                </tbody>
-            </table>
+                    <p><strong>Origen:</strong></p>
+                    <select class="combo-carrera" @onchange="OnOrigenChange">
+                        <option value="">Todos los orígenes</option>
+                        @foreach (var origen in origenes)
+                        {
+                            <option value="@origen">@origen</option>
+                        }
+                    </select>
+
+                    <button class="btn-filtrar" @onclick="AplicarFiltros">Aplicar Filtros</button>
+                    <button class="btn-limpiar" @onclick="LimpiarFiltros">Limpiar Filtros</button>
+                </div>
+
+                <h3>Corredores: (@corredoresFiltrados.Count)</h3>
+                
+                @if (corredoresFiltrados.Any())
+                {
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Documento</th>
+                                <th>Nombre</th>
+                                <th>Origen</th>
+                                <th>Teléfono</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var corredor in corredoresFiltrados)
+                            {
+                                <tr>
+                                    <td>@corredor.DocumentoIdentidad</td>
+                                    <td>@corredor.Nombre</td>
+                                    <td>@corredor.Nacionalidad</td>
+                                    <td>@corredor.Telefono</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="no-data">
+                        <p>No se encontraron corredores con los filtros seleccionados.</p>
+                    </div>
+                }
+            }
         </main>
     </div>
 </div>
@@ -51,20 +88,19 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    background-color: #79c9e0; /* fondo celeste general */
+    background-color: #79c9e0;
 }
 
-/* Contenedor general centrado */
 .page {
     background-color: #79c9e0;
     background: #79c9e0;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    padding: 20px 0;
 }
 
-/* Caja blanca redondeada con los dos paneles */
 .container-box {
     display: flex;
     background-color: #79c9e0;
@@ -72,15 +108,14 @@ html, body {
     border: 2px solid #79c9e0;
     border-radius: 20px;
     width: 95%;
-    height: 90vh;
+    min-height: 90vh;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
-/* Sidebar izquierda */
 .sidebar {
     background-color: #efefef;
     border-right: 2px solid #79c9e0;
-    border-radius: 20px 20px 20px 20px;
+    border-radius: 20px 0 0 20px;
     width: 25%;
     min-width: 220px;
     text-align: center;
@@ -91,52 +126,234 @@ html, body {
     font-weight: bold;
 }
 
-/* Panel principal */
 .content {
     flex: 1;
     background-color: #efefef;
-    border-radius: 20px 20px 20px 20px;
+    border-radius: 0 20px 20px 0;
     padding: 40px;
     overflow-y: auto;
 }
 
-/* Título principal */
 .title {
     text-align: center;
     font-weight: bold;
-    border-bottom: 1px solid #000;
+    border-bottom: 2px solid #000;
     margin-bottom: 25px;
+    padding-bottom: 10px;
     font-size: 24px;
 }
 
-/* Datos del corredor */
-.info-section p {
-    margin: 4px 0;
-    font-size: 15px;
+.info-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Subtítulos */
+.info-section p {
+    margin: 8px 0 4px 0;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.combo-carrera {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    border: 1px solid #999;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+.combo-carrera:focus {
+    outline: none;
+    border-color: #79c9e0;
+    box-shadow: 0 0 5px rgba(121, 201, 224, 0.5);
+}
+
+.btn-filtrar, .btn-limpiar {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-filtrar {
+    background-color: #6da571;
+    color: white;
+}
+
+.btn-filtrar:hover {
+    background-color: #578a5b;
+}
+
+.btn-limpiar {
+    background-color: #999;
+    color: white;
+}
+
+.btn-limpiar:hover {
+    background-color: #777;
+}
+
 h3 {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     margin-top: 25px;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
+    color: #333;
 }
 
-/* Tablas */
 .info-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 25px;
-    background-color: #d5d2f3;
+    background-color: #fff;
     border: 1px solid #999;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-table thead {
+    background-color: #d5d2f3;
 }
 
 .info-table th,
 .info-table td {
     border: 1px solid #999;
-    padding: 6px;
+    padding: 12px 8px;
     text-align: center;
     font-size: 14px;
 }
+
+.info-table th {
+    font-weight: bold;
+    color: #333;
+}
+
+.info-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.info-table tbody tr:hover {
+    background-color: #e8e8e8;
+}
+
+.loading-container {
+    text-align: center;
+    padding: 50px;
+    font-size: 18px;
+    color: #666;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.no-data p {
+    color: #666;
+    font-size: 16px;
+}
 </style>
+
+@code {
+    private bool isLoading = true;
+    private List<Corredor> todosCorredores = new();
+    private List<Corredor> corredoresFiltrados = new();
+    private List<Carrera> carreras = new();
+    private List<string> origenes = new();
+
+    // Filtros seleccionados
+    private string? carreraSeleccionada = null;
+    private string? origenSeleccionado = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            // Cargar todos los datos en paralelo
+            var tareaCorredores = FirebaseService.ObtenerTodosCorredoresAsync();
+            var tareaCarreras = FirebaseService.ObtenerTodasCarrerasAsync();
+            var tareaOrigenes = FirebaseService.ObtenerOrigenesUnicosAsync();
+
+            await Task.WhenAll(tareaCorredores, tareaCarreras, tareaOrigenes);
+
+            todosCorredores = await tareaCorredores;
+            carreras = await tareaCarreras;
+            origenes = await tareaOrigenes;
+
+            // Mostrar todos los corredores inicialmente
+            corredoresFiltrados = todosCorredores;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al cargar datos: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnCarreraChange(ChangeEventArgs e)
+    {
+        carreraSeleccionada = string.IsNullOrWhiteSpace(e.Value?.ToString()) ? null : e.Value.ToString();
+    }
+
+    private void OnOrigenChange(ChangeEventArgs e)
+    {
+        origenSeleccionado = string.IsNullOrWhiteSpace(e.Value?.ToString()) ? null : e.Value.ToString();
+    }
+
+    private async Task AplicarFiltros()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            corredoresFiltrados = await FirebaseService.ObtenerCorredoresFiltradosAsync(
+                carreraSeleccionada,
+                origenSeleccionado
+            );
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al aplicar filtros: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LimpiarFiltros()
+    {
+        carreraSeleccionada = null;
+        origenSeleccionado = null;
+        
+        corredoresFiltrados = todosCorredores;
+        StateHasChanged();
+    }
+}

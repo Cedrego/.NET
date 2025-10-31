@@ -1,0 +1,326 @@
+@page "/iniciar_sesion"
+@rendermode InteractiveServer
+@using LaboratorioNET.Services
+@using LaboratorioNET.Entities
+@inject NavigationManager Navigation
+@inject FirebaseService FirebaseService
+@inject SesionService SesionService
+
+<PageTitle>Iniciar Sesión</PageTitle>
+
+<div class="main-container">
+    <header class="page-title-box">
+        <h1>SportEvent Manager</h1>
+    </header>
+
+    <div class="login-box">
+        <h2>Iniciar Sesión</h2>
+
+        <div class="form-container">
+            <!-- Documento de Identidad -->
+            <div class="form-group">
+                <label><strong>Documento de Identidad:</strong></label>
+                <InputText @bind-Value="documentoIdentidad" 
+                           class="form-input" 
+                           placeholder="Ingrese su documento" />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="form-group">
+                <label><strong>Contraseña:</strong></label>
+                <InputText @bind-Value="contrasena" 
+                           type="password" 
+                           class="form-input" 
+                           placeholder="Ingrese su contraseña" />
+            </div>
+
+            <!-- Mensaje de error -->
+            @if (!string.IsNullOrEmpty(mensajeError))
+            {
+                <div class="error-message">
+                    <p>@mensajeError</p>
+                </div>
+            }
+
+            <!-- Botones -->
+            <div class="button-container">
+                <!-- En lugar de @onclick="IniciarSesion" -->
+               <button type="button" 
+                    class="btn-primary" 
+                    @onclick="IniciarSesion" 
+                    disabled="@estaCargando">
+                    @if (estaCargando)
+                    {
+                        <span>Verificando...</span>
+                    }
+                    else
+                    {
+                        <span>Iniciar Sesión</span>
+                    }
+                </button>
+
+                <button type="button" 
+                        class="btn-secondary" 
+                        @onclick='() => Navigation.NavigateTo("/crear_cuenta")'>
+                    Crear Cuenta
+                </button>
+            </div>
+
+            <div class="footer-links">
+                <a href="/">Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        height: 100%;
+        font-family: Arial, sans-serif;
+    }
+
+    .main-container {
+        background-color: #79c9e0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .page-title-box {
+        background-color: #efefef;
+        width: 100%;
+        max-width: 1200px;
+        padding: 20px;
+        text-align: center;
+        border-radius: 15px 15px 0 0;
+        border-bottom: 3px solid #79c9e0;
+    }
+
+    .page-title-box h1 {
+        font-size: 32px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .login-box {
+        background-color: #efefef;
+        width: 100%;
+        max-width: 450px;
+        margin-top: 40px;
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .login-box h2 {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #79c9e0;
+        padding-bottom: 10px;
+    }
+
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        color: #333;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #79c9e0;
+        box-shadow: 0 0 5px rgba(121, 201, 224, 0.5);
+    }
+
+    .error-message {
+        background-color: #ffebee;
+        border-left: 4px solid #f44336;
+        padding: 12px;
+        border-radius: 5px;
+    }
+
+    .error-message p {
+        color: #c62828;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #6da571;
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background-color: #578a5b;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary {
+        background-color: #79c9e0;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5ab0ca;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .footer-links {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .footer-links a {
+        color: #79c9e0;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+        color: #5ab0ca;
+        text-decoration: underline;
+    }
+
+    @@media (max-width: 600px) {
+        .login-box {
+            padding: 30px 20px;
+        }
+
+        .page-title-box h1 {
+            font-size: 24px;
+        }
+
+        .login-box h2 {
+            font-size: 20px;
+        }
+    }
+</style>
+
+@code {
+    private string documentoIdentidad = string.Empty;
+    private string contrasena = string.Empty;
+    private string mensajeError = string.Empty;
+    private bool estaCargando = false;
+
+    private async Task IniciarSesionYNavegar()
+    {
+        await IniciarSesion();
+    }
+
+    private async Task IniciarSesion()
+    {
+        mensajeError = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(documentoIdentidad))
+        {
+            mensajeError = "Por favor ingrese su documento de identidad.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(contrasena))
+        {
+            mensajeError = "Por favor ingrese su contraseña.";
+            return;
+        }
+
+        estaCargando = true;
+        StateHasChanged();
+
+        try
+        {
+            var corredorDoc = await FirebaseService.Corredores
+                .Document(documentoIdentidad.Trim())
+                .GetSnapshotAsync();
+
+            if (!corredorDoc.Exists)
+            {
+                mensajeError = "Usuario no encontrado. Verifique su documento de identidad.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            var corredor = corredorDoc.ConvertTo<Corredor>();
+
+            if (corredor.Contraseña != contrasena)
+            {
+                mensajeError = "Contraseña incorrecta.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // ✅ Login exitoso
+            SesionService.IniciarSesion(corredor.DocumentoIdentidad, corredor.Nombre);
+            
+            // ✅ Forzar actualización del estado
+            StateHasChanged();
+            
+            // ✅ Navegar
+            Navigation.NavigateTo("/menu-corredor", forceLoad: false);
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error al iniciar sesión: {ex.Message}";
+            Console.WriteLine($"❌ Error: {ex}");
+            estaCargando = false;
+            StateHasChanged();
+        }
+    }
+}
