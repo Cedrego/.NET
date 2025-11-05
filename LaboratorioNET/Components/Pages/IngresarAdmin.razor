@@ -1,0 +1,112 @@
+﻿@page "/ingresar_admin"
+@rendermode InteractiveServer
+@using LaboratorioNET.Services
+@using LaboratorioNET.Entities
+@inject NavigationManager Navigation
+@inject FirebaseService FirebaseService
+@inject SesionService SesionService
+
+<PageTitle>Admin</PageTitle>
+
+<style>
+    .input-text {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    .menu-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
+        padding: 40px;
+        border-radius: 10px;
+        width: 300px;
+        margin: 100px auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .menu-button:hover {
+        background-color: #0056b3;
+    }
+
+    .error-message {
+        color: red;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="menu-box">
+    <h2>ADMIN</h2>
+
+    <!-- Campo de contraseña -->
+    <input type="password" @bind="adminPassword" placeholder="Ingrese contraseña" class="input-text" />
+
+    <!-- Botón -->
+    <button class="menu-button" @onclick="VerificarAdmin">Ingresar</button>
+
+    <p class="error-message">@mensajeError</p>
+</div>
+
+@code {
+    private string adminPassword = string.Empty;
+    private string mensajeError = string.Empty;
+    private bool estaCargando = false;
+
+    private async Task VerificarAdmin()
+    {
+        mensajeError = string.Empty;
+        estaCargando = true;
+        StateHasChanged();
+
+        try
+        {
+            // 🔹 Accede a la colección "admin"
+            var adminSnapshot = await FirebaseService.Admin
+                .WhereEqualTo("contrasena", adminPassword) // 👈 minúscula como en Firestore
+                .Limit(1)
+                .GetSnapshotAsync();
+
+            if (adminSnapshot.Documents.Count == 0)
+            {
+                mensajeError = "❌ Contraseña incorrecta.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // ✅ Si encontró al admin, obtiene su documento
+            var adminDoc = adminSnapshot.Documents.First().ConvertTo<Admin>();
+
+            // Inicia sesión opcional
+            SesionService.IniciarSesion(adminDoc.IDAdmin, "Administrador");
+
+            // ✅ Redirige
+            Navigation.NavigateTo("/crear_carrera", forceLoad: false);
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"❌ Error al iniciar sesión: {ex.Message}";
+            Console.WriteLine($"[ERROR FIREBASE ADMIN]: {ex}");
+        }
+
+        estaCargando = false;
+        StateHasChanged();
+    }
+}
