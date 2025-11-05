@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using LaboratorioNET.Services
 @using LaboratorioNET.Entities
+
 @inject NavigationManager Navigation
 @inject FirebaseService FirebaseService
 @inject SesionService SesionService
@@ -78,11 +79,12 @@
         try
         {
             // 🔹 Accede a la colección "admin"
-            var adminSnapshot = await FirebaseService.Admin
-                .WhereEqualTo("contrasena", adminPassword) // 👈 minúscula como en Firestore
+            var adminSnapshot = await FirebaseService.Admins
+                .WhereEqualTo("Contraseña", adminPassword)
                 .Limit(1)
                 .GetSnapshotAsync();
 
+            // 🔸 Si no hay coincidencias, contraseña incorrecta
             if (adminSnapshot.Documents.Count == 0)
             {
                 mensajeError = "❌ Contraseña incorrecta.";
@@ -91,14 +93,22 @@
                 return;
             }
 
-            // ✅ Si encontró al admin, obtiene su documento
-            var adminDoc = adminSnapshot.Documents.First().ConvertTo<Admin>();
+            // Convertimos el documento a un objeto Admin
+            LaboratorioNET.Entities.Admin? adminDoc = adminSnapshot.Documents.First().ConvertTo<LaboratorioNET.Entities.Admin>();
 
-            // Inicia sesión opcional
+            // Comprobación y comparación usando la propiedad con la C mayúscula
+            if (adminDoc == null || string.IsNullOrEmpty(adminDoc.Contrasena) || adminDoc.Contrasena != adminPassword)
+            {
+                mensajeError = "❌ Contraseña incorrecta.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // Login válido
             SesionService.IniciarSesion(adminDoc.IDAdmin, "Administrador");
+            Navigation.NavigateTo("/admin", forceLoad: false);
 
-            // ✅ Redirige
-            Navigation.NavigateTo("/crear_carrera", forceLoad: false);
         }
         catch (Exception ex)
         {

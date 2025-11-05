@@ -1,17 +1,18 @@
 using Google.Cloud.Firestore;
 
 namespace LaboratorioNET.Entities
-{  
+{
     [FirestoreData]
     public class Admin
     {
         [FirestoreDocumentId]
         public string? Id { get; set; }
 
-        [FirestoreProperty("contrasena")]
+        // 👇 usa exactamente el nombre del campo que aparece en Firestore
+        [FirestoreProperty("Contraseña")]
         public string Contrasena { get; set; } = string.Empty;
 
-        [FirestoreProperty("idAdmin")]
+        [FirestoreProperty("IDAdmin")]
         public string IDAdmin { get; set; } = string.Empty;
     }
 }
