@@ -84,6 +84,7 @@
                 .Limit(1)
                 .GetSnapshotAsync();
 
+            // 🔸 Si no hay coincidencias, contraseña incorrecta
             if (adminSnapshot.Documents.Count == 0)
             {
                 mensajeError = "❌ Contraseña incorrecta.";
@@ -99,8 +100,6 @@
             // Inicia sesión usando el ID del documento directamente
             SesionService.IniciarSesion(doc.Id, "Administrador");
 
-            // ✅ Redirige
-            Navigation.NavigateTo("/crear_carrera", forceLoad: false);
         }
         catch (Exception ex)
         {
