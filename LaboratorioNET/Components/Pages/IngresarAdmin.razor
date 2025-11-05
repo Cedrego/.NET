@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using LaboratorioNET.Services
 @using LaboratorioNET.Entities
+@using Google.Cloud.Firestore
 @inject NavigationManager Navigation
 @inject FirebaseService FirebaseService
 @inject SesionService SesionService
@@ -78,7 +79,7 @@
         try
         {
             // 🔹 Accede a la colección "admin"
-            var adminSnapshot = await FirebaseService.Admin
+            var adminSnapshot = await FirebaseService.Admins
                 .WhereEqualTo("contrasena", adminPassword) // 👈 minúscula como en Firestore
                 .Limit(1)
                 .GetSnapshotAsync();
@@ -92,10 +93,11 @@
             }
 
             // ✅ Si encontró al admin, obtiene su documento
-            var adminDoc = adminSnapshot.Documents.First().ConvertTo<Admin>();
+            var doc = adminSnapshot.Documents.First();
+            var adminDoc = doc.ConvertTo<Admin>();
 
-            // Inicia sesión opcional
-            SesionService.IniciarSesion(adminDoc.IDAdmin, "Administrador");
+            // Inicia sesión usando el ID del documento directamente
+            SesionService.IniciarSesion(doc.Id, "Administrador");
 
             // ✅ Redirige
             Navigation.NavigateTo("/crear_carrera", forceLoad: false);

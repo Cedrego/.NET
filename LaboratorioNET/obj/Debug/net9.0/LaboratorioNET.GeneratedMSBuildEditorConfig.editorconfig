@@ -64,6 +64,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmZvX0NvcnJlZG9yZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/IngresarAdmin.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmdyZXNhckFkbWluLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/User/Desktop/.NET/proyecto/.NET/LaboratorioNET/Components/Pages/Iniciar_sesion.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmljaWFyX3Nlc2lvbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

@@ -16,9 +16,9 @@
 
             <!-- Búsqueda de corredor -->
             <div class="search-section">
-                <p><strong>Buscar por Documento de Identidad:</strong></p>
+                <p><strong>Buscar por Nombre de Corredor:</strong></p>
                 <div class="search-container">
-                    <InputText @bind-Value="documentoBusqueda" class="search-input" placeholder="Ej: 54099803" />
+                    <InputText @bind-Value="nombreBusqueda" class="search-input" placeholder="Ej: Enzo Brun" />
                     <button class="btn-buscar" @onclick="BuscarCorredor" disabled="@isLoading">
                         @(isLoading ? "Buscando..." : "Buscar")
                     </button>
@@ -35,10 +35,10 @@
             @if (corredorSeleccionado != null)
             {
                 <div class="info-section">
-                    <p><strong>Documento:</strong> @corredorSeleccionado.DocumentoIdentidad</p>
+                    <!-- <p><strong>Documento:</strong> @corredorSeleccionado.DocumentoIdentidad</p>  -->
                     <p><strong>Nombre:</strong> @corredorSeleccionado.Nombre</p>
                     <p><strong>Nacionalidad:</strong> @corredorSeleccionado.Nacionalidad</p>
-                    <p><strong>Teléfono:</strong> @corredorSeleccionado.Telefono</p>
+                    <!-- <p><strong>Teléfono:</strong> @corredorSeleccionado.Telefono</p> -->
                 </div>
 
                 <h3>Tiempos de carreras actuales:</h3>
@@ -107,7 +107,7 @@
                     </div>
                 }
             }
-            else if (!string.IsNullOrEmpty(documentoBusqueda) && !isLoading)
+            else if (!string.IsNullOrEmpty(nombreBusqueda) && !isLoading)
             {
                 <div class="info-message">
                     <p>Ingrese un documento de identidad y presione "Buscar".</p>
@@ -328,7 +328,7 @@ h3 {
 </style>
 
 @code {
-    private string documentoBusqueda = "";
+    private string nombreBusqueda = "";
     private bool isLoading = false;
     private string? mensajeError = null;
     
@@ -348,9 +348,9 @@ h3 {
 
     private async Task BuscarCorredor()
     {
-        if (string.IsNullOrWhiteSpace(documentoBusqueda))
+        if (string.IsNullOrWhiteSpace(nombreBusqueda))
         {
-            mensajeError = "Por favor ingrese un documento de identidad.";
+            mensajeError = "Por favor ingrese un Nombre de Corredor.";
             return;
         }
 
@@ -364,11 +364,11 @@ h3 {
         try
         {
             // Buscar corredor
-            corredorSeleccionado = await FirebaseService.ObtenerCorredorPorDocumentoAsync(documentoBusqueda.Trim());
+            corredorSeleccionado = await FirebaseService.ObtenerCorredorPorNombreAsync(nombreBusqueda.Trim());
 
             if (corredorSeleccionado == null)
             {
-                mensajeError = "No se encontró ningún corredor con ese documento de identidad.";
+                mensajeError = "No se encontró ningún corredor con ese Nombre.";
                 return;
             }
 

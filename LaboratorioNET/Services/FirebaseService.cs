@@ -23,39 +23,53 @@ namespace LaboratorioNET.Services
                 if (!string.IsNullOrEmpty(credentialsJson))
                 {
                     Console.WriteLine("✅ Usando credenciales desde variable de entorno");
-                    credential = GoogleCredential.FromJson(credentialsJson);
+                    try
+                    {
+                        credential = GoogleCredential.FromJson(credentialsJson)
+                            .CreateScoped(
+                                "https://www.googleapis.com/auth/cloud-platform",
+                                "https://www.googleapis.com/auth/datastore",
+                                "https://www.googleapis.com/auth/firebase"
+                            );
+                        Console.WriteLine("✅ Credenciales cargadas y configuradas correctamente desde variable de entorno");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Error al cargar credenciales desde variable de entorno: {ex.Message}");
+                        throw;
+                    }
                 }
                 // PRIORIDAD 2: Archivo local (para desarrollo)
                 else if (!string.IsNullOrEmpty(settings.Value.ServiceAccountKeyPath))
                 {
-                    string credentialsPath = settings.Value.ServiceAccountKeyPath;
+                    string finalCredentialsPath = settings.Value.ServiceAccountKeyPath; // Cambiamos el nombre
                     
                     // Si la ruta no es absoluta, buscar en diferentes ubicaciones
-                    if (!Path.IsPathRooted(credentialsPath))
+                    if (!Path.IsPathRooted(finalCredentialsPath))
                     {
                         // 1. Intentar en el directorio de ejecución
-                        string execPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, credentialsPath);
+                        string execPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, finalCredentialsPath);
                         
                         // 2. Intentar en el directorio actual del proyecto
-                        string currentPath = Path.Combine(Directory.GetCurrentDirectory(), credentialsPath);
+                        string currentPath = Path.Combine(Directory.GetCurrentDirectory(), finalCredentialsPath);
                         
                         // 3. Intentar subiendo niveles desde bin/Debug/net9.0
-                        string projectPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", credentialsPath);
+                        string projectPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", finalCredentialsPath);
                         string normalizedProjectPath = Path.GetFullPath(projectPath);
                         
                         if (File.Exists(execPath))
                         {
-                            credentialsPath = execPath;
+                            finalCredentialsPath = execPath;
                             Console.WriteLine($"✅ Credenciales encontradas en: {execPath}");
                         }
                         else if (File.Exists(currentPath))
                         {
-                            credentialsPath = currentPath;
+                            finalCredentialsPath = currentPath;
                             Console.WriteLine($"✅ Credenciales encontradas en: {currentPath}");
                         }
                         else if (File.Exists(normalizedProjectPath))
                         {
-                            credentialsPath = normalizedProjectPath;
+                            finalCredentialsPath = normalizedProjectPath;
                             Console.WriteLine($"✅ Credenciales encontradas en: {normalizedProjectPath}");
                         }
                         else
@@ -68,15 +82,33 @@ namespace LaboratorioNET.Services
                                 $"SOLUCIÓN: Configure variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON o coloque el archivo.";
                             
                             Console.WriteLine(errorMsg);
-                            throw new FileNotFoundException(errorMsg, credentialsPath);
+                            throw new FileNotFoundException(errorMsg, finalCredentialsPath);
                         }
                     }
-                    else if (!File.Exists(credentialsPath))
+                    else if (!File.Exists(finalCredentialsPath))
                     {
-                        throw new FileNotFoundException($"No se encontró el archivo de credenciales: {credentialsPath}");
+                        throw new FileNotFoundException($"No se encontró el archivo de credenciales: {finalCredentialsPath}");
                     }
 
-                    credential = GoogleCredential.FromFile(credentialsPath);
+                    try 
+                    {
+                        Console.WriteLine($"✅ Usando archivo de credenciales: {finalCredentialsPath}");
+                        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", finalCredentialsPath);
+                        
+                        // Usar autenticación por defecto
+                        credential = GoogleCredential.GetApplicationDefault()
+                            .CreateScoped(
+                                "https://www.googleapis.com/auth/cloud-platform",
+                                "https://www.googleapis.com/auth/datastore",
+                                "https://www.googleapis.com/auth/firebase"
+                            );
+                        Console.WriteLine("✅ Credenciales configuradas correctamente");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"❌ Error al configurar credenciales: {ex.Message}");
+                        throw;
+                    }
                 }
                 else
                 {
@@ -155,7 +187,36 @@ namespace LaboratorioNET.Services
                 return null;
             }
         }
+        public async Task<Corredor?> ObtenerCorredorPorNombreAsync(string NombreIdentidad)
+                {
+                    try
+                    {
+                        Console.WriteLine($"Buscando corredor con nombre: '{NombreIdentidad}'");
+                        var snapshot = await Corredores
+                            .WhereEqualTo("nombre", NombreIdentidad)
+                            .Limit(1)
+                            .GetSnapshotAsync();
 
+                        var encontrados = snapshot.Documents.Count;
+                        Console.WriteLine($"Documentos encontrados: {encontrados}");
+                        
+                        if (encontrados == 0)
+                        {
+                            Console.WriteLine("No se encontraron corredores con ese nombre");
+                            return null;
+                        }
+
+                        var corredor = snapshot.Documents.First().ConvertTo<Corredor>();
+                        Console.WriteLine($"Corredor encontrado: {corredor.Nombre}");
+                        return corredor;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error al obtener corredor: {ex.Message}");
+                        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                        return null;
+                    }
+                }
         public async Task<List<Corredor>> ObtenerCorredoresFiltradosAsync(string? carreraId = null, string? origen = null)
         {
             try
