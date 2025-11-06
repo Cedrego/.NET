@@ -1,10 +1,190 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: #79c9e0;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
 }
 
-a, .btn-link {
-    color: #006bb7;
+body {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+.background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('images/2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 0;
+}
+
+.main-container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.page-title-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px 40px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid #8b95e9;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.page-title-box h1 {
+    margin: 0;
+    color: #333;
+    font-size: 2.8em;
+    font-family: "Times New Roman", Times, serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menu-box, .content-box, .login-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.menu-box h2, .content-box h2, .login-box h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    font-family: "Times New Roman", Times, serif;
+}
+
+/* Estilos para formularios */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+    background-color: white;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #8b95e9;
+    box-shadow: 0 0 5px rgba(139, 149, 233, 0.5);
+}
+
+.error-message {
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+    padding: 12px;
+    border-radius: 5px;
+}
+
+.error-message p {
+    color: #c62828;
+    margin: 0;
+    font-size: 14px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-primary, .btn-secondary {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(145deg, #6a75ca, #8b95e9);
+    color: white;
+}
+
+.btn-secondary {
+    background: linear-gradient(145deg, #4caf50, #45a049);
+    color: white;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.footer-links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.footer-links a {
+    color: #8b95e9;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: #6a75ca;
+    text-decoration: underline;
 }
 
 
@@ -59,89 +239,4 @@ h1:focus {
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
-}
-/* Limpia el margen y define el fondo azul para el contenedor principal */
-.main-container {
-    background-color: #72f0ff; /* Azul claro/cian */
-    min-height: 100vh; /* Ocupa toda la altura de la ventana */
-    width: 100%;
-    display: flex;
-    flex-direction: column; /* Coloca los hijos verticalmente */
-    align-items: center; /* Centra horizontalmente el menú */
-    padding-top: 20px; /* Pequeño espacio superior */
-}
-
-.page-title-box {
-    width: 90%; 
-    max-width: 600px; 
-    margin-bottom: 30px; /* Separa el título del menú */
-    padding: 10px 20px;
-    
-    background-color: white;
-    border-radius: 10px; 
-    border: 1px solid #000000; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.page-title-box h1 {
-    font-size: 2em; 
-    margin: 0;
-    font-family: 'Times New Roman', serif; 
-}
-
-.menu-box {
-    width: 90%;
-    max-width: 350px; 
-    background-color: #d1d1d1; /* Gris claro */
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
-    text-align: center;
-}
-
-.menu-box h2 {
-    font-size: 1.5em;
-    margin-top: 0;
-    margin-bottom: 20px;
-}
-
-.button-group {
-    display: flex;
-    flex-direction: column; 
-    gap: 15px; 
-}
-
-.menu-button {
-    padding: 12px 15px;
-    border: none;
-    border-radius: 10px; 
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
-    width: 100%; /* Asegura que todos los botones tengan el mismo ancho */
-}
-
-/* Botones Principales (Lila/Púrpura claro) */
-.menu-button.primary {
-    background-color: #e6e0f8; 
-    color: #333;
-}
-
-/* Botón Secundario (Gris) */
-.menu-button.secondary {
-    background-color: #b3b3b3; 
-    color: #555;
-}
-
-/* Botón de Administración (Verde) */
-.menu-button.admin {
-    background-color: #6da571; 
-    color: white;
-    font-weight: bold;
-    border: 2px solid #578a5b; 
-}
-
-.menu-button:hover {
-    opacity: 0.9;
 }

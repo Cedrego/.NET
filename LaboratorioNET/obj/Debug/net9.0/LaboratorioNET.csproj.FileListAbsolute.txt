@@ -514,7 +514,7 @@ C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\scopedc
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\scopedcss\Components\Layout\NavMenu.razor.rz.scp.css
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\scopedcss\bundle\LaboratorioNET.styles.css
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\scopedcss\projectbundle\LaboratorioNET.bundle.scp.css
-C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\r5tjjierih-itb64dxlp7.gz
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\r5tjjierih-hl10y9xdbf.gz
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\5wgh2unbz8-t1cqhe9u97.gz
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\rwzhr3kzsi-c2jlpeoesf.gz
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\k60de1u395-sejl45xvog.gz

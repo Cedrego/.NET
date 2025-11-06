@@ -3,6 +3,17 @@
 <PageTitle>Ranking Corredores</PageTitle>
 
 <style>
+    .background-container {
+        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     /* Contenedor principal con fondo cyan */
     .main-container {
         display: flex;
@@ -134,9 +145,9 @@
         }
     }
 </style>
-
+<div class="background-container">
 <div class="main-container">
-    <!-- Panel izquierdo con el título -->
+    <!-- Panel izquierdo con el tï¿½tulo -->
     <div class="left-panel">
         <div class="title-box">
             <h1>SportEvent<br/>Manager,</h1>
@@ -152,13 +163,13 @@
                 <table class="ranking-table">
                     <thead>
                         <tr>
-                            <th>Posición</th>
+                            <th>Posiciï¿½n</th>
                             <th>Nombre</th>
                             <th>Tiempo</th>
-                            <th>Sección1</th>
-                            <th>Sección2</th>
-                            <th>Sección3</th>
-                            <th>Sección4</th>
+                            <th>Secciï¿½n1</th>
+                            <th>Secciï¿½n2</th>
+                            <th>Secciï¿½n3</th>
+                            <th>Secciï¿½n4</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -180,7 +191,7 @@
         </div>
     </div>
 </div>
-
+</div>
 @code {
     // Clase para representar un corredor
     public class Corredor
@@ -197,10 +208,10 @@
     // Lista de corredores de ejemplo
     private List<Corredor> Corredores = new List<Corredor>
     {
-        new Corredor { Posicion = 1, Nombre = "Juan Pérez", TiempoTotal = "02:15:30", Seccion1 = "00:30:15", Seccion2 = "00:35:20", Seccion3 = "00:32:45", Seccion4 = "00:37:10" },
-        new Corredor { Posicion = 2, Nombre = "María García", TiempoTotal = "02:18:45", Seccion1 = "00:31:20", Seccion2 = "00:36:15", Seccion3 = "00:33:30", Seccion4 = "00:37:40" },
-        new Corredor { Posicion = 3, Nombre = "Carlos López", TiempoTotal = "02:22:10", Seccion1 = "00:32:05", Seccion2 = "00:37:25", Seccion3 = "00:34:20", Seccion4 = "00:38:20" },
-        new Corredor { Posicion = 4, Nombre = "Ana Martínez", TiempoTotal = "02:25:30", Seccion1 = "00:33:10", Seccion2 = "00:38:05", Seccion3 = "00:35:15", Seccion4 = "00:39:00" },
-        new Corredor { Posicion = 5, Nombre = "Pedro Rodríguez", TiempoTotal = "02:28:15", Seccion1 = "00:34:20", Seccion2 = "00:38:45", Seccion3 = "00:36:10", Seccion4 = "00:39:00" }
+        new Corredor { Posicion = 1, Nombre = "Juan Pï¿½rez", TiempoTotal = "02:15:30", Seccion1 = "00:30:15", Seccion2 = "00:35:20", Seccion3 = "00:32:45", Seccion4 = "00:37:10" },
+        new Corredor { Posicion = 2, Nombre = "Marï¿½a Garcï¿½a", TiempoTotal = "02:18:45", Seccion1 = "00:31:20", Seccion2 = "00:36:15", Seccion3 = "00:33:30", Seccion4 = "00:37:40" },
+        new Corredor { Posicion = 3, Nombre = "Carlos Lï¿½pez", TiempoTotal = "02:22:10", Seccion1 = "00:32:05", Seccion2 = "00:37:25", Seccion3 = "00:34:20", Seccion4 = "00:38:20" },
+        new Corredor { Posicion = 4, Nombre = "Ana Martï¿½nez", TiempoTotal = "02:25:30", Seccion1 = "00:33:10", Seccion2 = "00:38:05", Seccion3 = "00:35:15", Seccion4 = "00:39:00" },
+        new Corredor { Posicion = 5, Nombre = "Pedro Rodrï¿½guez", TiempoTotal = "02:28:15", Seccion1 = "00:34:20", Seccion2 = "00:38:45", Seccion3 = "00:36:10", Seccion4 = "00:39:00" }
     };
 }

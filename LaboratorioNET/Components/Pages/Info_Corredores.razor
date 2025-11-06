@@ -2,11 +2,13 @@
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
 @inject LaboratorioNET.Services.FirebaseService FirebaseService
+@inject LaboratorioNET.Services.SesionService SesionService
+@inject IJSRuntime Js
 @using LaboratorioNET.Entities
 
 <PageTitle>Información Corredores</PageTitle>
 
-<div class="page">
+<div class="background-container">
     <div class="container-box">
         <aside class="sidebar">
             <h2>SportEvent<br />Manager,</h2>
@@ -53,20 +55,34 @@
                     <table class="info-table">
                         <thead>
                             <tr>
-                                <th>Documento</th>
+                                
                                 <th>Nombre</th>
                                 <th>Origen</th>
-                                <th>Teléfono</th>
+                                
+                                @if (SesionService.EsAdmin)
+                                {
+                                    <th>Documento</th>
+                                    <th>Email</th>
+                                    <th>Fecha Nacimiento</th>
+                                    <th>Teléfono</th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var corredor in corredoresFiltrados)
                             {
                                 <tr>
-                                    <td>@corredor.DocumentoIdentidad</td>
+                                   
                                     <td>@corredor.Nombre</td>
                                     <td>@corredor.Nacionalidad</td>
-                                    <td>@corredor.Telefono</td>
+                                   
+                                    @if (SesionService.EsAdmin)
+                                    {
+                                        <td>@corredor.DocumentoIdentidad</td>
+                                        <td>@corredor.Correo</td>
+                                        <td>@corredor.FechaNacimiento</td>
+                                        <td>@corredor.Telefono</td>
+                                    }
                                 </tr>
                             }
                         </tbody>
@@ -84,6 +100,17 @@
 </div>
 
 <style>
+ .background-container {
+        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 html, body {
     height: 100%;
     margin: 0;
@@ -264,6 +291,28 @@ h3 {
 .no-data p {
     color: #666;
     font-size: 16px;
+}
+
+.btn-action {
+    padding: 5px 10px;
+    margin: 0 3px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #79c9e0;
+    transition: background-color 0.3s;
+}
+
+.btn-action:hover {
+    background-color: #5ba9c0;
+}
+
+.btn-action.btn-delete {
+    background-color: #ff4444;
+}
+
+.btn-action.btn-delete:hover {
+    background-color: #cc0000;
 }
 </style>
 

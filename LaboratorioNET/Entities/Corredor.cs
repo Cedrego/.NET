@@ -25,6 +25,9 @@ namespace LaboratorioNET.Entities
 
         [FirestoreProperty("correo")]
         public string Correo { get; set; } = string.Empty;
+        [FirestoreProperty("rol")]
+        public string Rol { get; set; } = "Corredor";
+
 
         [FirestoreProperty("registros")]
         public List<string> Registros { get; set; } = new List<string>();

@@ -8,15 +8,18 @@ namespace LaboratorioNET.Services
         // Información del usuario actual
         public string? DocumentoIdentidad { get; private set; }
         public string? NombreUsuario { get; private set; }
+        public string? Rol { get; private set; }
         public bool EstaAutenticado => !string.IsNullOrEmpty(DocumentoIdentidad);
+        public bool EsAdmin => Rol == "Administrador";
 
         // Iniciar sesión
-        public void IniciarSesion(string documentoIdentidad, string nombreUsuario)
+        public void IniciarSesion(string documentoIdentidad, string nombreUsuario, string? rol = null)
         {
             DocumentoIdentidad = documentoIdentidad;
             NombreUsuario = nombreUsuario;
+            Rol = rol;
             NotificarCambioSesion();
-            Console.WriteLine($"✅ Sesión iniciada: {nombreUsuario}");
+            Console.WriteLine($"✅ Sesión iniciada: {nombreUsuario} ({(rol ?? "Usuario")})");
         }
 
         // Cerrar sesión
@@ -25,6 +28,7 @@ namespace LaboratorioNET.Services
             Console.WriteLine($"🚪 Cerrando sesión de: {NombreUsuario}");
             DocumentoIdentidad = null;
             NombreUsuario = null;
+            Rol = null;
             NotificarCambioSesion();
         }
 

@@ -10,6 +10,17 @@
 <PageTitle>Admin</PageTitle>
 
 <style>
+    .background-container {
+        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     .input-text {
         width: 100%;
         padding: 10px;
@@ -53,6 +64,7 @@
     }
 </style>
 
+<div class="background-container">
 <div class="menu-box">
     <h2>ADMIN</h2>
 
@@ -64,7 +76,7 @@
 
     <p class="error-message">@mensajeError</p>
 </div>
-
+</div>
 @code {
     private string adminPassword = string.Empty;
     private string mensajeError = string.Empty;
@@ -78,26 +90,40 @@
 
         try
         {
-            // 🔹 Accede a la colección "admin"
+            // 🔹 Accede a la colección "admin" y verifica contraseña
             var adminSnapshot = await FirebaseService.Admins
-                .WhereEqualTo("contrasena", adminPassword) // 👈 minúscula como en Firestore
+                .WhereEqualTo("contraseña", adminPassword)
+                .WhereEqualTo("idAdmin", "1")
                 .Limit(1)
                 .GetSnapshotAsync();
 
-            // 🔸 Si no hay coincidencias, contraseña incorrecta
+            // 🔸 Si no hay coincidencias, credenciales incorrectas
             if (adminSnapshot.Documents.Count == 0)
             {
-                mensajeError = "❌ Contraseña incorrecta.";
+                mensajeError = "❌ Credenciales incorrectas.";
                 estaCargando = false;
                 StateHasChanged();
                 return;
             }
 
-            // ✅ Si encontró al admin, obtiene su documento
+            // ✅ Si encontró al admin con las credenciales correctas
             var doc = adminSnapshot.Documents.First();
-            var adminDoc = doc.ConvertTo<Admin>();
+            Dictionary<string, object> adminData = doc.ToDictionary();
 
-            // Inicia sesión usando el ID del documento directamente
+            // Verifica que tenga los campos requeridos para ser admin
+            if (!adminData.TryGetValue("contraseña", out object? pass) || 
+                !adminData.TryGetValue("idAdmin", out object? idAdmin) ||
+                pass?.ToString() != "admin.admin" || 
+                idAdmin?.ToString() != "1")
+            {
+                mensajeError = "❌ No tienes permisos de administrador.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // Inicia sesión como administrador con el rol explícito
+            SesionService.IniciarSesion(doc.Id, "Administrador", "Administrador");
             SesionService.IniciarSesion(doc.Id, "Administrador");
 
         }
