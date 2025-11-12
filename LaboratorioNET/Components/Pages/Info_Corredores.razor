@@ -350,8 +350,8 @@ h3 {
             carreras = await tareaCarreras;
             origenes = await tareaOrigenes;
 
-            // Mostrar todos los corredores inicialmente
-            corredoresFiltrados = todosCorredores;
+            // Filtrar corredores para excluir los que tienen rol "admin"
+            corredoresFiltrados = todosCorredores.Where(corredor => corredor.Rol != "admin").ToList();
         }
         catch (Exception ex)
         {
@@ -363,6 +363,7 @@ h3 {
             StateHasChanged();
         }
     }
+
 
     private void OnCarreraChange(ChangeEventArgs e)
     {
