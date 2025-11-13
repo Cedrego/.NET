@@ -33,6 +33,9 @@
             <button class="menu-button primary" @onclick="InfoCorredores">
                 Información de Corredores
             </button>
+            <button class="menu-button success" @onclick="NavigateToSimularCarrera">
+                Simular Carrera
+            </button>
         </div>
     </div>
 </div>
@@ -46,5 +49,10 @@
 
     private async Task InfoCorredores(){
         Navigation.NavigateTo("/info_corredores");
+    }
+
+    private void NavigateToSimularCarrera()
+    {
+        Navigation.NavigateTo("/simular_carrera");
     }
 }

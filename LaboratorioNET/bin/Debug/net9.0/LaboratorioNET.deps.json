@@ -12,6 +12,7 @@
           "FirebaseAuthentication.net": "4.1.0",
           "FirebaseDatabase.net": "5.0.0",
           "Google.Cloud.Firestore": "3.11.0",
+          "Google.Cloud.Storage.V1": "4.0.0",
           "MongoDB.Driver": "3.5.0"
         },
         "runtime": {
@@ -155,6 +156,18 @@
           }
         }
       },
+      "Google.Apis.Storage.v1/1.57.0.2685": {
+        "dependencies": {
+          "Google.Apis": "1.69.0",
+          "Google.Apis.Auth": "1.69.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Google.Apis.Storage.v1.dll": {
+            "assemblyVersion": "1.57.0.2685",
+            "fileVersion": "1.57.0.2685"
+          }
+        }
+      },
       "Google.Cloud.Firestore/3.11.0": {
         "dependencies": {
           "Google.Cloud.Firestore.V1": "3.11.0",
@@ -189,6 +202,18 @@
           "lib/netstandard2.0/Google.Cloud.Location.dll": {
             "assemblyVersion": "2.3.0.0",
             "fileVersion": "2.3.0.0"
+          }
+        }
+      },
+      "Google.Cloud.Storage.V1/4.0.0": {
+        "dependencies": {
+          "Google.Api.Gax.Rest": "4.8.0",
+          "Google.Apis.Storage.v1": "1.57.0.2685"
+        },
+        "runtime": {
+          "lib/netstandard2.1/Google.Cloud.Storage.V1.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.0.0.0"
           }
         }
       },
@@ -480,6 +505,13 @@
       "path": "google.apis.core/1.69.0",
       "hashPath": "google.apis.core.1.69.0.nupkg.sha512"
     },
+    "Google.Apis.Storage.v1/1.57.0.2685": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-fyzgreaFdeJEeX7CVPf//uic0ebnYJaZ1j6lsXiWMjgbncX7+Dn4+em6gDRv7I0ojT9ZblXmcrAhZUaQWzOrQA==",
+      "path": "google.apis.storage.v1/1.57.0.2685",
+      "hashPath": "google.apis.storage.v1.1.57.0.2685.nupkg.sha512"
+    },
     "Google.Cloud.Firestore/3.11.0": {
       "type": "package",
       "serviceable": true,
@@ -500,6 +532,13 @@
       "sha512": "sha512-ABQ4EM7FsOM7tx0cmlkZmHFqH1LeCf4teWPM26UT7mZJzlH4Pk8HUcyi/xEFe3l6LanNFCTHbKT+eOlQ/axkJg==",
       "path": "google.cloud.location/2.3.0",
       "hashPath": "google.cloud.location.2.3.0.nupkg.sha512"
+    },
+    "Google.Cloud.Storage.V1/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AHYAlXpVfvx+AoDxGsoAoJjDalPG4CZq0+p8Ev5xMPdtF6TwswRAuxNrlHwBm09VzKgCWtjzZDILn48CJZBXdg==",
+      "path": "google.cloud.storage.v1/4.0.0",
+      "hashPath": "google.cloud.storage.v1.4.0.0.nupkg.sha512"
     },
     "Google.LongRunning/3.4.0": {
       "type": "package",

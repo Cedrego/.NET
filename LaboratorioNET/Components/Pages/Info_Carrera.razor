@@ -123,6 +123,17 @@
                 <h3 class="mt-4">@selectedCarrera.Nombre</h3>
                 <p><strong>Fecha Inicio:</strong> @selectedCarrera.FechaInicio.ToDateTime().ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
                 <p><strong>Lugar:</strong> @selectedCarrera.LugarSalida</p>
+                <p>
+                    <strong>Estado:</strong> 
+                    @if (selectedCarrera.Terminada)
+                    {
+                        <span style="color: green; font-weight: bold;">✓ TERMINADA</span>
+                    }
+                    else
+                    {
+                        <span style="color: orange; font-weight: bold;">⏱️ EN PROGRESO</span>
+                    }
+                </p>
 
                 <h4 class="mt-4">Corredores Registrados:</h4>
                 <table class="info-table">
@@ -131,6 +142,7 @@
                             <th>Dorsal</th>
                             <th>Corredor</th>
                             <th>Tiempos Registrados</th>
+                            <th>Progreso</th>
                             <th>Tiempo Total</th>
                         </tr>
                     </thead>
@@ -139,18 +151,38 @@
                         {
                             @foreach (var registro in corredorRegistros)
                             {
-                                <tr>
+                                var progreso = (registro.Tiempos.Count * 100) / selectedCarrera.CantSecciones;
+                                var completado = registro.Tiempos.Count == selectedCarrera.CantSecciones;
+                                
+                                <tr style="@(completado ? "background-color: #e8f5e9;" : "")">
                                     <td>@registro.NumDorsal</td>
                                     <td>@GetCorredorNombre(registro.IdentifiCorredor)</td>
-                                    @* Uso del método corregido: FormatTiempos *@
-                                    <td>@FormatTiempos(registro.Tiempos)</td> 
-                                    <td>@FormatTiempoTotal(registro.Tiempos)</td>
+                                    <td>
+                                        @FormatTiempos(registro.Tiempos)
+                                    </td>
+                                    <td>
+                                        <div style="width: 100px; background-color: #ddd; border-radius: 5px; overflow: hidden;">
+                                            <div style="width: @progreso%; background-color: @(completado ? "#4caf50" : "#ff9800"); height: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">
+                                                @progreso%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (completado)
+                                        {
+                                            <span style="color: green;">✓ @FormatTiempoTotal(registro.Tiempos)</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color: orange;">⏱️ @registro.Tiempos.Count/@selectedCarrera.CantSecciones</span>
+                                        }
+                                    </td>
                                 </tr>
                             }
                         }
                         else
                         {
-                            <tr><td colspan="4" class="text-center">No hay corredores registrados para esta carrera.</td></tr>
+                            <tr><td colspan="5" class="text-center">No hay corredores registrados para esta carrera.</td></tr>
                         }
                     </tbody>
                 </table>
@@ -165,9 +197,7 @@
 </div>
 
 @code {
-    // =================================================================
-    // PROPIEDADES
-    // =================================================================
+
     private IEnumerable<Carrera> carreras = new List<Carrera>();
     private string selectedCarreraId = string.Empty;
     private Carrera? selectedCarrera;
@@ -177,10 +207,7 @@
     private bool isLoading = true;
     private bool isCorredoresLoading = true;
 
-    // =================================================================
-    // MÉTODOS DE INICIALIZACIÓN Y CARGA DE DATOS
-    // =================================================================
-    protected override async Task OnInitializedAsync()
+      protected override async Task OnInitializedAsync()
     {
         await LoadCarrerasAsync();
     }
@@ -190,7 +217,6 @@
         try
         {
             isLoading = true;
-            // Carga todas las carreras de Firestore
             carreras = await FirebaseService.Carreras.GetSnapshotAsync().ContinueWith(task =>
                 task.Result.Documents.Select(doc => doc.ConvertTo<Carrera>())
             );
@@ -207,7 +233,7 @@
 
     private void NavigateToHome()
     {
-        // Asumiendo que su página de inicio es la ruta base "/"
+
         Navigation.NavigateTo("/");
     }
     
@@ -277,19 +303,11 @@
     }
 
 
-    // =================================================================
-    // MÉTODOS AUXILIARES
-    // =================================================================
-
-    private string GetCorredorNombre(string idCorredor)
+     private string GetCorredorNombre(string idCorredor)
     {
         return corredoresMap.ContainsKey(idCorredor) ? corredoresMap[idCorredor].Nombre : idCorredor;
     }
 
-    /// <summary>
-    /// Convierte la lista de Timestamp a una cadena legible de tiempos de sección.
-    /// </summary>
-    // **LÍNEA 164 CORREGIDA**: Esta firma soluciona los errores CS0305, CS0119 y CS0103.
     private string FormatTiempos(List<Google.Cloud.Firestore.Timestamp> tiempos)
     {
         if (tiempos == null || !tiempos.Any())
@@ -316,9 +334,8 @@
         return string.Join(" | ", formattedTimes);
     }
 
-    /// <summary>
+
     /// Calcula el tiempo total del corredor.
-    /// </summary>
     private string FormatTiempoTotal(List<Google.Cloud.Firestore.Timestamp> tiempos)
     {
         if (tiempos == null || !tiempos.Any())

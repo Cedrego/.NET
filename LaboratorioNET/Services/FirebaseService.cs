@@ -415,5 +415,104 @@ namespace LaboratorioNET.Services
                 return 0;
             }
         }
+
+        // ===== MÉTODOS PARA ACTUALIZAR REGISTROS (SENSOR DATA) =====
+
+        /// <summary>
+        /// Agrega un tiempo al registro del corredor en una carrera
+        /// </summary>
+        public async Task<bool> AgregarTiempoAlRegistroAsync(string idCarrera, string documentoCorredor, Timestamp tiempo)
+        {
+            try
+            {
+                var registro = await ObtenerRegistroCorredorEnCarreraAsync(idCarrera, documentoCorredor);
+                
+                if (registro == null)
+                {
+                    Console.WriteLine($"No se encontró registro para corredor {documentoCorredor} en carrera {idCarrera}");
+                    return false;
+                }
+
+                // Agregar el tiempo a la lista
+                registro.Tiempos.Add(tiempo);
+
+                // Actualizar el documento
+                var registroRef = Registros.Document(registro.Id);
+                await registroRef.SetAsync(registro, SetOptions.Overwrite);
+
+                Console.WriteLine($"✅ Tiempo agregado al registro: {registro.Id}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al agregar tiempo: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Actualiza el estado de la carrera (terminada) basado en si todos los corredores 
+        /// han completado todos los checkpoints
+        /// </summary>
+        public async Task<bool> ActualizarEstadoCarreraAsync(string idCarrera, Carrera carrera)
+        {
+            try
+            {
+                var carreraRef = Carreras.Document(carrera.Id);
+                await carreraRef.UpdateAsync("terminada", carrera.Terminada);
+                
+                Console.WriteLine($"✅ Estado de carrera actualizado: {carrera.Id} - Terminada: {carrera.Terminada}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al actualizar carrera: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Verifica si la carrera debe ser marcada como terminada
+        /// Devuelve true si todos los corredores tienen tiempos completos
+        /// </summary>
+        public async Task<bool> VerificarCarreraTerminadaAsync(string idCarrera)
+        {
+            try
+            {
+                // Obtener la carrera
+                var carrera = await ObtenerCarreraPorIdAsync(idCarrera);
+                if (carrera == null)
+                {
+                    Console.WriteLine($"Carrera no encontrada: {idCarrera}");
+                    return false;
+                }
+
+                // Obtener todos los registros de la carrera
+                var registros = await ObtenerRegistrosPorCarreraAsync(idCarrera);
+                
+                if (!registros.Any())
+                {
+                    Console.WriteLine("No hay registros para esta carrera");
+                    return false;
+                }
+
+                // Verificar si todos los corredores tienen la cantidad correcta de tiempos
+                bool todosCompletos = registros.All(r => r.Tiempos.Count == carrera.CantSecciones);
+
+                if (todosCompletos && !carrera.Terminada)
+                {
+                    // Marcar carrera como terminada
+                    carrera.Terminada = true;
+                    await ActualizarEstadoCarreraAsync(idCarrera, carrera);
+                }
+
+                return todosCompletos;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error al verificar estado de carrera: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

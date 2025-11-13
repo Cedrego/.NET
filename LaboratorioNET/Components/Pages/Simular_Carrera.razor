@@ -1,0 +1,205 @@
+@page "/simular_carrera"
+@rendermode InteractiveServer
+@using LaboratorioNET.Services
+@using LaboratorioNET.Models
+@using LaboratorioNET.Entities
+@using Google.Cloud.Firestore
+@inject FirebaseService FirebaseService
+@inject BucketService BucketService
+@inject NavigationManager Navigation
+
+<PageTitle>Simular Carrera</PageTitle>
+
+<div class="simular-container">
+    <h2>Simular Carrera</h2>
+
+    <div class="search-box">
+        <input placeholder="Buscar carrera por nombre..." @bind="searchTerm" />
+        <button class="menu-button" @onclick="BuscarCarreras">Buscar</button>
+    </div>
+
+    @if (carreras != null && carreras.Any())
+    {
+        <div class="results">
+            <h3>Resultados</h3>
+            <ul>
+                @foreach (var c in carreras)
+                {
+                    <li>
+                        <b>@c.Nombre</b> (@c.IdCarrera) - Secciones: @c.CantSecciones
+                        <button class="menu-button" @onclick="() => SeleccionarCarrera(c)">Seleccionar</button>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+    @if (selectedCarrera != null)
+    {
+        <div class="selected">
+            <h3>Seleccionada: @selectedCarrera.Nombre</h3>
+            <p>Secciones: @selectedCarrera.CantSecciones</p>
+            <p>Corredores registrados: @registros?.Count</p>
+
+            <button class="menu-button success" disabled="@(isSimulating)" @onclick="IniciarSimulacion">Iniciar Simulación</button>
+            <button class="menu-button danger" disabled="!isSimulating" @onclick="DetenerSimulacion">Detener</button>
+
+            <div class="progress-list">
+                @if (registros != null)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr><th>Corredor</th><th>Dorsal</th><th>Progreso</th><th>Tiempos</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in registros)
+                            {
+                                var porcentaje = selectedCarrera != null && selectedCarrera.CantSecciones > 0
+                                    ? (int)Math.Round((r.Tiempos.Count * 100.0) / selectedCarrera.CantSecciones)
+                                    : 0;
+                                <tr>
+                                    <td>@GetCorredorNombre(r.IdentifiCorredor)</td>
+                                    <td>@r.NumDorsal</td>
+                                    <td>
+                                        <div class="progress-bar-outer">
+                                            <div class="progress-bar-inner" style="width:@porcentaje%">@porcentaje%</div>
+                                        </div>
+                                    </td>
+                                    <td>@(r.Tiempos.Any() ? string.Join(", ", r.Tiempos.Select(t => t.ToDateTime().ToString("HH:mm:ss"))) : "-")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    private string searchTerm = string.Empty;
+    private List<Carrera> carreras = new();
+    private Carrera? selectedCarrera;
+    private List<Registro>? registros;
+    private Dictionary<string, Corredor> corredoresMap = new();
+    private bool isSimulating = false;
+    private CancellationTokenSource? cts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // opcional: precargar carreras
+    }
+
+    private async Task BuscarCarreras()
+    {
+        var all = await FirebaseService.ObtenerTodasCarrerasAsync();
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            carreras = all;
+        }
+        else
+        {
+            carreras = all.Where(c => c.Nombre != null && c.Nombre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private async Task SeleccionarCarrera(Carrera c)
+    {
+        selectedCarrera = c;
+        registros = await FirebaseService.ObtenerRegistrosPorCarreraAsync(c.IdCarrera);
+
+        // cargar corredores y mapear por documento
+        var corredores = await FirebaseService.ObtenerCorredoresFiltradosAsync(c.IdCarrera);
+        corredoresMap = corredores.ToDictionary(x => x.DocumentoIdentidad, x => x);
+
+        StateHasChanged();
+    }
+
+    private string GetCorredorNombre(string documento)
+    {
+        if (corredoresMap != null && corredoresMap.TryGetValue(documento, out var c)) return c.Nombre;
+        return documento;
+    }
+
+    private async Task IniciarSimulacion()
+    {
+        if (selectedCarrera == null || registros == null) return;
+
+        isSimulating = true;
+        cts = new CancellationTokenSource();
+        var token = cts.Token;
+
+        // Ejecutar la simulación en background
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                for (int checkpoint = 1; checkpoint <= selectedCarrera.CantSecciones; checkpoint++)
+                {
+                    if (token.IsCancellationRequested) break;
+
+                    foreach (var reg in registros.ToList())
+                    {
+                        if (token.IsCancellationRequested) break;
+
+                        // Crear tiempo simulado
+                        var tiempo = DateTime.UtcNow;
+
+                        // Guardar backup en bucket
+                        await BucketService.GuardarDatosSensorAsync(selectedCarrera.IdCarrera, reg.IdentifiCorredor, tiempo);
+
+                        // Agregar tiempo al registro en Firestore
+                        var ts = Timestamp.FromDateTime(tiempo);
+                        await FirebaseService.AgregarTiempoAlRegistroAsync(selectedCarrera.IdCarrera, reg.IdentifiCorredor, ts);
+
+                        // Actualizar UI local: re-fetch registro para reflejar cambios
+                        var updated = await FirebaseService.ObtenerRegistroCorredorEnCarreraAsync(selectedCarrera.IdCarrera, reg.IdentifiCorredor);
+                        if (updated != null)
+                        {
+                            var idx = registros.FindIndex(r => r.Id == updated.Id);
+                            if (idx >= 0) registros[idx] = updated;
+                        }
+
+                        // Forzar UI
+                        await InvokeAsync(StateHasChanged);
+
+                        await Task.Delay(500, token);
+                    }
+
+                    // Pequeña pausa entre checkpoints
+                    await Task.Delay(1000, token);
+                }
+
+                // Verificar carrera terminada
+                if (selectedCarrera != null)
+                {
+                    await FirebaseService.VerificarCarreraTerminadaAsync(selectedCarrera.IdCarrera);
+                }
+            }
+            catch (TaskCanceledException) { }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en simulación: {ex.Message}");
+            }
+            finally
+            {
+                isSimulating = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }, token);
+    }
+
+    private void DetenerSimulacion()
+    {
+        if (cts != null && !cts.IsCancellationRequested)
+        {
+            cts.Cancel();
+        }
+    }
+
+    private void NavigateToSimularCarrera()
+    {
+        Navigation.NavigateTo("/simular_carrera");
+    }
+}

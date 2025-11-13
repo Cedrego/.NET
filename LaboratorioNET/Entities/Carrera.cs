@@ -31,5 +31,8 @@ namespace LaboratorioNET.Entities
 
         [FirestoreProperty("tipo")]
         public string Tipo { get; set; } = string.Empty;
+
+        [FirestoreProperty("terminada")]
+        public bool Terminada { get; set; } = false;
     }
 }

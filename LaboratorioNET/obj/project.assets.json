@@ -197,6 +197,23 @@
           }
         }
       },
+      "Google.Apis.Storage.v1/1.57.0.2685": {
+        "type": "package",
+        "dependencies": {
+          "Google.Apis": "1.57.0",
+          "Google.Apis.Auth": "1.57.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Google.Apis.Storage.v1.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/Google.Apis.Storage.v1.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "Google.Cloud.Firestore/3.11.0": {
         "type": "package",
         "dependencies": {
@@ -245,6 +262,23 @@
         },
         "runtime": {
           "lib/netstandard2.0/Google.Cloud.Location.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
+      "Google.Cloud.Storage.V1/4.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Google.Api.Gax.Rest": "[4.0.0, 5.0.0)",
+          "Google.Apis.Storage.v1": "[1.57.0.2685, 2.0.0)"
+        },
+        "compile": {
+          "lib/netstandard2.1/Google.Cloud.Storage.V1.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.1/Google.Cloud.Storage.V1.dll": {
             "related": ".pdb;.xml"
           }
         }
@@ -966,6 +1000,34 @@
         "lib/netstandard2.0/Google.Apis.Core.xml"
       ]
     },
+    "Google.Apis.Storage.v1/1.57.0.2685": {
+      "sha512": "fyzgreaFdeJEeX7CVPf//uic0ebnYJaZ1j6lsXiWMjgbncX7+Dn4+em6gDRv7I0ojT9ZblXmcrAhZUaQWzOrQA==",
+      "type": "package",
+      "path": "google.apis.storage.v1/1.57.0.2685",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "NuGetIcon.png",
+        "google.apis.storage.v1.1.57.0.2685.nupkg.sha512",
+        "google.apis.storage.v1.nuspec",
+        "lib/net40/Google.Apis.Storage.v1.dll",
+        "lib/net40/Google.Apis.Storage.v1.pdb",
+        "lib/net40/Google.Apis.Storage.v1.xml",
+        "lib/net45/Google.Apis.Storage.v1.dll",
+        "lib/net45/Google.Apis.Storage.v1.pdb",
+        "lib/net45/Google.Apis.Storage.v1.xml",
+        "lib/netstandard1.0/Google.Apis.Storage.v1.dll",
+        "lib/netstandard1.0/Google.Apis.Storage.v1.pdb",
+        "lib/netstandard1.0/Google.Apis.Storage.v1.xml",
+        "lib/netstandard1.3/Google.Apis.Storage.v1.dll",
+        "lib/netstandard1.3/Google.Apis.Storage.v1.pdb",
+        "lib/netstandard1.3/Google.Apis.Storage.v1.xml",
+        "lib/netstandard2.0/Google.Apis.Storage.v1.dll",
+        "lib/netstandard2.0/Google.Apis.Storage.v1.pdb",
+        "lib/netstandard2.0/Google.Apis.Storage.v1.xml"
+      ]
+    },
     "Google.Cloud.Firestore/3.11.0": {
       "sha512": "99+8qOCYqQfSXbr6gaHjeJVeHcI6uRYaMfnp9CUl6hPvIfVxU4fzAk+MBaE9yK+V+PTrku8HNp32rmhXAQ++RQ==",
       "type": "package",
@@ -1021,6 +1083,25 @@
         "lib/netstandard2.0/Google.Cloud.Location.dll",
         "lib/netstandard2.0/Google.Cloud.Location.pdb",
         "lib/netstandard2.0/Google.Cloud.Location.xml"
+      ]
+    },
+    "Google.Cloud.Storage.V1/4.0.0": {
+      "sha512": "AHYAlXpVfvx+AoDxGsoAoJjDalPG4CZq0+p8Ev5xMPdtF6TwswRAuxNrlHwBm09VzKgCWtjzZDILn48CJZBXdg==",
+      "type": "package",
+      "path": "google.cloud.storage.v1/4.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "NuGetIcon.png",
+        "google.cloud.storage.v1.4.0.0.nupkg.sha512",
+        "google.cloud.storage.v1.nuspec",
+        "lib/net462/Google.Cloud.Storage.V1.dll",
+        "lib/net462/Google.Cloud.Storage.V1.pdb",
+        "lib/net462/Google.Cloud.Storage.V1.xml",
+        "lib/netstandard2.1/Google.Cloud.Storage.V1.dll",
+        "lib/netstandard2.1/Google.Cloud.Storage.V1.pdb",
+        "lib/netstandard2.1/Google.Cloud.Storage.V1.xml"
       ]
     },
     "Google.LongRunning/3.4.0": {
@@ -1833,23 +1914,24 @@
       "FirebaseAuthentication.net >= 4.1.0",
       "FirebaseDatabase.net >= 5.0.0",
       "Google.Cloud.Firestore >= 3.11.0",
+      "Google.Cloud.Storage.V1 >= 3.10.0",
       "MongoDB.Driver >= 3.5.0"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\User\\.nuget\\packages\\": {}
+    "C:\\Users\\cedre\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "projectUniqueName": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
       "projectName": "LaboratorioNET",
-      "projectPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
-      "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Desktop\\.NET\\proyecto\\.NET\\LaboratorioNET\\obj\\",
+      "projectPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\LaboratorioNET.csproj",
+      "packagesPath": "C:\\Users\\cedre\\.nuget\\packages\\",
+      "outputPath": "D:\\Descargas v2.0\\.NET\\LaboratorioNET\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\cedre\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -1895,6 +1977,10 @@
             "target": "Package",
             "version": "[3.11.0, )"
           },
+          "Google.Cloud.Storage.V1": {
+            "target": "Package",
+            "version": "[3.10.0, )"
+          },
           "MongoDB.Driver": {
             "target": "Package",
             "version": "[3.5.0, )"
@@ -1919,8 +2005,20 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "LaboratorioNET depends on Google.Cloud.Storage.V1 (>= 3.10.0) but Google.Cloud.Storage.V1 3.10.0 was not found. Google.Cloud.Storage.V1 4.0.0 was resolved instead.",
+      "libraryId": "Google.Cloud.Storage.V1",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    }
+  ]
 }

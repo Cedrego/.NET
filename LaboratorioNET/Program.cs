@@ -11,6 +11,11 @@ builder.Services.AddRazorComponents()
 builder.Services.Configure<FirebaseSettings>(
     builder.Configuration.GetSection("FirebaseSettings"));
 builder.Services.AddScoped<FirebaseService>();
+builder.Services.AddScoped<BucketService>();
+builder.Services.AddScoped<SensorValidationService>();
+
+// Agregar controladores para API
+builder.Services.AddControllers();
 
 // Registrar servicio de sesión (Scoped para que sea por usuario)
 builder.Services.AddSingleton<SesionService>();
@@ -33,5 +38,8 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// Mapear controladores de API
+app.MapControllers();
 
 app.Run();

@@ -401,7 +401,6 @@ D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\scopedcss\Components\Layo
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\scopedcss\Components\Layout\NavMenu.razor.rz.scp.css
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\scopedcss\bundle\LaboratorioNET.styles.css
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\scopedcss\projectbundle\LaboratorioNET.bundle.scp.css
-D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\r5tjjierih-itb64dxlp7.gz
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\5wgh2unbz8-t1cqhe9u97.gz
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\rwzhr3kzsi-c2jlpeoesf.gz
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\k60de1u395-sejl45xvog.gz
@@ -571,3 +570,6 @@ C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\refint\
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.pdb
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.genruntimeconfig.cache
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\ref\LaboratorioNET.dll
+D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.Storage.v1.dll
+D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Storage.V1.dll
+D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\r5tjjierih-hl10y9xdbf.gz
