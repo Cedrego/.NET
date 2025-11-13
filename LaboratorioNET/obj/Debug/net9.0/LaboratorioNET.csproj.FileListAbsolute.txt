@@ -559,8 +559,8 @@ C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compres
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\dsyoatajm3-h1s4sie4z3.gz
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\4zpo2c5uvu-4d85u1mtcx.gz
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\qdcnf4ohi8-0j3bgjxly4.gz
-C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\ad8hl7tpgx-9zrabv2et9.gz
-C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\gd0yp1q7a0-9zrabv2et9.gz
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\ad8hl7tpgx-uc42z4xvih.gz
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\gd0yp1q7a0-uc42z4xvih.gz
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.development.json

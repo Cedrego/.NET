@@ -1,11 +1,33 @@
+/* Agregado: Configuración base para permitir scroll */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 .page {
     position: relative;
     display: flex;
     flex-direction: column;
+    min-height: 100vh; /* Cambiado: era implícito, ahora explícito */
 }
 
 main {
     flex: 1;
+    overflow-y: auto; /* Agregado: permite scroll en el contenido principal */
+    padding: 20px; /* Agregado: espacio para el contenido */
+}
+
+/* Agregado: asegurar que article no cause desbordamiento */
+article {
+    max-width: 100%;
+    width: 100%;
 }
 
 .sidebar {
@@ -44,6 +66,11 @@ main {
     .top-row ::deep a, .top-row ::deep .btn-link {
         margin-left: 0;
     }
+    
+    /* Agregado: mejor manejo en móviles */
+    main {
+        padding: 10px;
+    }
 }
 
 @media (min-width: 641px) {
@@ -56,6 +83,7 @@ main {
         height: 100vh;
         position: sticky;
         top: 0;
+        overflow-y: auto; /* Agregado: scroll en sidebar si es necesario */
     }
 
     .top-row {
