@@ -343,7 +343,7 @@ h3 {
     private string nombreBusqueda = "";
     private bool isLoading = false;
     private string? mensajeError = null;
-    
+
     private Corredor? corredorSeleccionado = null;
     private List<RegistroConDetalles> registrosActuales = new();
     private List<RegistroConDetalles> historialRegistros = new();
@@ -381,6 +381,14 @@ h3 {
             if (corredorSeleccionado == null)
             {
                 mensajeError = "No se encontró ningún corredor con ese Nombre.";
+                return;
+            }
+
+            // Verificar si el rol es "admin"
+            if (corredorSeleccionado.Rol == "admin")
+            {
+                mensajeError = "No se encontró ningún corredor con ese Nombre.";
+                corredorSeleccionado = null;
                 return;
             }
 
