@@ -81,16 +81,63 @@
 </div>
 <style>
     .background-container {
-        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
+        background-image: url('images/2.jpg'); /* Mantén el fondo */
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        min-height: 100vh;
+        min-height: 100vh; /* Asegura que cubra toda la pantalla */
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
     }
+
+    .main-container {
+        max-height: 90vh; /* Limita la altura a un 90% de la pantalla */
+        overflow-y: auto;  /* Habilita el desplazamiento vertical */
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 500px; /* Limita el ancho del formulario */
+        margin: 0 auto;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.8); /* Fondo blanco translúcido */
+        border-radius: 8px;
+    }
+
+    .submit-button {
+        position: relative;
+        z-index: 10;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        box-sizing: border-box;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .error-message {
+        color: red;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .success-message {
+        color: green;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
 </style>
 @code {
     // Campos del formulario

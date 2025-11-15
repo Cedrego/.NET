@@ -2,135 +2,142 @@
 @rendermode InteractiveServer
 @using LaboratorioNET.Services
 @using LaboratorioNET.Entities
-@using Google.Cloud.Firestore
 @inject NavigationManager Navigation
 @inject FirebaseService FirebaseService
 @inject SesionService SesionService
 
-<PageTitle>Admin</PageTitle>
-
-<style>
-    .background-container {
-        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        min-height: 100vh;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .input-text {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-    }
-
-    .menu-box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: #f8f9fa;
-        padding: 40px;
-        border-radius: 10px;
-        width: 300px;
-        margin: 100px auto;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .menu-button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .menu-button:hover {
-        background-color: #0056b3;
-    }
-
-    .error-message {
-        color: red;
-        margin-top: 10px;
-    }
-</style>
+<PageTitle>Iniciar Sesión - Admin</PageTitle>
 
 <div class="background-container">
-<div class="menu-box">
-    <h2>ADMIN</h2>
+    <div class="main-container">
+        <header class="page-title-box">
+            <h1>SportEvent Manager</h1>
+        </header>
 
-    <!-- Campo de contraseña -->
-    <input type="password" @bind="adminPassword" placeholder="Ingrese contraseña" class="input-text" />
+        <div class="login-box">
+            <h2>Iniciar Sesión</h2>
 
-    <!-- Botón -->
-    <button class="menu-button" @onclick="VerificarAdmin">Ingresar</button>
+            <div class="form-container">
+                <!-- Documento de Identidad -->
+                <div class="form-group">
+                    <label><strong>Documento de Identidad:</strong></label>
+                    <InputText @bind-Value="documentoIdentidad" 
+                            class="form-input" 
+                            placeholder="Ingrese su documento" />
+                </div>
 
-    <p class="error-message">@mensajeError</p>
+                <!-- Contraseña -->
+                <div class="form-group">
+                    <label><strong>Contraseña:</strong></label>
+                    <InputText @bind-Value="contrasena" 
+                            type="password" 
+                            class="form-input" 
+                            placeholder="Ingrese su contraseña" />
+                </div>
+
+                <!-- Mensaje de error -->
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="error-message">
+                        <p>@mensajeError</p>
+                    </div>
+                }
+
+                <!-- Botones -->
+                <div class="button-container">
+                    <button type="button" 
+                            class="btn-primary" 
+                            @onclick="IniciarSesion" 
+                            disabled="@estaCargando">
+                        @if (estaCargando)
+                        {
+                            <span>Verificando...</span>
+                        }
+                        else
+                        {
+                            <span>Iniciar Sesión</span>
+                        }
+                    </button>
+                </div>
+
+                <div class="footer-links">
+                    <a href="/">Volver al inicio</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-</div>
+
 @code {
-    private string adminPassword = string.Empty;
+    private string documentoIdentidad = string.Empty;
+    private string contrasena = string.Empty;
     private string mensajeError = string.Empty;
     private bool estaCargando = false;
 
-    private async Task VerificarAdmin()
+    private async Task IniciarSesion()
     {
         mensajeError = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(documentoIdentidad))
+        {
+            mensajeError = "Por favor ingrese su documento de identidad.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(contrasena))
+        {
+            mensajeError = "Por favor ingrese su contraseña.";
+            return;
+        }
+
         estaCargando = true;
         StateHasChanged();
 
         try
         {
-            // 🔹 Accede a la colección "admin" y verifica contraseña
-            var adminSnapshot = await FirebaseService.Admins
-                .WhereEqualTo("contraseña", adminPassword)
-                .WhereEqualTo("idAdmin", "1")
-                .Limit(1)
+            // ⚠️ Asegúrate que esta es la colección correcta en Firebase
+            var corredorDoc = await FirebaseService.Corredores
+                .Document(documentoIdentidad.Trim()) // Busca por documento de identidad
                 .GetSnapshotAsync();
 
-            // 🔸 Si no hay coincidencias, credenciales incorrectas
-            if (adminSnapshot.Documents.Count == 0)
+            if (!corredorDoc.Exists)
             {
-                mensajeError = "❌ Credenciales incorrectas.";
+                mensajeError = "Usuario no encontrado. Verifique su documento de identidad.";
                 estaCargando = false;
                 StateHasChanged();
                 return;
             }
 
-            // ✅ Si encontró al admin con las credenciales correctas
-            var doc = adminSnapshot.Documents.First();
-            Dictionary<string, object> adminData = doc.ToDictionary();
+            // Convertir el documento a un objeto de tipo Corredor
+            var usuario = corredorDoc.ConvertTo<Corredor>();
 
-            // Verifica que tenga los campos requeridos para ser admin
-            if (!adminData.TryGetValue("contraseña", out object? pass) || 
-                !adminData.TryGetValue("idAdmin", out object? idAdmin) ||
-                pass?.ToString() != "admin.admin" || 
-                idAdmin?.ToString() != "1")
+            // Verificar que la contraseña coincida (ahora usando "Contraseña" correctamente)
+            if (usuario.Contraseña.Trim() != contrasena.Trim())
             {
-                mensajeError = "❌ No tienes permisos de administrador.";
+                mensajeError = "Contraseña incorrecta.";
                 estaCargando = false;
                 StateHasChanged();
                 return;
             }
 
-            // Inicia sesión como administrador con el rol explícito
-            SesionService.IniciarSesion(doc.Id, "Administrador", "Administrador");
-            SesionService.IniciarSesion(doc.Id, "Administrador");
-
+            // Verificar el rol del usuario
+            if (usuario.Rol?.ToLower() == "admin")
+            {
+                // Si es admin, redirige al dashboard de admin
+                SesionService.IniciarSesion(usuario.DocumentoIdentidad, usuario.Nombre);
+                Navigation.NavigateTo("/admin"); // Redirigir al dashboard admin
+            }
+            else
+            {
+                // Si no es admin, redirige a la página del cliente o corredor
+                SesionService.IniciarSesion(usuario.DocumentoIdentidad, usuario.Nombre);
+                Navigation.NavigateTo("/menu-corredor"); // Redirigir a la página del cliente/corredor
+            }
         }
         catch (Exception ex)
         {
-            mensajeError = $"❌ Error al iniciar sesión: {ex.Message}";
-            Console.WriteLine($"[ERROR FIREBASE ADMIN]: {ex}");
+            mensajeError = $"Error al iniciar sesión: {ex.Message}";
+            Console.WriteLine($"❌ Error: {ex}");
         }
 
         estaCargando = false;

@@ -1,0 +1,179 @@
+# HTTP Requests Collection
+# Para usar con REST Client o Postman
+
+### Variables
+@baseUrl = https://localhost:7174
+@carreraId = maraton-2024
+@corredorId1 = 12345678
+@corredorId2 = 87654321
+@corredorId3 = 55555555
+
+###
+### 1. Enviar dato de sensor - Corredor 1, Checkpoint 1
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId1}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:30:00Z",
+  "numeroCheckpoint": 1
+}
+
+###
+### 2. Enviar dato de sensor - Corredor 1, Checkpoint 2
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId1}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:35:30Z",
+  "numeroCheckpoint": 2
+}
+
+###
+### 3. Enviar dato de sensor - Corredor 1, Checkpoint 3
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId1}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:42:15Z",
+  "numeroCheckpoint": 3
+}
+
+###
+### 4. Enviar dato de sensor - Corredor 2, Checkpoint 1
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId2}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:31:00Z",
+  "numeroCheckpoint": 1
+}
+
+###
+### 5. Enviar dato de sensor - Corredor 2, Checkpoint 2
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId2}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:36:45Z",
+  "numeroCheckpoint": 2
+}
+
+###
+### 6. Enviar dato de sensor - Corredor 2, Checkpoint 3
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId2}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:44:20Z",
+  "numeroCheckpoint": 3
+}
+
+###
+### 7. Obtener estado actual de la carrera
+###
+GET {{baseUrl}}/api/sensor/estado-carrera/{{carreraId}}
+
+###
+### 8. Obtener todos los datos guardados en bucket
+###
+GET {{baseUrl}}/api/sensor/carrera/{{carreraId}}
+
+###
+### 10. Prueba de error - sin CorredorId
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:30:00Z"
+}
+
+###
+### 11. Prueba de error - carrera no encontrada
+###
+GET {{baseUrl}}/api/sensor/estado-carrera/carrera-inexistente
+
+###
+### 12. Validar datos de sensor (antes de enviar)
+###
+POST {{baseUrl}}/api/sensor/validar
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId1}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:30:00Z",
+  "numeroCheckpoint": 1
+}
+
+###
+### 13. Obtener estadísticas de almacenamiento
+###
+GET {{baseUrl}}/api/sensor/estadisticas/{{carreraId}}
+
+###
+### 14. Limpiar datos antiguos (más de 7 días)
+###
+POST {{baseUrl}}/api/sensor/limpiar/{{carreraId}}?dias=7
+
+###
+### 15. Obtener reporte completo de carrera
+###
+GET {{baseUrl}}/api/sensor/reporte/{{carreraId}}
+
+###
+### 16. Validar datos inválidos (tiempo en el futuro)
+###
+POST {{baseUrl}}/api/sensor/validar
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId1}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2099-11-12T14:30:00Z",
+  "numeroCheckpoint": 1
+}
+
+###
+### 17. Validar datos duplicados
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId1}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:30:00Z"
+}
+
+###
+### 18. Enviar dato duplicado (pocos segundos después)
+###
+POST {{baseUrl}}/api/sensor
+Content-Type: application/json
+
+{
+  "corredorId": "{{corredorId1}}",
+  "carreraId": "{{carreraId}}",
+  "tiempo": "2024-11-12T14:30:02Z"
+}
+

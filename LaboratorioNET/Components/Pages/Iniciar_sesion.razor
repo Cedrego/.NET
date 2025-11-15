@@ -128,13 +128,22 @@
                 return;
             }
 
-            // ✅ Login exitoso
+            // Verificar el rol del corredor
+            if (corredor.Rol == "admin")
+            {
+                mensajeError = "Los administradores no pueden acceder desde esta página.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // ✅ Login exitoso si el rol no es "admin"
             SesionService.IniciarSesion(corredor.DocumentoIdentidad, corredor.Nombre);
             
             // ✅ Forzar actualización del estado
             StateHasChanged();
             
-            // ✅ Navegar
+            // ✅ Navegar al menú del corredor
             Navigation.NavigateTo("/menu-corredor", forceLoad: false);
         }
         catch (Exception ex)
@@ -145,4 +154,5 @@
             StateHasChanged();
         }
     }
+
 }
