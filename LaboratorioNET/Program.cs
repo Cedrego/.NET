@@ -8,11 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.Configure<FirebaseSettings>(
-    builder.Configuration.GetSection("FirebaseSettings"));
-builder.Services.AddScoped<FirebaseService>();
-builder.Services.AddScoped<BucketService>();
-builder.Services.AddScoped<SensorValidationService>();
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDB"));
+builder.Services.AddSingleton<MongoDbService>();
 
 // Agregar controladores para API
 builder.Services.AddControllers();

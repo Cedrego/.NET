@@ -3,7 +3,7 @@
 @using LaboratorioNET.Entities
 @using LaboratorioNET.Services 
 @inject NavigationManager NavigationManager
-@inject FirebaseService FirebaseService
+@inject MongoDbService MongoDb
 
 
 <style>
@@ -114,7 +114,7 @@
     private DateTime? fechaCarrera;          // Mapea a Carrera.FechaInicio
     private DateTime? fechaInicioInsc;       // Mapea a Carrera.FechaInicioInsc
     private int? limiteParticipantes;        // Mapea a Carrera.LimiteParticipantes
-    private double? cantSecciones;           // Mapea a Carrera.CantSecciones
+    private int? cantSecciones;              // Cambiado de double? a int?
     
     private string mensajeError = string.Empty;
     private bool estaCargando = false; 
@@ -123,7 +123,7 @@
     {
         mensajeError = string.Empty;
         
-        // === 1. Validación de Datos (Evita las advertencias CS8629) ===
+        // === 1. Validación de Datos ===
         if (string.IsNullOrWhiteSpace(nombre)) { mensajeError = "El campo Nombre está vacío."; }
         else if (string.IsNullOrWhiteSpace(lugar)) { mensajeError = "El campo Lugar de Salida está vacío."; }
         else if (fechaCarrera == null) { mensajeError = "El campo Fecha de la Carrera está vacío."; }
@@ -141,26 +141,27 @@
         estaCargando = true;
         StateHasChanged(); // Muestra "Guardando..."
 
-        // === 2. Mapeo a la Entidad Carrera ===
+        // === 2. Mapeo a la Entidad Carrera para MongoDB ===
         var nuevaCarrera = new Carrera
         {
-            IdCarrera = Guid.NewGuid().ToString(), // Genera un ID único
+            // MongoDB generará el _id automáticamente, pero puedes usar IdCarrera para lógica de negocio
+            IdCarrera = Guid.NewGuid().ToString(),
             Nombre = nombre,
             LugarSalida = lugar,
             
-            // Convertir DateTime a Timestamp de Firestore
-            FechaInicio = Timestamp.FromDateTime(fechaCarrera.Value.ToUniversalTime()),
-            FechaInicioInsc = Timestamp.FromDateTime(fechaInicioInsc.Value.ToUniversalTime()),
+            // MongoDB maneja DateTime nativamente - no necesitas Timestamp
+            FechaInicio = fechaCarrera.Value.ToUniversalTime(),
+            FechaInicioInsc = fechaInicioInsc.Value.ToUniversalTime(),
             
             LimiteParticipantes = limiteParticipantes.Value,
-            CantSecciones = (int)cantSecciones.Value // Conversión explícita de double a int
+            CantSecciones = cantSecciones.Value
         };
 
-        // === 3. Lógica para guardar en Firebase ===
+        // === 3. Lógica para guardar en MongoDB ===
         try
         {
-            // Usa el servicio inyectado para guardar en la colección "carreras"
-            await FirebaseService.Carreras.AddAsync(nuevaCarrera); 
+            // Usa el servicio de MongoDB para insertar el documento
+            await MongoDb.Carreras.InsertOneAsync(nuevaCarrera);
 
             // Éxito:
             mensajeError = $"✅ ¡Carrera '{nuevaCarrera.Nombre}' creada con éxito!";
@@ -168,9 +169,9 @@
         }
         catch (Exception ex)
         {
-            // Falla: (Esto captura problemas de red, credenciales o permisos)
-            mensajeError = $"❌ Error al guardar: {ex.Message}. Revise la consola del servidor (terminal) para el [ERROR FATAL DE FIREBASE].";
-            Console.WriteLine($"[ERROR FATAL DE FIREBASE]: {ex.ToString()}"); 
+            // Falla: (Esto captura problemas de conexión, validación o permisos)
+            mensajeError = $"❌ Error al guardar: {ex.Message}";
+            Console.WriteLine($"[ERROR MONGODB]: {ex.ToString()}"); 
         }
         
         estaCargando = false;

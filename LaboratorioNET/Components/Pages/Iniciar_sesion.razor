@@ -3,7 +3,7 @@
 @using LaboratorioNET.Services
 @using LaboratorioNET.Entities
 @inject NavigationManager Navigation
-@inject FirebaseService FirebaseService
+@inject MongoDbService MongoDb
 @inject SesionService SesionService
 
 <PageTitle>Iniciar Sesión</PageTitle>
@@ -106,19 +106,15 @@
 
         try
         {
-            var corredorDoc = await FirebaseService.Corredores
-                .Document(documentoIdentidad.Trim())
-                .GetSnapshotAsync();
+            var corredor = await MongoDb.ObtenerCorredorPorDocumentoAsync(documentoIdentidad.Trim());
 
-            if (!corredorDoc.Exists)
+            if (corredor == null)
             {
                 mensajeError = "Usuario no encontrado. Verifique su documento de identidad.";
                 estaCargando = false;
                 StateHasChanged();
                 return;
             }
-
-            var corredor = corredorDoc.ConvertTo<Corredor>();
 
             if (corredor.Contraseña != contrasena)
             {

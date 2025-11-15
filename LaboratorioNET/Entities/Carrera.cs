@@ -1,38 +1,39 @@
-using Google.Cloud.Firestore;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace LaboratorioNET.Entities
 {
-    [FirestoreData]
     public class Carrera
     {
-        [FirestoreProperty("id")]
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
-        [FirestoreProperty("idCarrera")]
+        [BsonElement("idCarrera")]
         public string IdCarrera { get; set; } = string.Empty;
 
-        [FirestoreProperty("nombre")]
+        [BsonElement("nombre")]
         public string Nombre { get; set; } = string.Empty;
 
-        [FirestoreProperty("fechaInicio")]
-        public Timestamp FechaInicio { get; set; }
+        [BsonElement("fechaInicio")]
+        public DateTime FechaInicio { get; set; }
 
-        [FirestoreProperty("lugarSalida")]
+        [BsonElement("lugarSalida")]
         public string LugarSalida { get; set; } = string.Empty;
 
-        [FirestoreProperty("fechaInicioInsc")]
-        public Timestamp FechaInicioInsc { get; set; }
+        [BsonElement("fechaInicioInsc")]
+        public DateTime FechaInicioInsc { get; set; }
 
-        [FirestoreProperty("limiteParticipantes")]
+        [BsonElement("limiteParticipantes")]
         public int LimiteParticipantes { get; set; }
 
-        [FirestoreProperty("cantSecciones")]
+        [BsonElement("cantSecciones")]
         public int CantSecciones { get; set; }
 
-        [FirestoreProperty("tipo")]
+        [BsonElement("tipo")]
         public string Tipo { get; set; } = string.Empty;
 
-        [FirestoreProperty("terminada")]
+        [BsonElement("terminada")]
         public bool Terminada { get; set; } = false;
     }
 }

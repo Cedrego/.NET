@@ -1,7 +1,7 @@
 @page "/info_corredores"
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
-@inject LaboratorioNET.Services.FirebaseService FirebaseService
+@inject LaboratorioNET.Services.MongoDbService MongoDbS
 @inject LaboratorioNET.Services.SesionService SesionService
 @inject IJSRuntime Js
 @using LaboratorioNET.Entities
@@ -339,10 +339,10 @@ h3 {
 
         try
         {
-            // Cargar todos los datos en paralelo
-            var tareaCorredores = FirebaseService.ObtenerTodosCorredoresAsync();
-            var tareaCarreras = FirebaseService.ObtenerTodasCarrerasAsync();
-            var tareaOrigenes = FirebaseService.ObtenerOrigenesUnicosAsync();
+            // Cargar todos los datos en paralelo (MongoDB)
+            var tareaCorredores = MongoDbS.ObtenerTodosCorredoresAsync();
+            var tareaCarreras = MongoDbS.ObtenerTodasCarrerasAsync();
+            var tareaOrigenes = MongoDbS.ObtenerNacionalidadesUnicasAsync();
 
             await Task.WhenAll(tareaCorredores, tareaCarreras, tareaOrigenes);
 
@@ -382,7 +382,7 @@ h3 {
 
         try
         {
-            corredoresFiltrados = await FirebaseService.ObtenerCorredoresFiltradosAsync(
+            corredoresFiltrados = await MongoDbS.ObtenerCorredoresFiltradosAsync(
                 carreraSeleccionada,
                 origenSeleccionado
             );

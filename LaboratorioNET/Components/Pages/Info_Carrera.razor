@@ -3,14 +3,15 @@
 
 @using LaboratorioNET.Entities
 @using LaboratorioNET.Services
-@inject FirebaseService FirebaseService
+@using MongoDB.Driver
+@inject MongoDbService MongoDb
 @inject NavigationManager Navigation
 
 <PageTitle>Información Carreras </PageTitle>
 
 <style>
  .background-container {
-        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
+        background-image: url('images/2.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -20,7 +21,7 @@
         justify-content: center;
         align-items: center;
     }
-    /* Estilos adaptados de Info_Corredores.razor y tu snippet */
+
     .page {
         display: flex;
         justify-content: center;
@@ -29,10 +30,9 @@
         background-color: #f0f0f0;
     }
 
-    /* Caja blanca redondeada con los dos paneles */
     .container-box {
         display: flex;
-        background-color: #efefef; /* Color base para el fondo del contenido */
+        background-color: #efefef;
         border: 2px solid #79c9e0;
         border-radius: 20px;
         width: 95%;
@@ -41,9 +41,8 @@
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    /* Sidebar izquierda */
     .sidebar {
-        background-color: #79c9e0; /* Color diferente para la barra lateral */
+        background-color: #79c9e0;
         border-right: 2px solid #79c9e0;
         border-radius: 20px 0 0 20px;
         width: 25%;
@@ -57,7 +56,6 @@
         color: #fff;
     }
     
-    /* Panel principal */
     .content {
         flex: 1;
         background-color: #efefef;
@@ -66,7 +64,6 @@
         overflow-y: auto;
     }
 
-    /* Título principal */
     .title {
         text-align: center;
         color: #333;
@@ -112,7 +109,7 @@
                     {
                         @foreach (var carrera in carreras)
                         {
-                            <option value="@carrera.Id">@carrera.Nombre</option>
+                            <option value="@carrera.IdCarrera">@carrera.Nombre</option>
                         }
                     }
                 </select>
@@ -121,7 +118,7 @@
             @if (selectedCarrera != null)
             {
                 <h3 class="mt-4">@selectedCarrera.Nombre</h3>
-                <p><strong>Fecha Inicio:</strong> @selectedCarrera.FechaInicio.ToDateTime().ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Fecha Inicio:</strong> @selectedCarrera.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
                 <p><strong>Lugar:</strong> @selectedCarrera.LugarSalida</p>
                 <p>
                     <strong>Estado:</strong> 
@@ -198,10 +195,10 @@
 
 @code {
 
-    private IEnumerable<Carrera> carreras = new List<Carrera>();
+    private List<Carrera> carreras = new List<Carrera>();
     private string selectedCarreraId = string.Empty;
     private Carrera? selectedCarrera;
-    private IEnumerable<Registro> corredorRegistros = new List<Registro>();
+    private List<Registro> corredorRegistros = new List<Registro>();
     private Dictionary<string, Corredor> corredoresMap = new Dictionary<string, Corredor>();
     private string errorMessage = string.Empty;
     private bool isLoading = true;
@@ -217,13 +214,16 @@
         try
         {
             isLoading = true;
-            carreras = await FirebaseService.Carreras.GetSnapshotAsync().ContinueWith(task =>
-                task.Result.Documents.Select(doc => doc.ConvertTo<Carrera>())
-            );
+            
+            // Cargar todas las carreras desde MongoDB
+            carreras = await MongoDb.Carreras
+                .Find(Builders<Carrera>.Filter.Empty)
+                .ToListAsync();
         }
         catch (Exception ex)
         {
             errorMessage = $"Error al cargar carreras: {ex.Message}";
+            Console.WriteLine($"[ERROR MONGODB]: {ex}");
         }
         finally
         {
@@ -233,7 +233,6 @@
 
     private void NavigateToHome()
     {
-
         Navigation.NavigateTo("/");
     }
     
@@ -250,8 +249,8 @@
             return;
         }
 
-        // 1. Cargar la información de la carrera seleccionada
-        selectedCarrera = carreras.FirstOrDefault(c => c.Id == selectedCarreraId);
+        // 1. Buscar la carrera seleccionada por IdCarrera
+        selectedCarrera = carreras.FirstOrDefault(c => c.IdCarrera == selectedCarreraId);
 
         if (selectedCarrera != null)
         {
@@ -267,34 +266,34 @@
             isCorredoresLoading = true;
             
             // 2. Cargar registros (Tiempos) para la carrera seleccionada
-            // Filtrar la colección 'registros' por el campo 'IDCarrera'
-            var query = FirebaseService.Registros.WhereEqualTo("IDCarrera", selectedCarreraId);
+            var filter = Builders<Registro>.Filter.Eq(r => r.IDCarrera, selectedCarreraId);
             
-            corredorRegistros = await query.GetSnapshotAsync().ContinueWith(task =>
-                task.Result.Documents.Select(doc => doc.ConvertTo<Registro>())
-            );
+            corredorRegistros = await MongoDb.Registros
+                .Find(filter)
+                .ToListAsync();
 
             // 3. Cargar información de corredores (solo los IDs que están en los registros)
             var corredorIds = corredorRegistros.Select(r => r.IdentifiCorredor).Distinct().ToList();
             
             if (corredorIds.Any())
             {
-                 // Carga por ID para cada corredor.
-                foreach (var id in corredorIds)
+                // Consulta optimizada: obtener todos los corredores en una sola query
+                var filterCorredores = Builders<Corredor>.Filter.In(c => c.DocumentoIdentidad, corredorIds);
+                var corredores = await MongoDb.Corredores
+                    .Find(filterCorredores)
+                    .ToListAsync();
+                
+                // Construir el diccionario
+                foreach (var corredor in corredores)
                 {
-                    var corredorDoc = await FirebaseService.Corredores.Document(id).GetSnapshotAsync();
-                    if (corredorDoc.Exists)
-                    {
-                        var corredor = corredorDoc.ConvertTo<Corredor>();
-                        corredoresMap[id] = corredor;
-                    }
+                    corredoresMap[corredor.DocumentoIdentidad] = corredor;
                 }
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"Error al cargar corredores: {ex.Message}";
-            Console.WriteLine(ex.ToString());
+            Console.WriteLine($"[ERROR MONGODB]: {ex}");
         }
         finally
         {
@@ -302,20 +301,19 @@
         }
     }
 
-
     private string GetCorredorNombre(string idCorredor)
     {
         return corredoresMap.ContainsKey(idCorredor) ? corredoresMap[idCorredor].Nombre : idCorredor;
     }
 
-    private string FormatTiempos(List<Google.Cloud.Firestore.Timestamp> tiempos)
+    private string FormatTiempos(List<DateTime> tiempos)
     {
         if (tiempos == null || !tiempos.Any())
         {
             return "N/A";
         }
 
-        var startTime = selectedCarrera?.FechaInicio.ToDateTime().ToLocalTime();
+        var startTime = selectedCarrera?.FechaInicio.ToLocalTime();
         if (startTime == null) return "Error: Sin inicio";
 
         var formattedTimes = new List<string>();
@@ -323,34 +321,33 @@
         // Recalcular el tiempo transcurrido respecto a la hora de inicio (startTime)
         for (int i = 0; i < tiempos.Count; i++)
         {
-            // Convertir Timestamp a DateTime y luego a la hora local del servidor
-            var timeValue = tiempos[i].ToDateTime().ToLocalTime();
+            // MongoDB almacena DateTime directamente
+            var timeValue = tiempos[i].ToLocalTime();
             var elapsed = timeValue - startTime.Value;
             
-            // Formatear: S[i+1]: HH:mm:ss.ff
+            // Formatear: S[i+1]: HH:mm:ss.fff
             formattedTimes.Add($"S{i + 1}: {elapsed.Hours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}.{elapsed.Milliseconds:D3}");
         }
 
         return string.Join(" | ", formattedTimes);
     }
 
-
     /// Calcula el tiempo total del corredor.
-    private string FormatTiempoTotal(List<Google.Cloud.Firestore.Timestamp> tiempos)
+    private string FormatTiempoTotal(List<DateTime> tiempos)
     {
         if (tiempos == null || !tiempos.Any())
         {
             return "N/A";
         }
 
-        var startTime = selectedCarrera?.FechaInicio.ToDateTime().ToLocalTime();
+        var startTime = selectedCarrera?.FechaInicio.ToLocalTime();
         if (startTime == null) return "Error: Sin inicio";
 
         // El tiempo total es la diferencia entre el ÚLTIMO tiempo registrado y la hora de inicio.
-        var finalTime = tiempos.Last().ToDateTime().ToLocalTime();
+        var finalTime = tiempos.Last().ToLocalTime();
         var totalElapsed = finalTime - startTime.Value;
 
-        // Formato total: HH:mm:ss.ff
+        // Formato total: HH:mm:ss.fff
         return $"{totalElapsed.Hours:D2}:{totalElapsed.Minutes:D2}:{totalElapsed.Seconds:D2}.{totalElapsed.Milliseconds:D3}";
     }
 }

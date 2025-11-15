@@ -2,8 +2,9 @@
 @rendermode InteractiveServer
 @using LaboratorioNET.Entities
 @using LaboratorioNET.Services 
+@using MongoDB.Driver
 @inject NavigationManager NavigationManager
-@inject FirebaseService FirebaseService
+@inject MongoDbService MongoDb
 @inject SesionService SesionService
 
 <PageTitle>Crear Cuenta</PageTitle>
@@ -71,7 +72,7 @@
                 }
             </button>
 
-            <!-- NUEVO: Enlace para iniciar sesión -->
+            <!-- Enlace para iniciar sesión -->
             <div class="login-link">
                 <p>¿Ya tienes una cuenta? <a href="/iniciar_sesion">Iniciar Sesión</a></p>
             </div>
@@ -81,11 +82,11 @@
 </div>
 <style>
     .background-container {
-        background-image: url('images/2.jpg'); /* Mantén el fondo */
+        background-image: url('images/2.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        min-height: 100vh; /* Asegura que cubra toda la pantalla */
+        min-height: 100vh;
         width: 100%;
         display: flex;
         justify-content: center;
@@ -93,8 +94,8 @@
     }
 
     .main-container {
-        max-height: 90vh; /* Limita la altura a un 90% de la pantalla */
-        overflow-y: auto;  /* Habilita el desplazamiento vertical */
+        max-height: 90vh;
+        overflow-y: auto;
         width: 100%;
         padding: 20px;
         box-sizing: border-box;
@@ -102,10 +103,10 @@
 
     .form-container {
         width: 100%;
-        max-width: 500px; /* Limita el ancho del formulario */
+        max-width: 500px;
         margin: 0 auto;
         padding: 10px;
-        background: rgba(255, 255, 255, 0.8); /* Fondo blanco translúcido */
+        background: rgba(255, 255, 255, 0.8);
         border-radius: 8px;
     }
 
@@ -186,41 +187,58 @@
         estaCargando = true;
         StateHasChanged();
 
-        // === 2. Crear objeto Corredor ===
-        var nuevoCorredor = new Corredor
-        {
-            DocumentoIdentidad = documentoIdentidad,
-            Nacionalidad = nacionalidad,
-            FechaNacimiento = fechaNacimiento.Value.ToString("yyyy-MM-dd"),
-            Nombre = nombre,
-            Contraseña = contrasena,
-            Telefono = telefono,
-            Correo = correo,
-            Rol = "Corredor", // Asignamos el rol predeterminado
-            Registros = new List<string>()
-        };
-
-        // === 3. Guardar en Firebase ===
         try
         {
-            // Usar el DocumentoIdentidad como ID del documento
-            await FirebaseService.Corredores.Document(documentoIdentidad).SetAsync(nuevoCorredor);
+            // === 2. Verificar si el documento ya existe ===
+            var filter = Builders<Corredor>.Filter.Eq(c => c.DocumentoIdentidad, documentoIdentidad);
+            var existente = await MongoDb.Corredores.Find(filter).FirstOrDefaultAsync();
+
+            if (existente != null)
+            {
+                mensajeError = "❌ Ya existe una cuenta con este documento de identidad.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // === 3. Crear objeto Corredor ===
+            var nuevoCorredor = new Corredor
+            {
+                DocumentoIdentidad = documentoIdentidad,
+                Nacionalidad = nacionalidad,
+                FechaNacimiento = fechaNacimiento.Value.ToString("yyyy-MM-dd"),
+                Nombre = nombre,
+                Contraseña = contrasena, // ⚠️ Considera hashear la contraseña en producción
+                Telefono = telefono,
+                Correo = correo,
+                Rol = "Corredor",
+                Registros = new List<string>()
+            };
+
+            // === 4. Guardar en MongoDB ===
+            await MongoDb.Corredores.InsertOneAsync(nuevoCorredor);
             
             mensajeError = $"✅ ¡Cuenta creada con éxito para {nuevoCorredor.Nombre}!";
             
-            // ✅ Iniciar sesión automáticamente con el rol
+            // Iniciar sesión automáticamente
             SesionService.IniciarSesion(nuevoCorredor.DocumentoIdentidad, nuevoCorredor.Nombre, nuevoCorredor.Rol);
             
             // Esperar un momento para que se vea el mensaje de éxito
             await Task.Delay(1500);
             
-            // ✅ NUEVO: Redirigir al menú del corredor
+            // Redirigir al inicio de sesión
             NavigationManager.NavigateTo("/iniciar_sesion", forceLoad: true);
+        }
+        catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
+        {
+            // Manejo específico para duplicados si tienes índice único en DocumentoIdentidad
+            mensajeError = "❌ Ya existe una cuenta con este documento de identidad.";
+            Console.WriteLine($"[ERROR MONGODB - DUPLICADO]: {ex}");
         }
         catch (Exception ex)
         {
             mensajeError = $"❌ Error al guardar: {ex.Message}";
-            Console.WriteLine($"[ERROR FIREBASE]: {ex}");
+            Console.WriteLine($"[ERROR MONGODB]: {ex}");
         }
 
         estaCargando = false;

@@ -1,6 +1,6 @@
 ﻿@page "/info_corredor"
 @rendermode InteractiveServer
-@inject LaboratorioNET.Services.FirebaseService FirebaseService
+@inject LaboratorioNET.Services.MongoDbService MongoDbS
 @using LaboratorioNET.Entities
 
 <PageTitle>Información Corredor</PageTitle>
@@ -376,7 +376,7 @@ h3 {
         try
         {
             // Buscar corredor
-            corredorSeleccionado = await FirebaseService.ObtenerCorredorPorNombreAsync(nombreBusqueda.Trim());
+            corredorSeleccionado = await MongoDbS.ObtenerCorredorPorNombreAsync(nombreBusqueda.Trim());
 
             if (corredorSeleccionado == null)
             {
@@ -393,14 +393,14 @@ h3 {
             }
 
             // Obtener registros del corredor
-            var registros = await FirebaseService.ObtenerRegistrosPorCorredorAsync(corredorSeleccionado.DocumentoIdentidad);
+            var registros = await MongoDbS.ObtenerRegistrosPorCorredorAsync(corredorSeleccionado.DocumentoIdentidad);
 
             if (registros.Any())
             {
                 // Procesar cada registro
                 foreach (var registro in registros)
                 {
-                    var carrera = await FirebaseService.ObtenerCarreraPorIdCarreraAsync(registro.IDCarrera);
+                    var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(registro.IDCarrera);
                     
                     if (carrera != null)
                     {
@@ -411,13 +411,13 @@ h3 {
                             NumDorsal = registro.NumDorsal,
                             CantidadTiempos = registro.Tiempos.Count,
                             UltimoTiempo = registro.Tiempos.Any() 
-                                ? registro.Tiempos.Last().ToDateTime().ToString("dd/MM/yyyy HH:mm:ss") 
+                                ? registro.Tiempos.Last().ToString("dd/MM/yyyy HH:mm:ss") 
                                 : "Sin tiempos",
                             Posicion = 0 // Calcular posición si es necesario
                         };
 
                         // Separar en actuales e historial (por ejemplo, carreras con fecha reciente)
-                        if (carrera.FechaInicio.ToDateTime() > DateTime.Now.AddMonths(-3))
+                        if (carrera.FechaInicio > DateTime.Now.AddMonths(-3))
                         {
                             registrosActuales.Add(detalles);
                         }

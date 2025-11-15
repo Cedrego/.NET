@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using LaboratorioNET.Services;
 using LaboratorioNET.Models;
-using Google.Cloud.Firestore;
+// Replaced Firestore usage with MongoDB service
 using LaboratorioNET.Entities;
 
 namespace LaboratorioNET.Controllers
@@ -14,18 +14,18 @@ namespace LaboratorioNET.Controllers
     [Route("api/[controller]")]
     public class SensorController : ControllerBase
     {
-        private readonly FirebaseService _firebaseService;
+        private readonly MongoDbService _mongoDbService;
         private readonly BucketService _bucketService;
         private readonly SensorValidationService _validationService;
         private readonly ILogger<SensorController> _logger;
 
         public SensorController(
-            FirebaseService firebaseService, 
+            MongoDbService mongoDbService, 
             BucketService bucketService,
             SensorValidationService validationService,
             ILogger<SensorController> logger)
         {
-            _firebaseService = firebaseService;
+            _mongoDbService = mongoDbService;
             _bucketService = bucketService;
             _validationService = validationService;
             _logger = logger;
@@ -62,7 +62,7 @@ namespace LaboratorioNET.Controllers
                 _logger.LogInformation($"📡 Datos de sensor validados - Corredor: {datos.CorredorId}, Carrera: {datos.CarreraId}");
 
                 // 2. Validar que la carrera exista
-                var (carreraExists, carreraError) = await _validationService.ValidarCarreraAsync(datos.CarreraId, _firebaseService);
+                var (carreraExists, carreraError) = await _validationService.ValidarCarreraAsync(datos.CarreraId, _mongoDbService);
                 if (!carreraExists)
                 {
                     return NotFound(new 
@@ -76,7 +76,7 @@ namespace LaboratorioNET.Controllers
                 var (corredorExists, corredorError) = await _validationService.ValidarCorredorEnCarreraAsync(
                     datos.CarreraId,
                     datos.CorredorId,
-                    _firebaseService
+                    _mongoDbService
                 );
                 if (!corredorExists)
                 {
@@ -99,11 +99,11 @@ namespace LaboratorioNET.Controllers
                     _logger.LogWarning($"⚠️ No se pudo guardar en bucket, pero continuando...");
                 }
 
-                // 5. Convertir DateTime a Timestamp de Firestore
-                var timestamp = Timestamp.FromDateTime(datos.Tiempo.ToUniversalTime());
+                // 5. Usar DateTime directamente para MongoDB
+                var timestamp = datos.Tiempo.ToUniversalTime();
 
                 // 6. Agregar el tiempo al registro del corredor
-                bool actualizado = await _firebaseService.AgregarTiempoAlRegistroAsync(
+                bool actualizado = await _mongoDbService.AgregarTiempoAlRegistroAsync(
                     datos.CarreraId,
                     datos.CorredorId,
                     timestamp
@@ -122,7 +122,7 @@ namespace LaboratorioNET.Controllers
                 _logger.LogInformation($"✅ Registro actualizado correctamente para corredor {datos.CorredorId}");
 
                 // 7. Verificar si la carrera debe marcarse como terminada
-                bool carreraTerminada = await _firebaseService.VerificarCarreraTerminadaAsync(datos.CarreraId);
+                bool carreraTerminada = await _mongoDbService.VerificarCarreraTerminadaAsync(datos.CarreraId);
 
                 return Ok(new
                 {
@@ -192,13 +192,13 @@ namespace LaboratorioNET.Controllers
                     return BadRequest(new { error = "carreraId es requerido" });
                 }
 
-                var carrera = await _firebaseService.ObtenerCarreraPorIdAsync(carreraId);
+                var carrera = await _mongoDbService.ObtenerCarreraPorIdAsync(carreraId);
                 if (carrera == null)
                 {
                     return NotFound(new { error = "Carrera no encontrada" });
                 }
 
-                var registros = await _firebaseService.ObtenerRegistrosPorCarreraAsync(carreraId);
+                var registros = await _mongoDbService.ObtenerRegistrosPorCarreraAsync(carreraId);
 
                 var info = new
                 {
@@ -213,7 +213,7 @@ namespace LaboratorioNET.Controllers
                         dorsal = r.NumDorsal,
                         tiemposRegistrados = r.Tiempos.Count,
                         completado = r.Tiempos.Count == carrera.CantSecciones,
-                        tiempos = r.Tiempos.Select(t => t.ToDateTime().ToString("o"))
+                        tiempos = r.Tiempos.Select(t => t.ToString("o"))
                     }).ToList()
                 };
 
@@ -300,7 +300,7 @@ namespace LaboratorioNET.Controllers
         {
             try
             {
-                var reporte = await _validationService.GenerarReporteValidacionAsync(datos, _firebaseService);
+                var reporte = await _validationService.GenerarReporteValidacionAsync(datos, _mongoDbService);
 
                 return Ok(new
                 {
@@ -330,14 +330,14 @@ namespace LaboratorioNET.Controllers
                 }
 
                 // Obtener info de carrera
-                var carrera = await _firebaseService.ObtenerCarreraPorIdAsync(carreraId);
+                var carrera = await _mongoDbService.ObtenerCarreraPorIdAsync(carreraId);
                 if (carrera == null)
                 {
                     return NotFound(new { error = "Carrera no encontrada" });
                 }
 
                 // Obtener registros
-                var registros = await _firebaseService.ObtenerRegistrosPorCarreraAsync(carreraId);
+                var registros = await _mongoDbService.ObtenerRegistrosPorCarreraAsync(carreraId);
 
                 // Obtener estadísticas del bucket
                 var estadisticas = await _bucketService.ObtenerEstadisticasCarreraAsync(carreraId);
@@ -376,7 +376,7 @@ namespace LaboratorioNET.Controllers
                         dorsal = r.NumDorsal,
                         tiemposRegistrados = r.Tiempos.Count,
                         completado = r.Tiempos.Count == carrera.CantSecciones,
-                        ultimoTiempo = r.Tiempos.Any() ? r.Tiempos.Last().ToDateTime() : (DateTime?)null
+                        ultimoTiempo = r.Tiempos.Any() ? r.Tiempos.Last() : (DateTime?)null
                     }).ToList(),
                     generadoEn = DateTime.UtcNow
                 };

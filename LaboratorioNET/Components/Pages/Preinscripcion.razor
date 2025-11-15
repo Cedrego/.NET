@@ -1,7 +1,8 @@
 ﻿@page "/preinscripcion"
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
-@inject LaboratorioNET.Services.FirebaseService FirebaseService
+@inject LaboratorioNET.Services.MongoDbService MongoDbS
+@using LaboratorioNET.Entities
 
 <PageTitle>Preinscripción</PageTitle>
 
@@ -237,28 +238,18 @@
     {
         try
         {
-            var snapshot = await FirebaseService.Carreras.GetSnapshotAsync();
+            var all = await MongoDbS.ObtenerTodasCarrerasAsync();
 
-            CarrerasDisponibles.Clear();
-            foreach (var document in snapshot.Documents)
-            {
-                var data = document.ToDictionary();
-
-                // Filtrar solo carreras que están en período de inscripción
-                var fechaInicioInsc = document.GetValue<DateTime>("FechaInicioIsnc");
-                var fechaInicio = document.GetValue<DateTime>("FechaInicio");
-
-                if (DateTime.Now >= fechaInicioInsc && DateTime.Now < fechaInicio)
+            CarrerasDisponibles = all
+                .Where(c => DateTime.Now >= c.FechaInicioInsc && DateTime.Now < c.FechaInicio)
+                .Select(c => new CarreraInfo
                 {
-                    CarrerasDisponibles.Add(new CarreraInfo
-                    {
-                        IdCarrera = document.Id,
-                        Nombre = document.GetValue<string>("Nombre"),
-                        LimiteParticipantes = document.GetValue<int>("LimiteParticipantes"),
-                        FechaInicio = fechaInicio
-                    });
-                }
-            }
+                    IdCarrera = c.IdCarrera,
+                    Nombre = c.Nombre,
+                    LimiteParticipantes = c.LimiteParticipantes,
+                    FechaInicio = c.FechaInicio
+                })
+                .ToList();
         }
         catch (Exception ex)
         {
@@ -310,12 +301,8 @@
         try
         {
             // Verificar que el corredor no esté ya registrado en esta carrera
-            var registrosQuery = await FirebaseService.Registros
-                .WhereEqualTo("IDCarrera", FormData.IDCarrera)
-                .WhereEqualTo("IdentifiCorredor", FormData.IdentifiCorredor)
-                .GetSnapshotAsync();
-
-            if (registrosQuery.Documents.Count > 0)
+            var registrosExistentes = await MongoDbS.ObtenerRegistrosPorCarreraAsync(FormData.IDCarrera);
+            if (registrosExistentes.Any(r => r.IdentifiCorredor == FormData.IdentifiCorredor))
             {
                 Message = "Ya está inscrito en esta carrera";
                 MessageType = "error";
@@ -324,14 +311,17 @@
             }
 
             // Verificar límite de participantes
-            var carreraSnapshot = await FirebaseService.Carreras.Document(FormData.IDCarrera).GetSnapshotAsync();
-            var limiteParticipantes = carreraSnapshot.GetValue<int>("LimiteParticipantes");
+            var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(FormData.IDCarrera);
+            if (carrera == null)
+            {
+                Message = "Carrera no encontrada";
+                MessageType = "error";
+                IsLoading = false;
+                return;
+            }
 
-            var registrosCarreraQuery = await FirebaseService.Registros
-                .WhereEqualTo("IDCarrera", FormData.IDCarrera)
-                .GetSnapshotAsync();
-
-            if (registrosCarreraQuery.Documents.Count >= limiteParticipantes)
+            var limiteParticipantes = carrera.LimiteParticipantes;
+            if (registrosExistentes.Count >= limiteParticipantes)
             {
                 Message = "Lo sentimos, esta carrera ya alcanzó el límite de participantes";
                 MessageType = "error";
@@ -343,29 +333,31 @@
             string numDorsal = await GenerarNumDorsalUnico(FormData.IDCarrera);
 
             // Guardar corredor si no existe
-            var corredorQuery = await FirebaseService.Corredores
-                .WhereEqualTo("Documento", FormData.IdentifiCorredor)
-                .GetSnapshotAsync();
-
-            if (corredorQuery.Documents.Count == 0)
+            var corredorExistente = await MongoDbS.ObtenerCorredorPorDocumentoAsync(FormData.IdentifiCorredor);
+            if (corredorExistente == null)
             {
-                await FirebaseService.Corredores.AddAsync(new Dictionary<string, object>
+                var nuevoCorredor = new Corredor
                 {
-                    { "Nombre", FormData.NombreCompleto },
-                    { "Documento", FormData.IdentifiCorredor },
-                    { "Telefono", FormData.Telefono },
-                    { "Ubicacion", FormData.Ubicacion }
-                });
+                    Nombre = FormData.NombreCompleto,
+                    DocumentoIdentidad = FormData.IdentifiCorredor,
+                    Telefono = FormData.Telefono,
+                    Nacionalidad = "",
+                    FechaNacimiento = ""
+                };
+
+                await MongoDbS.AgregarCorredorAsync(nuevoCorredor);
             }
 
             // Crear registro de inscripción
-            await FirebaseService.Registros.AddAsync(new Dictionary<string, object>
+            var nuevoRegistro = new Registro
             {
-                { "IDCarrera", FormData.IDCarrera },
-                { "IdentifiCorredor", FormData.IdentifiCorredor },
-                { "NumDorsal", numDorsal },
-                { "Tiempos", new Dictionary<string, object>() }
-            });
+                IDCarrera = FormData.IDCarrera,
+                IdentifiCorredor = FormData.IdentifiCorredor,
+                NumDorsal = int.TryParse(numDorsal, out var n) ? n : 0,
+                Tiempos = new List<DateTime>()
+            };
+
+            await MongoDbS.AgregarRegistroAsync(nuevoRegistro);
 
             Message = $"¡Preinscripción exitosa! Su número de dorsal es: {numDorsal}";
             MessageType = "success";
@@ -398,14 +390,9 @@
         {
             // Generar número aleatorio de 4 dígitos
             numDorsal = random.Next(1000, 9999).ToString();
-
             // Verificar si ya existe este dorsal para esta carrera
-            var query = await FirebaseService.Registros
-                .WhereEqualTo("IDCarrera", idCarrera)
-                .WhereEqualTo("NumDorsal", numDorsal)
-                .GetSnapshotAsync();
-
-            existe = query.Documents.Count > 0;
+            var registros = await MongoDbS.ObtenerRegistrosPorCarreraAsync(idCarrera);
+            existe = registros.Any(r => r.NumDorsal.ToString() == numDorsal);
         } while (existe);
 
         return numDorsal;

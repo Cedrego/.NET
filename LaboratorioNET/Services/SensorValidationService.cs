@@ -91,11 +91,11 @@ namespace LaboratorioNET.Services
         public async Task<(bool exists, string? errorMessage)> ValidarCorredorEnCarreraAsync(
             string carreraId, 
             string documentoCorredor,
-            FirebaseService firebaseService)
+            MongoDbService mongoDbService)
         {
             try
             {
-                var registro = await firebaseService.ObtenerRegistroCorredorEnCarreraAsync(carreraId, documentoCorredor);
+                var registro = await mongoDbService.ObtenerRegistroCorredorEnCarreraAsync(carreraId, documentoCorredor);
                 
                 if (registro == null)
                 {
@@ -117,11 +117,11 @@ namespace LaboratorioNET.Services
         /// </summary>
         public async Task<(bool exists, string? errorMessage)> ValidarCarreraAsync(
             string carreraId,
-            FirebaseService firebaseService)
+            MongoDbService mongoDbService)
         {
             try
             {
-                var carrera = await firebaseService.ObtenerCarreraPorIdAsync(carreraId);
+                var carrera = await mongoDbService.ObtenerCarreraPorIdAsync(carreraId);
                 
                 if (carrera == null)
                 {
@@ -177,7 +177,7 @@ namespace LaboratorioNET.Services
         /// </summary>
         public async Task<Dictionary<string, object>> GenerarReporteValidacionAsync(
             SensorCheckpointData datos,
-            FirebaseService firebaseService)
+            MongoDbService mongoDbService)
         {
             var reporte = new Dictionary<string, object>();
 
@@ -196,7 +196,7 @@ namespace LaboratorioNET.Services
             }
 
             // Validar carrera
-            var (carreraValid, carreraError) = await ValidarCarreraAsync(datos.CarreraId, firebaseService);
+            var (carreraValid, carreraError) = await ValidarCarreraAsync(datos.CarreraId, mongoDbService);
             reporte["validacionCarrera"] = new
             {
                 valido = carreraValid,
@@ -213,7 +213,7 @@ namespace LaboratorioNET.Services
             var (corredorValid, corredorError) = await ValidarCorredorEnCarreraAsync(
                 datos.CarreraId,
                 datos.CorredorId,
-                firebaseService
+                mongoDbService
             );
             reporte["validacionCorredor"] = new
             {

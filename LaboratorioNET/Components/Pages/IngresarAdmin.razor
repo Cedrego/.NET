@@ -3,7 +3,7 @@
 @using LaboratorioNET.Services
 @using LaboratorioNET.Entities
 @inject NavigationManager Navigation
-@inject FirebaseService FirebaseService
+@inject MongoDbService MongoDb
 @inject SesionService SesionService
 
 <PageTitle>Iniciar Sesión - Admin</PageTitle>
@@ -95,12 +95,9 @@
 
         try
         {
-            // ⚠️ Asegúrate que esta es la colección correcta en Firebase
-            var corredorDoc = await FirebaseService.Corredores
-                .Document(documentoIdentidad.Trim()) // Busca por documento de identidad
-                .GetSnapshotAsync();
+            var usuario = await MongoDb.ObtenerCorredorPorDocumentoAsync(documentoIdentidad.Trim());
 
-            if (!corredorDoc.Exists)
+            if (usuario == null)
             {
                 mensajeError = "Usuario no encontrado. Verifique su documento de identidad.";
                 estaCargando = false;
@@ -108,10 +105,7 @@
                 return;
             }
 
-            // Convertir el documento a un objeto de tipo Corredor
-            var usuario = corredorDoc.ConvertTo<Corredor>();
-
-            // Verificar que la contraseña coincida (ahora usando "Contraseña" correctamente)
+            // Verificar que la contraseña coincida
             if (usuario.Contraseña.Trim() != contrasena.Trim())
             {
                 mensajeError = "Contraseña incorrecta.";
@@ -123,15 +117,13 @@
             // Verificar el rol del usuario
             if (usuario.Rol?.ToLower() == "admin")
             {
-                // Si es admin, redirige al dashboard de admin
                 SesionService.IniciarSesion(usuario.DocumentoIdentidad, usuario.Nombre);
-                Navigation.NavigateTo("/admin"); // Redirigir al dashboard admin
+                Navigation.NavigateTo("/admin");
             }
             else
             {
-                // Si no es admin, redirige a la página del cliente o corredor
                 SesionService.IniciarSesion(usuario.DocumentoIdentidad, usuario.Nombre);
-                Navigation.NavigateTo("/menu-corredor"); // Redirigir a la página del cliente/corredor
+                Navigation.NavigateTo("/menu-corredor");
             }
         }
         catch (Exception ex)

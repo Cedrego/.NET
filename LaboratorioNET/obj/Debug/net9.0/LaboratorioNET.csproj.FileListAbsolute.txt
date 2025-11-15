@@ -343,9 +343,7 @@ C:\Users\Franco\Source\Repos\.NET\LaboratorioNET\obj\Debug\net9.0\refint\Laborat
 C:\Users\Franco\Source\Repos\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.pdb
 C:\Users\Franco\Source\Repos\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.genruntimeconfig.cache
 C:\Users\Franco\Source\Repos\.NET\LaboratorioNET\obj\Debug\net9.0\ref\LaboratorioNET.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\appsettings.Development.json
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\appsettings.json
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\firebase-credentials.json
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.staticwebassets.runtime.json
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.staticwebassets.endpoints.json
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.exe
@@ -354,25 +352,13 @@ D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.runtimecon
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.pdb
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\DnsClient.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\FirebaseAdmin.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Firebase.Auth.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Firebase.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Api.CommonProtos.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Api.Gax.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Api.Gax.Grpc.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Api.Gax.Rest.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.Auth.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.Core.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Firestore.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Firestore.V1.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Location.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.LongRunning.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Protobuf.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Grpc.Auth.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Grpc.Core.Api.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Grpc.Net.Client.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Grpc.Net.Common.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\LiteDB.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\MongoDB.Bson.dll
@@ -380,12 +366,8 @@ D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\MongoDB.Driver.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Newtonsoft.Json.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\SharpCompress.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Snappier.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\System.CodeDom.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\System.Linq.Async.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\System.Management.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\System.Reactive.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\ZstdSharp.dll
-D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\runtimes\win\lib\net7.0\System.Management.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.csproj.AssemblyReference.cache
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\rpswa.dswa.cache.json
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.GeneratedMSBuildEditorConfig.editorconfig
@@ -445,8 +427,6 @@ D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\a21ectnacy-u9q
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\dsyoatajm3-h1s4sie4z3.gz
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\4zpo2c5uvu-4d85u1mtcx.gz
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\qdcnf4ohi8-0j3bgjxly4.gz
-D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\ad8hl7tpgx-9zrabv2et9.gz
-D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\gd0yp1q7a0-9zrabv2et9.gz
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.build.json
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.build.json.cache
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.development.json
@@ -460,6 +440,49 @@ D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\ref\LaboratorioNET.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.Storage.v1.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Storage.V1.dll
 D:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\r5tjjierih-hl10y9xdbf.gz
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\appsettings.json
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.staticwebassets.runtime.json
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.staticwebassets.endpoints.json
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.exe
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.deps.json
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.runtimeconfig.json
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\LaboratorioNET.pdb
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\DnsClient.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\FirebaseAdmin.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Firebase.Auth.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Firebase.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Api.CommonProtos.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Api.Gax.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Api.Gax.Grpc.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Api.Gax.Rest.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.Auth.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.Core.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.Storage.v1.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Firestore.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Firestore.V1.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Location.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Cloud.Storage.V1.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.LongRunning.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Protobuf.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Grpc.Auth.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Grpc.Core.Api.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Grpc.Net.Client.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Grpc.Net.Common.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\LiteDB.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\MongoDB.Bson.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\MongoDB.Driver.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Newtonsoft.Json.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\SharpCompress.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\Snappier.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\System.CodeDom.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\System.Linq.Async.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\System.Management.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\System.Reactive.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\ZstdSharp.dll
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\bin\Debug\net9.0\runtimes\win\lib\net7.0\System.Management.dll
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.csproj.AssemblyReference.cache
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\rpswa.dswa.cache.json
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.GeneratedMSBuildEditorConfig.editorconfig
@@ -522,6 +545,16 @@ C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compres
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\qdcnf4ohi8-0j3bgjxly4.gz
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\ad8hl7tpgx-uc42z4xvih.gz
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\gd0yp1q7a0-uc42z4xvih.gz
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.build.json.cache
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.development.json
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\Laborato.205249BA.Up2Date
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.dll
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\refint\LaboratorioNET.dll
 C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.pdb
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\LaboratorioNET.genruntimeconfig.cache
+C:\Users\User\Desktop\.NET\proyecto\.NET\LaboratorioNET\obj\Debug\net9.0\ref\LaboratorioNET.dll
+d:\Descargas v2.0\.NET\LaboratorioNET\bin\Debug\net9.0\Google.Apis.Auth.PlatformServices.dll
+d:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\ad8hl7tpgx-uc42z4xvih.gz
+d:\Descargas v2.0\.NET\LaboratorioNET\obj\Debug\net9.0\compressed\gd0yp1q7a0-uc42z4xvih.gz

@@ -1,7 +1,9 @@
 ﻿@page "/estado-carrera"
 @rendermode InteractiveServer
+@using MongoDB.Driver
+@using LaboratorioNET.Entities
 @inject NavigationManager Navigation
-@inject LaboratorioNET.Services.FirebaseService FirebaseService
+@inject LaboratorioNET.Services.MongoDbService MongoDbS
 
 <PageTitle>Estado de la Carrera</PageTitle>
 
@@ -285,20 +287,23 @@
 
         try
         {
-            // Buscar por documento o dorsal
-            var registrosPorDocumento = await FirebaseService.Registros
-                .WhereEqualTo("IdentifiCorredor", BusquedaInput)
-                .GetSnapshotAsync();
+            // Buscar registros por documento O dorsal usando $or en MongoDB
+            FilterDefinition<Registro> filter;
+            if (int.TryParse(BusquedaInput, out var dorsal))
+            {
+                filter = Builders<Registro>.Filter.Or(
+                    Builders<Registro>.Filter.Eq(r => r.IdentifiCorredor, BusquedaInput),
+                    Builders<Registro>.Filter.Eq(r => r.NumDorsal, dorsal)
+                );
+            }
+            else
+            {
+                filter = Builders<Registro>.Filter.Eq(r => r.IdentifiCorredor, BusquedaInput);
+            }
 
-            var registrosPorDorsal = await FirebaseService.Registros
-                .WhereEqualTo("NumDorsal", BusquedaInput)
-                .GetSnapshotAsync();
-
-            // Combinar resultados
-            var registros = registrosPorDocumento.Documents
-                .Concat(registrosPorDorsal.Documents)
-                .DistinctBy(d => d.Id)
-                .ToList();
+            var registros = await MongoDbS.Registros
+                .Find(filter)
+                .ToListAsync();
 
             if (!registros.Any())
             {
@@ -310,17 +315,19 @@
             // Obtener detalles de cada carrera
             foreach (var registro in registros)
             {
-                var idCarrera = registro.GetValue<string>("IDCarrera");
-                var carreraDoc = await FirebaseService.Carreras.Document(idCarrera).GetSnapshotAsync();
+                var filterCarrera = Builders<Carrera>.Filter.Eq(c => c.IdCarrera, registro.IDCarrera);
+                var carrera = await MongoDbS.Carreras
+                    .Find(filterCarrera)
+                    .FirstOrDefaultAsync();
 
-                if (carreraDoc.Exists)
+                if (carrera != null)
                 {
                     CarrerasInscrito.Add(new CarreraInscrita
                     {
-                        IdCarrera = idCarrera,
-                        NombreCarrera = carreraDoc.GetValue<string>("Nombre"),
-                        NumDorsal = registro.GetValue<string>("NumDorsal"),
-                        IdentifiCorredor = registro.GetValue<string>("IdentifiCorredor")
+                        IdCarrera = registro.IDCarrera,
+                        NombreCarrera = carrera.Nombre,
+                        NumDorsal = registro.NumDorsal.ToString(),
+                        IdentifiCorredor = registro.IdentifiCorredor
                     });
                 }
             }
@@ -336,6 +343,11 @@
                     CarreraSeleccionada = CarrerasInscrito[0].IdCarrera;
                     await CargarDetallesCarrera();
                 }
+            }
+            else
+            {
+                SearchMessage = "No se encontraron carreras asociadas";
+                SearchMessageType = "info";
             }
         }
         catch (Exception ex)
@@ -360,20 +372,20 @@
 
         try
         {
-            var carreraDoc = await FirebaseService.Carreras.Document(CarreraSeleccionada).GetSnapshotAsync();
+            var filter = Builders<Carrera>.Filter.Eq(c => c.IdCarrera, CarreraSeleccionada);
+            var carrera = await MongoDbS.Carreras
+                .Find(filter)
+                .FirstOrDefaultAsync();
 
-            if (carreraDoc.Exists)
+            if (carrera != null)
             {
-                var fechaInicio = carreraDoc.GetValue<DateTime>("FechaInicio");
-                var lugarSalida = carreraDoc.GetValue<string>("LugarSalida");
-
                 // Obtener el número de dorsal de la carrera seleccionada
                 var carreraInscrita = CarrerasInscrito.FirstOrDefault(c => c.IdCarrera == CarreraSeleccionada);
 
                 DetalleCarrera = new DetalleCarreraInfo
                 {
-                    FechaInicio = fechaInicio.ToString("dd/MM/yyyy HH:mm"),
-                    LugarSalida = lugarSalida,
+                    FechaInicio = carrera.FechaInicio.ToString("dd/MM/yyyy HH:mm"),
+                    LugarSalida = carrera.LugarSalida,
                     NumDorsal = carreraInscrita?.NumDorsal ?? ""
                 };
             }

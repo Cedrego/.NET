@@ -1,18 +1,18 @@
-using Google.Cloud.Firestore;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace LaboratorioNET.Entities
 {
-    [FirestoreData]
-    public class Admin
+   public class Admin
     {
-        [FirestoreDocumentId]
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
-        // 👇 usa exactamente el nombre del campo que aparece en Firestore
-        [FirestoreProperty("Contraseña")]
+        [BsonElement("Contraseña")]
         public string Contrasena { get; set; } = string.Empty;
 
-        [FirestoreProperty("IDAdmin")]
+        [BsonElement("IDAdmin")]
         public string IDAdmin { get; set; } = string.Empty;
     }
 }

@@ -3,8 +3,8 @@
 @using LaboratorioNET.Services
 @using LaboratorioNET.Models
 @using LaboratorioNET.Entities
-@using Google.Cloud.Firestore
-@inject FirebaseService FirebaseService
+@* Usamos MongoDbService inyectado *@
+@inject MongoDbService MongoDb
 @inject BucketService BucketService
 @inject NavigationManager Navigation
 
@@ -65,7 +65,7 @@
                                             <div class="progress-bar-inner" style="width:@porcentaje%">@porcentaje%</div>
                                         </div>
                                     </td>
-                                    <td>@(r.Tiempos.Any() ? string.Join(", ", r.Tiempos.Select(t => t.ToDateTime().ToString("HH:mm:ss"))) : "-")</td>
+                                    <td>@(r.Tiempos.Any() ? string.Join(", ", r.Tiempos.Select(t => t.ToString("HH:mm:ss"))) : "-")</td>
                                 </tr>
                             }
                         </tbody>
@@ -93,7 +93,7 @@
 
     private async Task BuscarCarreras()
     {
-        var all = await FirebaseService.ObtenerTodasCarrerasAsync();
+        var all = await MongoDb.ObtenerTodasCarrerasAsync();
         if (string.IsNullOrWhiteSpace(searchTerm))
         {
             carreras = all;
@@ -107,10 +107,10 @@
     private async Task SeleccionarCarrera(Carrera c)
     {
         selectedCarrera = c;
-        registros = await FirebaseService.ObtenerRegistrosPorCarreraAsync(c.IdCarrera);
+        registros = await MongoDb.ObtenerRegistrosPorCarreraAsync(c.IdCarrera);
 
         // cargar corredores y mapear por documento
-        var corredores = await FirebaseService.ObtenerCorredoresFiltradosAsync(c.IdCarrera);
+        var corredores = await MongoDb.ObtenerCorredoresFiltradosAsync(c.IdCarrera);
         corredoresMap = corredores.ToDictionary(x => x.DocumentoIdentidad, x => x);
 
         StateHasChanged();
@@ -149,12 +149,11 @@
                         // Guardar backup en bucket
                         await BucketService.GuardarDatosSensorAsync(selectedCarrera.IdCarrera, reg.IdentifiCorredor, tiempo);
 
-                        // Agregar tiempo al registro en Firestore
-                        var ts = Timestamp.FromDateTime(tiempo);
-                        await FirebaseService.AgregarTiempoAlRegistroAsync(selectedCarrera.IdCarrera, reg.IdentifiCorredor, ts);
+                        // Agregar tiempo al registro en MongoDB
+                        await MongoDb.AgregarTiempoAlRegistroAsync(selectedCarrera.IdCarrera, reg.IdentifiCorredor, tiempo);
 
                         // Actualizar UI local: re-fetch registro para reflejar cambios
-                        var updated = await FirebaseService.ObtenerRegistroCorredorEnCarreraAsync(selectedCarrera.IdCarrera, reg.IdentifiCorredor);
+                        var updated = await MongoDb.ObtenerRegistroCorredorEnCarreraAsync(selectedCarrera.IdCarrera, reg.IdentifiCorredor);
                         if (updated != null)
                         {
                             var idx = registros.FindIndex(r => r.Id == updated.Id);
@@ -174,7 +173,7 @@
                 // Verificar carrera terminada
                 if (selectedCarrera != null)
                 {
-                    await FirebaseService.VerificarCarreraTerminadaAsync(selectedCarrera.IdCarrera);
+                    await MongoDb.VerificarCarreraTerminadaAsync(selectedCarrera.IdCarrera);
                 }
             }
             catch (TaskCanceledException) { }
