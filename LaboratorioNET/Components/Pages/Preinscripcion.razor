@@ -6,133 +6,6 @@
 
 <PageTitle>Preinscripción</PageTitle>
 
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        background-color: #2a2a2a;
-    }
-
-    .main-container {
-        min-height: 100vh;
-        background-color: #2a2a2a;
-        padding: 40px 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .form-container {
-        background-color: #D3D3D3;
-        border-radius: 25px;
-        padding: 40px;
-        max-width: 450px;
-        width: 100%;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    }
-
-        .form-container h2 {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #000;
-        }
-
-        .form-container .subtitle {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-    .form-group {
-        margin-bottom: 25px;
-    }
-
-        .form-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #000;
-            margin-bottom: 10px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 14px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: #fff;
-            color: #000;
-            font-family: Arial, sans-serif;
-        }
-
-            .form-group input::placeholder {
-                color: #bbb;
-            }
-
-            .form-group input:focus,
-            .form-group select:focus {
-                outline: none;
-                box-shadow: 0 0 5px rgba(124, 77, 255, 0.3);
-            }
-
-    .btn {
-        width: 100%;
-        padding: 14px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background-color: #2a2a2a;
-        color: #fff;
-        margin-top: 25px;
-    }
-
-        .btn:hover {
-            background-color: #1a1a1a;
-        }
-
-        .btn:disabled {
-            background-color: #666;
-            cursor: not-allowed;
-        }
-
-    .message {
-        margin-top: 20px;
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-        font-weight: 600;
-    }
-
-        .message.success {
-            background-color: #4caf50;
-            color: white;
-        }
-
-        .message.error {
-            background-color: #f44336;
-            color: white;
-        }
-
-    @@media (max-width: 600px) {
-        .form-container {
-            padding: 30px 20px;
-        }
-
-            .form-container h2 {
-                font-size: 24px;
-            }
-    }
-</style>
 <div class=" background-container">
 <div class="main-container">
     <div class="form-container">
@@ -165,17 +38,6 @@
             <input type="tel" placeholder="Ingrese su teléfono" @bind="FormData.Telefono" />
         </div>
 
-        <div class="form-group">
-            <label>Location</label>
-            <select @bind="FormData.Ubicacion">
-                <option value="">Seleccione una ubicación</option>
-                @foreach (var ubicacion in Ubicaciones)
-                {
-                    <option value="@ubicacion">@ubicacion</option>
-                }
-            </select>
-        </div>
-
         <button class="btn" @onclick="SubmitForm" disabled="@IsLoading">
             @(IsLoading ? "Enviando..." : "Inscribir")
         </button>
@@ -192,13 +54,8 @@
 @code {
     private PreinscripcionForm FormData = new PreinscripcionForm();
     private List<CarreraInfo> CarrerasDisponibles = new List<CarreraInfo>();
-    private List<string> Ubicaciones = new List<string>
-    {
-        "Montevideo",
-        "Maldonado",
-        "Punta del Este",
-        "Canelones"
-    };
+    
+    
     private bool IsLoading = false;
     private string Message = "";
     private string MessageType = "";
@@ -209,7 +66,6 @@
         public string IdentifiCorredor { get; set; } = "";
         public string NombreCompleto { get; set; } = "";
         public string Telefono { get; set; } = "";
-        public string Ubicacion { get; set; } = "";
     }
 
     private class CarreraInfo
@@ -259,7 +115,6 @@
 
     private async Task SubmitForm()
     {
-        // Validaciones
         if (string.IsNullOrWhiteSpace(FormData.IDCarrera))
         {
             Message = "Por favor seleccione una carrera";
@@ -288,19 +143,13 @@
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(FormData.Ubicacion))
-        {
-            Message = "Por favor seleccione una ubicación";
-            MessageType = "error";
-            return;
-        }
 
         IsLoading = true;
         Message = "";
 
         try
         {
-            // Verificar que el corredor no esté ya registrado en esta carrera
+            
             var registrosExistentes = await MongoDbS.ObtenerRegistrosPorCarreraAsync(FormData.IDCarrera);
             if (registrosExistentes.Any(r => r.IdentifiCorredor == FormData.IdentifiCorredor))
             {
@@ -310,7 +159,6 @@
                 return;
             }
 
-            // Verificar límite de participantes
             var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(FormData.IDCarrera);
             if (carrera == null)
             {
@@ -320,8 +168,7 @@
                 return;
             }
 
-            var limiteParticipantes = carrera.LimiteParticipantes;
-            if (registrosExistentes.Count >= limiteParticipantes)
+            if (registrosExistentes.Count >= carrera.LimiteParticipantes)
             {
                 Message = "Lo sentimos, esta carrera ya alcanzó el límite de participantes";
                 MessageType = "error";
@@ -329,10 +176,8 @@
                 return;
             }
 
-            // Generar número de dorsal aleatorio único
             string numDorsal = await GenerarNumDorsalUnico(FormData.IDCarrera);
 
-            // Guardar corredor si no existe
             var corredorExistente = await MongoDbS.ObtenerCorredorPorDocumentoAsync(FormData.IdentifiCorredor);
             if (corredorExistente == null)
             {
@@ -341,14 +186,12 @@
                     Nombre = FormData.NombreCompleto,
                     DocumentoIdentidad = FormData.IdentifiCorredor,
                     Telefono = FormData.Telefono,
-                    Nacionalidad = "",
-                    FechaNacimiento = ""
+                    Nacionalidad = "", 
+                    FechaNacimiento = "" 
                 };
-
                 await MongoDbS.AgregarCorredorAsync(nuevoCorredor);
             }
 
-            // Crear registro de inscripción
             var nuevoRegistro = new Registro
             {
                 IDCarrera = FormData.IDCarrera,
@@ -356,13 +199,11 @@
                 NumDorsal = int.TryParse(numDorsal, out var n) ? n : 0,
                 Tiempos = new List<DateTime>()
             };
-
             await MongoDbS.AgregarRegistroAsync(nuevoRegistro);
 
             Message = $"¡Preinscripción exitosa! Su número de dorsal es: {numDorsal}";
             MessageType = "success";
 
-            // Limpiar formulario después de 3 segundos
             await Task.Delay(3000);
             FormData = new PreinscripcionForm();
             Message = "";
@@ -388,9 +229,7 @@
 
         do
         {
-            // Generar número aleatorio de 4 dígitos
             numDorsal = random.Next(1000, 9999).ToString();
-            // Verificar si ya existe este dorsal para esta carrera
             var registros = await MongoDbS.ObtenerRegistrosPorCarreraAsync(idCarrera);
             existe = registros.Any(r => r.NumDorsal.ToString() == numDorsal);
         } while (existe);

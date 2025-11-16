@@ -7,194 +7,19 @@
 
 <PageTitle>Estado de la Carrera</PageTitle>
 
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        background-color: #2a2a2a;
-    }
-
-    .main-container {
-        min-height: 100vh;
-        background-color: #2a2a2a;
-        padding: 40px 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .info-text {
-        color: #fff;
-        font-size: 13px;
-        text-align: center;
-        margin-bottom: 40px;
-        max-width: 700px;
-        line-height: 1.6;
-        font-family: Arial, sans-serif;
-    }
-
-    .forms-wrapper {
-        display: flex;
-        gap: 30px;
-        max-width: 1000px;
-        width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .form-container {
-        background-color: #D3D3D3;
-        border-radius: 25px;
-        padding: 35px;
-        width: 100%;
-        max-width: 320px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    }
-
-        .form-container h2 {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 25px;
-            color: #000;
-        }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #000;
-            margin-bottom: 10px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: #fff;
-            color: #000;
-            font-family: Arial, sans-serif;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 90px;
-        }
-
-            .form-group input::placeholder,
-            .form-group textarea::placeholder {
-                color: #bbb;
-            }
-
-            .form-group input:focus,
-            .form-group select:focus,
-            .form-group textarea:focus {
-                outline: none;
-                box-shadow: 0 0 5px rgba(124, 77, 255, 0.3);
-            }
-
-    .btn {
-        width: 100%;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background-color: #2a2a2a;
-        color: #fff;
-        margin-top: 20px;
-    }
-
-        .btn:hover {
-            background-color: #1a1a1a;
-        }
-
-        .btn:disabled {
-            background-color: #666;
-            cursor: not-allowed;
-        }
-
-    .message {
-        margin-top: 15px;
-        padding: 12px;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-        .message.success {
-            background-color: #4caf50;
-            color: white;
-        }
-
-        .message.error {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .message.info {
-            background-color: #2196F3;
-            color: white;
-        }
-
-    @@media (max-width: 800px) {
-        .forms-wrapper {
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-container {
-            max-width: 100%;
-        }
-
-        .info-text {
-            margin-bottom: 25px;
-        }
-    }
-
-    @@media (max-width: 600px) {
-        .form-container {
-            padding: 25px 20px;
-        }
-
-            .form-container h2 {
-                font-size: 20px;
-            }
-
-        .info-text {
-            font-size: 12px;
-        }
-    }
-</style>
-
 <div class="main-container">
+    
     <div class="info-text">
-        El corredor ingresará su documento de Identidad o número de dorsal y se le mostrará el estado de la carrera en la que esta inscripto mas próxima
+        El corredor ingresará su documento de Identidad y se le mostrará el estado de las carreras en la que esta inscripto.
     </div>
 
     <div class="forms-wrapper">
-        <!-- Panel Izquierdo: Corredor -->
         <div class="form-container">
             <h2>Corredor</h2>
 
             <div class="form-group">
-                <label>Documento de Identidad/Nº Dorsal</label>
-                <input type="text" placeholder="Ingrese documento o dorsal" @bind="BusquedaInput" />
+                <label>Documento de Identidad</label>
+                <input type="text" placeholder="Ingrese documento" @bind="BusquedaInput" />
             </div>
 
             <button class="btn" @onclick="BuscarCorredor" disabled="@IsSearching">
@@ -209,7 +34,6 @@
             }
         </div>
 
-        <!-- Panel Derecho: Estado de la Carrera -->
         <div class="form-container">
             <h2>Estado de la Carrera</h2>
 
@@ -228,10 +52,10 @@
                 <label>Fecha y hora de inicio</label>
                 <input type="text" placeholder="Fecha de inicio" @bind="DetalleCarrera.FechaInicio" readonly />
             </div>
-
+            
             <div class="form-group">
-                <label>Lugar de salida</label>
-                <input type="text" placeholder="Lugar de salida" @bind="DetalleCarrera.LugarSalida" readonly />
+                <label>Estado</label>
+                <input type="text" placeholder="Estado de la carrera" @bind="DetalleCarrera.Estado" readonly />
             </div>
 
             <div class="form-group">
@@ -266,7 +90,7 @@
     private class DetalleCarreraInfo
     {
         public string FechaInicio { get; set; } = "";
-        public string LugarSalida { get; set; } = "";
+        public string Estado { get; set; } = "";
         public string NumDorsal { get; set; } = "";
     }
 
@@ -274,7 +98,7 @@
     {
         if (string.IsNullOrWhiteSpace(BusquedaInput))
         {
-            SearchMessage = "Por favor ingrese un documento o número de dorsal";
+            SearchMessage = "Por favor ingrese un documento";
             SearchMessageType = "error";
             return;
         }
@@ -287,32 +111,19 @@
 
         try
         {
-            // Buscar registros por documento O dorsal usando $or en MongoDB
-            FilterDefinition<Registro> filter;
-            if (int.TryParse(BusquedaInput, out var dorsal))
-            {
-                filter = Builders<Registro>.Filter.Or(
-                    Builders<Registro>.Filter.Eq(r => r.IdentifiCorredor, BusquedaInput),
-                    Builders<Registro>.Filter.Eq(r => r.NumDorsal, dorsal)
-                );
-            }
-            else
-            {
-                filter = Builders<Registro>.Filter.Eq(r => r.IdentifiCorredor, BusquedaInput);
-            }
-
+            var filter = Builders<Registro>.Filter.Eq(r => r.IdentifiCorredor, BusquedaInput);
+            
             var registros = await MongoDbS.Registros
                 .Find(filter)
                 .ToListAsync();
 
             if (!registros.Any())
             {
-                SearchMessage = "No se encontraron registros con ese documento o dorsal";
+                SearchMessage = "No se encontraron registros con ese documento";
                 SearchMessageType = "error";
                 return;
             }
 
-            // Obtener detalles de cada carrera
             foreach (var registro in registros)
             {
                 var filterCarrera = Builders<Carrera>.Filter.Eq(c => c.IdCarrera, registro.IDCarrera);
@@ -331,18 +142,28 @@
                     });
                 }
             }
+            
+            var carrerasConFecha = new List<(CarreraInscrita inscrita, DateTime fechaInicio)>();
+            foreach (var inscrita in CarrerasInscrito)
+            {
+                var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(inscrita.IdCarrera);
+                if(carrera != null)
+                {
+                    carrerasConFecha.Add((inscrita, carrera.FechaInicio));
+                }
+            }
+            
+            CarrerasInscrito = carrerasConFecha.OrderBy(c => c.fechaInicio).Select(c => c.inscrita).ToList();
+
 
             if (CarrerasInscrito.Any())
             {
                 SearchMessage = $"Se encontraron {CarrerasInscrito.Count} carrera(s)";
                 SearchMessageType = "success";
 
-                // Seleccionar automáticamente la primera carrera
-                if (CarrerasInscrito.Count == 1)
-                {
-                    CarreraSeleccionada = CarrerasInscrito[0].IdCarrera;
-                    await CargarDetallesCarrera();
-                }
+                // Seleccionar automáticamente la primera carrera (la más próxima)
+                CarreraSeleccionada = CarrerasInscrito[0].IdCarrera;
+                await CargarDetallesCarrera();
             }
             else
             {
@@ -379,13 +200,14 @@
 
             if (carrera != null)
             {
-                // Obtener el número de dorsal de la carrera seleccionada
                 var carreraInscrita = CarrerasInscrito.FirstOrDefault(c => c.IdCarrera == CarreraSeleccionada);
+
+                string estado = (carrera.FechaInicio < DateTime.Now) ? "Terminada" : "Pendiente";
 
                 DetalleCarrera = new DetalleCarreraInfo
                 {
                     FechaInicio = carrera.FechaInicio.ToString("dd/MM/yyyy HH:mm"),
-                    LugarSalida = carrera.LugarSalida,
+                    Estado = estado, // Nuevo campo
                     NumDorsal = carreraInscrita?.NumDorsal ?? ""
                 };
             }
@@ -398,6 +220,6 @@
 
     private void IrAlMenu()
     {
-        Navigation.NavigateTo("/menu-corredor");
+        Navigation.NavigateTo("/menu-corredor"); 
     }
 }
