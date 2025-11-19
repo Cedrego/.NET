@@ -557,7 +557,7 @@
 
         do
         {
-            numDorsal = random.Next(1000, 9999);
+            numDorsal = random.Next(1, 99);//cambiar 
             var registros = await MongoDbS.ObtenerRegistrosPorCarreraAsync(idCarrera);
             existe = registros.Any(r => r.NumDorsal == numDorsal);
         } while (existe);
