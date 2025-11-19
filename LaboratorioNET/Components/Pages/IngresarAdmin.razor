@@ -106,9 +106,11 @@
             }
 
             // Verificar que la contraseña coincida
-            if (usuario.Contraseña.Trim() != contrasena.Trim())
+            bool contrasenaValida = BCrypt.Net.BCrypt.Verify(contrasena, usuario.Contraseña?.Trim());
+
+            if (!contrasenaValida)
             {
-                mensajeError = "Contraseña incorrecta.";
+                mensajeError = "❌ Contraseña incorrecta.";
                 estaCargando = false;
                 StateHasChanged();
                 return;

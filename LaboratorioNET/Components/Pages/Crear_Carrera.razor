@@ -5,185 +5,460 @@
 @inject NavigationManager NavigationManager
 @inject MongoDbService MongoDb
 
-
-<style>
-    /* Estilos base */
-    .submit-button {
-        position: relative;
-        z-index: 10;
-    }
-    .form-group-custom {
-        margin-bottom: 10px; 
-    }
-    .form-input {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        box-sizing: border-box;
-    }
-    .return-link {
-        display: block;
-        margin-top: 15px;
-        text-align: center;
-    }
-    .error-message {
-        color: red; 
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-    .success-message {
-        color: green; 
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-</style>
-
 <PageTitle>Crear Carrera</PageTitle>
 
-<div class="main-container">
+<div class="background-container">
+    <div class="main-container">
+        <header class="page-title-box">
+            <h1>SportEvent Manager</h1>
+        </header>
 
-    <header class="page-title-box">
-        <h1>SportEvent Manager</h1>
-    </header>
+        <div class="menu-box">
+            <h2>Crear Nueva Carrera</h2>
 
-    <div class="menu-box">
-        <h2>Crear Carrera</h2>
-
-        <div class="form-container">
-            
-            @if (!string.IsNullOrWhiteSpace(mensajeError))
-            {
-                <p class="@(mensajeError.StartsWith("✅") ? "success-message" : "error-message")">
-                    @mensajeError
-                </p>
-            }
-
-            <div class="form-group-custom">
-                <p><strong>Nombre:</strong></p>
-                <InputText @bind-Value="nombre" class="form-input" placeholder="Nombre de la carrera" />
-            </div>
-
-            <div class="form-group-custom">
-                <p><strong>Lugar de Salida:</strong></p>
-                <InputText @bind-Value="lugar" class="form-input" placeholder="Lugar de salida" />
-            </div>
-
-            <div class="form-group-custom">
-                <p><strong>Fecha de la Carrera:</strong></p>
-                <InputDate @bind-Value="fechaCarrera" class="form-input" />
-            </div>
-            
-            <div class="form-group-custom">
-                <p><strong>Fecha Inicio Inscripción:</strong></p>
-                <InputDate @bind-Value="fechaInicioInsc" class="form-input" />
-            </div>
-
-            <div class="form-group-custom">
-                <p><strong>Límite de Participantes:</strong></p>
-                <InputNumber @bind-Value="limiteParticipantes" class="form-input" placeholder="Cupo máximo" />
-            </div>
-            
-            <div class="form-group-custom">
-                <p><strong>Cantidad de Secciones/Checkpoints:</strong></p>
-                <InputNumber @bind-Value="cantSecciones" class="form-input" placeholder="Número de secciones/checkpoints" />
-            </div>
-            
-            <button @onclick="CrearCarrera" 
-                    class="menu-button submit-button"
-                    disabled="@estaCargando">
-                @if (estaCargando)
+            <div class="form-container">
+                
+                @if (!string.IsNullOrWhiteSpace(mensajeError))
                 {
-                    <span>Guardando...</span>
+                    <div class="@(mensajeError.StartsWith("✅") ? "success-message" : "error-message")">
+                        <p>@mensajeError</p>
+                    </div>
                 }
-                else
-                {
-                    <span>Crear Carrera</span>
-                }
-            </button>
-        
-            <a href="/admin" class="return-link">Volver</a>
 
+                <!-- ID Carrera (opcional - se autogenera si no se especifica) -->
+                <div class="form-group">
+                    <label><strong>ID Carrera:</strong></label>
+                    <InputText @bind-Value="idCarrera" 
+                               class="form-input" 
+                               placeholder="Se generará automáticamente si se deja vacío" />
+                    <small class="helper-text">Dejar vacío para generar automáticamente</small>
+                </div>
+
+                <!-- Nombre -->
+                <div class="form-group">
+                    <label><strong>Nombre de la Carrera: *</strong></label>
+                    <InputText @bind-Value="nombre" 
+                               class="form-input" 
+                               placeholder="Ej: Maratón de Montevideo 2025" />
+                </div>
+
+                <!-- Tipo -->
+                <div class="form-group">
+                    <label><strong>Tipo de Carrera: *</strong></label>
+                    <InputSelect @bind-Value="tipo" class="form-input">
+                        <option value="">Seleccione un tipo...</option>
+                        <option value="5K">5K</option>
+                        <option value="10K">10K</option>
+                        <option value="21K">Media Maratón (21K)</option>
+                        <option value="42K">Maratón (42K)</option>
+                        <option value="Ultra">Ultra Maratón</option>
+                        <option value="Trail">Trail Running</option>
+                        <option value="Obstáculos">Carrera de Obstáculos</option>
+                        <option value="Nocturna">Carrera Nocturna</option>
+                        <option value="Otro">Otro</option>
+                    </InputSelect>
+                </div>
+
+                <!-- Lugar de Salida -->
+                <div class="form-group">
+                    <label><strong>Lugar de Salida: *</strong></label>
+                    <InputText @bind-Value="lugarSalida" 
+                               class="form-input" 
+                               placeholder="Ej: Plaza Independencia, Montevideo" />
+                </div>
+
+                <!-- Fecha Inicio Inscripción -->
+                <div class="form-group">
+                    <label><strong>Fecha de Inicio de Inscripciones: *</strong></label>
+                    <InputDate @bind-Value="fechaInicioInsc" 
+                               class="form-input" 
+                               min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <small class="helper-text">Fecha desde la cual los corredores pueden inscribirse</small>
+                </div>
+
+                <!-- Fecha de la Carrera -->
+                <div class="form-group">
+                    <label><strong>Fecha de la Carrera: *</strong></label>
+                    <InputDate @bind-Value="fechaInicio" 
+                               class="form-input"
+                               min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <small class="helper-text">Fecha en que se realizará la carrera</small>
+                </div>
+
+                <!-- Límite de Participantes -->
+                <div class="form-group">
+                    <label><strong>Límite de Participantes: *</strong></label>
+                    <InputNumber @bind-Value="limiteParticipantes" 
+                                 class="form-input" 
+                                 placeholder="Ej: 500" 
+                                 min="1" />
+                    <small class="helper-text">Cupo máximo de corredores</small>
+                </div>
+                
+                <!-- Cantidad de Secciones/Checkpoints -->
+                <div class="form-group">
+                    <label><strong>Cantidad de Checkpoints: *</strong></label>
+                    <InputNumber @bind-Value="cantSecciones" 
+                                 class="form-input" 
+                                 placeholder="Ej: 5" 
+                                 min="1" />
+                    <small class="helper-text">Número de puntos de control durante la carrera</small>
+                </div>
+
+                <div class="button-container">
+                    <button type="button"
+                            class="btn-primary"
+                            @onclick="CrearCarrera" 
+                            disabled="@estaCargando">
+                        @if (estaCargando)
+                        {
+                            <span>⏳ Guardando...</span>
+                        }
+                        else
+                        {
+                            <span>✅ Crear Carrera</span>
+                        }
+                    </button>
+
+                    <button type="button"
+                            class="btn-secondary"
+                            @onclick='() => NavigationManager.NavigateTo("/menu-admin")'>
+                        ← Volver al Menú
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<style>
+    .background-container {
+        background-image: url('images/2.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .main-container {
+        max-height: 90vh;
+        overflow-y: auto;
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .page-title-box {
+        text-align: center;
+        margin-bottom: 20px;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .page-title-box h1 {
+        margin: 0;
+        font-size: 2.5em;
+    }
+
+    .menu-box {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .menu-box h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+        font-size: 1.8em;
+    }
+
+    .form-container {
+        width: 100%;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+        background-color: white;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .helper-text {
+        display: block;
+        margin-top: 5px;
+        font-size: 12px;
+        color: #666;
+        font-style: italic;
+    }
+
+    .error-message {
+        background-color: #ffebee;
+        border: 1px solid #ef5350;
+        border-radius: 5px;
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+
+    .error-message p {
+        color: #c62828;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .success-message {
+        background-color: #e8f5e9;
+        border: 1px solid #66bb6a;
+        border-radius: 5px;
+        padding: 12px;
+        margin-bottom: 20px;
+    }
+
+    .success-message p {
+        color: #2e7d32;
+        margin: 0;
+        font-weight: 500;
+    }
+
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background-color: #218838;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-primary:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .menu-box {
+            padding: 20px;
+        }
+
+        .page-title-box h1 {
+            font-size: 2em;
+        }
+
+        .menu-box h2 {
+            font-size: 1.5em;
+        }
+    }
+</style>
+
 @code {
-    // Variables del Formulario. Usamos tipos nulos (?) para InputDate e InputNumber.
+    // Variables del formulario mapeadas a la entidad Carrera
+    private string idCarrera = string.Empty;
     private string nombre = string.Empty;
-    private string lugar = string.Empty;
-    private DateTime? fechaCarrera;          // Mapea a Carrera.FechaInicio
-    private DateTime? fechaInicioInsc;       // Mapea a Carrera.FechaInicioInsc
-    private int? limiteParticipantes;        // Mapea a Carrera.LimiteParticipantes
-    private int? cantSecciones;              // Cambiado de double? a int?
+    private string tipo = string.Empty;
+    private string lugarSalida = string.Empty;
+    private DateTime? fechaInicio;
+    private DateTime? fechaInicioInsc;
+    private int? limiteParticipantes;
+    private int? cantSecciones;
     
     private string mensajeError = string.Empty;
-    private bool estaCargando = false; 
+    private bool estaCargando = false;
 
     private async Task CrearCarrera()
     {
         mensajeError = string.Empty;
         
-        // === 1. Validación de Datos ===
-        if (string.IsNullOrWhiteSpace(nombre)) { mensajeError = "El campo Nombre está vacío."; }
-        else if (string.IsNullOrWhiteSpace(lugar)) { mensajeError = "El campo Lugar de Salida está vacío."; }
-        else if (fechaCarrera == null) { mensajeError = "El campo Fecha de la Carrera está vacío."; }
-        else if (fechaInicioInsc == null) { mensajeError = "El campo Fecha de Inscripción está vacío."; }
-        else if (limiteParticipantes == null || limiteParticipantes <= 0) { mensajeError = "El Límite de Participantes es inválido o está vacío."; }
-        else if (cantSecciones == null || cantSecciones <= 0) { mensajeError = "La Cantidad de Secciones/Checkpoints es inválida o está vacía."; }
-        
-        // Si hay un error de validación, se detiene
-        if (!string.IsNullOrWhiteSpace(mensajeError))
+        // === 1. Validación de Campos Requeridos ===
+        if (string.IsNullOrWhiteSpace(nombre))
         {
-            StateHasChanged();
+            mensajeError = "❌ El campo Nombre es obligatorio.";
+            return;
+        }
+        
+        if (string.IsNullOrWhiteSpace(tipo))
+        {
+            mensajeError = "❌ Debe seleccionar un Tipo de carrera.";
+            return;
+        }
+        
+        if (string.IsNullOrWhiteSpace(lugarSalida))
+        {
+            mensajeError = "❌ El campo Lugar de Salida es obligatorio.";
+            return;
+        }
+        
+        if (fechaInicioInsc == null)
+        {
+            mensajeError = "❌ Debe especificar la Fecha de Inicio de Inscripciones.";
+            return;
+        }
+        
+        if (fechaInicio == null)
+        {
+            mensajeError = "❌ Debe especificar la Fecha de la Carrera.";
+            return;
+        }
+        
+        if (limiteParticipantes == null || limiteParticipantes <= 0)
+        {
+            mensajeError = "❌ El Límite de Participantes debe ser mayor a 0.";
+            return;
+        }
+        
+        if (cantSecciones == null || cantSecciones <= 0)
+        {
+            mensajeError = "❌ La Cantidad de Checkpoints debe ser mayor a 0.";
+            return;
+        }
+
+        // === 2. Validaciones de Lógica de Negocio ===
+        if (fechaInicioInsc.Value < DateTime.Now.Date)
+        {
+            mensajeError = "❌ La Fecha de Inicio de Inscripciones no puede ser en el pasado.";
+            return;
+        }
+
+        if (fechaInicio.Value < fechaInicioInsc.Value)
+        {
+            mensajeError = "❌ La Fecha de la Carrera debe ser posterior a la Fecha de Inicio de Inscripciones.";
             return;
         }
 
         estaCargando = true;
-        StateHasChanged(); // Muestra "Guardando..."
+        StateHasChanged();
 
-        // === 2. Mapeo a la Entidad Carrera para MongoDB ===
-        var nuevaCarrera = new Carrera
-        {
-            // MongoDB generará el _id automáticamente, pero puedes usar IdCarrera para lógica de negocio
-            IdCarrera = Guid.NewGuid().ToString(),
-            Nombre = nombre,
-            LugarSalida = lugar,
-            
-            // MongoDB maneja DateTime nativamente - no necesitas Timestamp
-            FechaInicio = fechaCarrera.Value.ToUniversalTime(),
-            FechaInicioInsc = fechaInicioInsc.Value.ToUniversalTime(),
-            
-            LimiteParticipantes = limiteParticipantes.Value,
-            CantSecciones = cantSecciones.Value
-        };
-
-        // === 3. Lógica para guardar en MongoDB ===
         try
         {
-            // Usa el servicio de MongoDB para insertar el documento
-            await MongoDb.Carreras.InsertOneAsync(nuevaCarrera);
+            // === 3. Verificar si ya existe una carrera con el mismo ID (si se especificó) ===
+            if (!string.IsNullOrWhiteSpace(idCarrera))
+            {
+                var existente = await MongoDb.ObtenerCarreraPorIdCarreraAsync(idCarrera);
+                if (existente != null)
+                {
+                    mensajeError = "❌ Ya existe una carrera con ese ID. Use otro o déjelo vacío para generar automáticamente.";
+                    estaCargando = false;
+                    StateHasChanged();
+                    return;
+                }
+            }
 
-            // Éxito:
-            mensajeError = $"✅ ¡Carrera '{nuevaCarrera.Nombre}' creada con éxito!";
-            ResetearCampos();
+            // === 4. Crear la entidad Carrera ===
+            var nuevaCarrera = new Carrera
+            {
+                // Si no se especificó IdCarrera, generar uno único
+                IdCarrera = string.IsNullOrWhiteSpace(idCarrera) 
+                    ? $"CAR-{DateTime.Now:yyyyMMddHHmmss}" 
+                    : idCarrera,
+                
+                Nombre = nombre.Trim(),
+                Tipo = tipo,
+                LugarSalida = lugarSalida.Trim(),
+                
+                // Convertir a UTC para consistencia en la base de datos
+                FechaInicio = fechaInicio.Value.ToUniversalTime(),
+                FechaInicioInsc = fechaInicioInsc.Value.ToUniversalTime(),
+                
+                LimiteParticipantes = limiteParticipantes.Value,
+                CantSecciones = cantSecciones.Value,
+                Terminada = false // Siempre false al crear
+            };
+
+            // === 5. Guardar en MongoDB usando el servicio ===
+            bool resultado = await MongoDb.AgregarCarreraAsync(nuevaCarrera);
+
+            if (resultado)
+            {
+                mensajeError = $"✅ ¡Carrera '{nuevaCarrera.Nombre}' creada exitosamente!";
+                Console.WriteLine($"✅ Carrera creada: ID={nuevaCarrera.IdCarrera}, Nombre={nuevaCarrera.Nombre}");
+                
+                // Limpiar formulario
+                ResetearCampos();
+                
+                // Opcional: Redirigir después de 2 segundos
+                await Task.Delay(2000);
+                NavigationManager.NavigateTo("/admin");
+            }
+            else
+            {
+                mensajeError = "❌ No se pudo crear la carrera. Intente nuevamente.";
+            }
         }
         catch (Exception ex)
         {
-            // Falla: (Esto captura problemas de conexión, validación o permisos)
             mensajeError = $"❌ Error al guardar: {ex.Message}";
-            Console.WriteLine($"[ERROR MONGODB]: {ex.ToString()}"); 
+            Console.WriteLine($"[ERROR AL CREAR CARRERA]: {ex}");
         }
         
         estaCargando = false;
-        StateHasChanged(); // Actualiza el mensaje final y habilita el botón
+        StateHasChanged();
     }
     
-    // Método auxiliar para limpiar el formulario
     private void ResetearCampos()
     {
+        idCarrera = string.Empty;
         nombre = string.Empty;
-        lugar = string.Empty;
-        fechaCarrera = null;
+        tipo = string.Empty;
+        lugarSalida = string.Empty;
+        fechaInicio = null;
         fechaInicioInsc = null;
         limiteParticipantes = null;
         cantSecciones = null;
