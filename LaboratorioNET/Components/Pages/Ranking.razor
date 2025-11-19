@@ -1,0 +1,217 @@
+@page "/ranking"
+
+<PageTitle>Ranking Corredores</PageTitle>
+
+<style>
+    .background-container {
+        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    /* Contenedor principal con fondo cyan */
+    .main-container {
+        display: flex;
+        min-height: 100vh;
+        background-color: #00CED1;
+        padding: 20px;
+        gap: 20px;
+    }
+
+    /* Panel izquierdo */
+    .left-panel {
+        flex: 0 0 280px;
+        display: flex;
+        align-items: flex-start;
+    }
+
+    .title-box {
+        background-color: #D3D3D3;
+        border: 3px solid #000;
+        border-radius: 25px;
+        padding: 40px 30px;
+        width: 100%;
+    }
+
+    .title-box h1 {
+        font-family: 'Courier New', monospace;
+        font-size: 32px;
+        font-weight: bold;
+        margin: 0;
+        line-height: 1.2;
+        color: #000;
+    }
+
+    /* Panel derecho */
+    .right-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ranking-box {
+        background-color: #D3D3D3;
+        border: 3px solid #000;
+        border-radius: 25px;
+        padding: 30px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .ranking-box h2 {
+        font-family: Arial, sans-serif;
+        font-size: 36px;
+        font-weight: bold;
+        margin: 0 0 20px 0;
+        text-align: center;
+        color: #000;
+    }
+
+    /* Contenedor de la tabla */
+    .table-container {
+        flex: 1;
+        overflow: auto;
+        background-color: #C4B5E8;
+        border-radius: 15px;
+        padding: 15px;
+    }
+
+    /* Estilos de la tabla */
+    .ranking-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #C4B5E8;
+    }
+
+    .ranking-table thead th {
+        background-color: #B8A8D8;
+        color: #000;
+        font-weight: bold;
+        padding: 12px;
+        text-align: center;
+        border: 2px solid #000;
+        font-size: 14px;
+    }
+
+    .ranking-table tbody td {
+        padding: 12px;
+        text-align: center;
+        border: 2px solid #000;
+        background-color: #C4B5E8;
+        color: #000;
+    }
+
+    .ranking-table tbody tr:hover {
+        background-color: #B8A8D8;
+    }
+
+    .ranking-table tbody tr:hover td {
+        background-color: #B8A8D8;
+    }
+
+    /* Responsivo */
+    @@media (max-width: 1024px) {
+        .main-container {
+            flex-direction: column;
+        }
+        
+        .left-panel {
+            flex: 0 0 auto;
+        }
+        
+        .title-box h1 {
+            font-size: 28px;
+        }
+        
+        .ranking-box h2 {
+            font-size: 28px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .ranking-table {
+            font-size: 12px;
+        }
+        
+        .ranking-table thead th,
+        .ranking-table tbody td {
+            padding: 8px;
+        }
+    }
+</style>
+<div class="background-container">
+<div class="main-container">
+    <!-- Panel izquierdo con el t�tulo -->
+    <div class="left-panel">
+        <div class="title-box">
+            <h1>SportEvent<br/>Manager,</h1>
+        </div>
+    </div>
+
+    <!-- Panel derecho con la tabla de ranking -->
+    <div class="right-panel">
+        <div class="ranking-box">
+            <h2>Ranking Corredores</h2>
+            
+            <div class="table-container">
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Posici�n</th>
+                            <th>Nombre</th>
+                            <th>Tiempo</th>
+                            <th>Secci�n1</th>
+                            <th>Secci�n2</th>
+                            <th>Secci�n3</th>
+                            <th>Secci�n4</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var corredor in Corredores)
+                        {
+                            <tr>
+                                <td>@corredor.Posicion</td>
+                                <td>@corredor.Nombre</td>
+                                <td>@corredor.TiempoTotal</td>
+                                <td>@corredor.Seccion1</td>
+                                <td>@corredor.Seccion2</td>
+                                <td>@corredor.Seccion3</td>
+                                <td>@corredor.Seccion4</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+@code {
+    // Clase para representar un corredor
+    public class Corredor
+    {
+        public int Posicion { get; set; }
+        public string Nombre { get; set; }
+        public string TiempoTotal { get; set; }
+        public string Seccion1 { get; set; }
+        public string Seccion2 { get; set; }
+        public string Seccion3 { get; set; }
+        public string Seccion4 { get; set; }
+    }
+
+    // Lista de corredores de ejemplo
+    private List<Corredor> Corredores = new List<Corredor>
+    {
+        new Corredor { Posicion = 1, Nombre = "Juan P�rez", TiempoTotal = "02:15:30", Seccion1 = "00:30:15", Seccion2 = "00:35:20", Seccion3 = "00:32:45", Seccion4 = "00:37:10" },
+        new Corredor { Posicion = 2, Nombre = "Mar�a Garc�a", TiempoTotal = "02:18:45", Seccion1 = "00:31:20", Seccion2 = "00:36:15", Seccion3 = "00:33:30", Seccion4 = "00:37:40" },
+        new Corredor { Posicion = 3, Nombre = "Carlos L�pez", TiempoTotal = "02:22:10", Seccion1 = "00:32:05", Seccion2 = "00:37:25", Seccion3 = "00:34:20", Seccion4 = "00:38:20" },
+        new Corredor { Posicion = 4, Nombre = "Ana Mart�nez", TiempoTotal = "02:25:30", Seccion1 = "00:33:10", Seccion2 = "00:38:05", Seccion3 = "00:35:15", Seccion4 = "00:39:00" },
+        new Corredor { Posicion = 5, Nombre = "Pedro Rodr�guez", TiempoTotal = "02:28:15", Seccion1 = "00:34:20", Seccion2 = "00:38:45", Seccion3 = "00:36:10", Seccion4 = "00:39:00" }
+    };
+}

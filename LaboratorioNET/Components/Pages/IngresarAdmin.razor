@@ -1,0 +1,140 @@
+﻿@page "/ingresar_admin"
+@rendermode InteractiveServer
+@using LaboratorioNET.Services
+@using LaboratorioNET.Entities
+@inject NavigationManager Navigation
+@inject MongoDbService MongoDb
+@inject SesionService SesionService
+
+<PageTitle>Iniciar Sesión - Admin</PageTitle>
+
+<div class="background-container">
+    <div class="main-container">
+        <header class="page-title-box">
+            <h1>SportEvent Manager</h1>
+        </header>
+
+        <div class="login-box">
+            <h2>Iniciar Sesión</h2>
+
+            <div class="form-container">
+                <!-- Documento de Identidad -->
+                <div class="form-group">
+                    <label><strong>Documento de Identidad:</strong></label>
+                    <InputText @bind-Value="documentoIdentidad" 
+                            class="form-input" 
+                            placeholder="Ingrese su documento" />
+                </div>
+
+                <!-- Contraseña -->
+                <div class="form-group">
+                    <label><strong>Contraseña:</strong></label>
+                    <InputText @bind-Value="contrasena" 
+                            type="password" 
+                            class="form-input" 
+                            placeholder="Ingrese su contraseña" />
+                </div>
+
+                <!-- Mensaje de error -->
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="error-message">
+                        <p>@mensajeError</p>
+                    </div>
+                }
+
+                <!-- Botones -->
+                <div class="button-container">
+                    <button type="button" 
+                            class="btn-primary" 
+                            @onclick="IniciarSesion" 
+                            disabled="@estaCargando">
+                        @if (estaCargando)
+                        {
+                            <span>Verificando...</span>
+                        }
+                        else
+                        {
+                            <span>Iniciar Sesión</span>
+                        }
+                    </button>
+                </div>
+
+                <div class="footer-links">
+                    <a href="/">Volver al inicio</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string documentoIdentidad = string.Empty;
+    private string contrasena = string.Empty;
+    private string mensajeError = string.Empty;
+    private bool estaCargando = false;
+
+    private async Task IniciarSesion()
+    {
+        mensajeError = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(documentoIdentidad))
+        {
+            mensajeError = "Por favor ingrese su documento de identidad.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(contrasena))
+        {
+            mensajeError = "Por favor ingrese su contraseña.";
+            return;
+        }
+
+        estaCargando = true;
+        StateHasChanged();
+
+        try
+        {
+            var usuario = await MongoDb.ObtenerCorredorPorDocumentoAsync(documentoIdentidad.Trim());
+
+            if (usuario == null)
+            {
+                mensajeError = "Usuario no encontrado. Verifique su documento de identidad.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // Verificar que la contraseña coincida
+            if (usuario.Contraseña.Trim() != contrasena.Trim())
+            {
+                mensajeError = "Contraseña incorrecta.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // Verificar el rol del usuario
+            if (usuario.Rol?.ToLower() == "admin")
+            {
+                SesionService.IniciarSesion(usuario.DocumentoIdentidad, usuario.Nombre);
+                Navigation.NavigateTo("/admin");
+            }
+            else
+            {
+                mensajeError = "Error: admin no existente.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error al iniciar sesión: {ex.Message}";
+            Console.WriteLine($"❌ Error: {ex}");
+        }
+
+        estaCargando = false;
+        StateHasChanged();
+    }
+}

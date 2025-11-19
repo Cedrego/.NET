@@ -1,0 +1,159 @@
+@page "/seed-data"
+@using LaboratorioNET.Services
+@using LaboratorioNET.Entities
+@inject MongoDbService MongoDbService
+@inject NavigationManager NavigationManager
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🌱 Cargar Datos de Prueba</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Esta página permite cargar 4 corredores adicionales para pruebas de simulación.</p>
+                    
+                    <div class="alert alert-warning" role="alert">
+                        <strong>⚠️ Advertencia:</strong> Esta funcionalidad es solo para desarrollo. Los corredores que ya existan no se duplicarán.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="carreraSelect" class="form-label">Seleccionar Carrera:</label>
+                        <select id="carreraSelect" class="form-select" @bind="carreraSeleccionada">
+                            <option value="">-- Cargando carreras --</option>
+                            @foreach (var carrera in carreras)
+                            {
+                                <option value="@carrera.Id">@carrera.Nombre (@carrera.FechaInicio.ToString("dd/MM/yyyy"))</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <button class="btn btn-primary me-2" @onclick="AgregarCorredores" disabled="@(cargando || string.IsNullOrEmpty(carreraSeleccionada))">
+                            @if (cargando)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Cargando...</span>
+                            }
+                            else
+                            {
+                                <span>✅ Agregar 4 Corredores</span>
+                            }
+                        </button>
+                        <button class="btn btn-secondary" @onclick="Volver">Cancelar</button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(mensaje))
+                    {
+                        <div class="alert @(esExito ? "alert-success" : "alert-danger")" role="alert">
+                            @mensaje
+                        </div>
+                    }
+
+                    <div class="mt-4">
+                        <h6>Corredores que se agregarán:</h6>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>Carlos Rodríguez</strong> (98765432)
+                                <br /><small class="text-muted">Dorsal: 10003</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Sofía Martínez</strong> (87654321)
+                                <br /><small class="text-muted">Dorsal: 10004</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Andrés López</strong> (76543210)
+                                <br /><small class="text-muted">Dorsal: 10005</small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Laura Gómez</strong> (65432109)
+                                <br /><small class="text-muted">Dorsal: 10006</small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Carrera> carreras = new();
+    private string carreraSeleccionada = "";
+    private bool cargando = false;
+    private string mensaje = "";
+    private bool esExito = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            carreras = await MongoDbService.ObtenerTodasCarrerasAsync();
+            if (carreras.Count > 0)
+            {
+                carreraSeleccionada = carreras[0].Id;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"Error al cargar carreras: {ex.Message}";
+            esExito = false;
+        }
+    }
+
+    private async Task AgregarCorredores()
+    {
+        if (string.IsNullOrEmpty(carreraSeleccionada))
+        {
+            mensaje = "⚠️ Por favor selecciona una carrera";
+            esExito = false;
+            return;
+        }
+
+        cargando = true;
+        try
+        {
+            // Agregar los 4 corredores de prueba
+            var documentos = await MongoDbService.AgregarCorredoresPruebaAsync();
+
+            if (documentos != null && documentos.Count > 0)
+            {
+                // Registrar solo los corredores recién creados en la carrera seleccionada
+                bool registroResultado = await MongoDbService.RegistrarCorredoresEnCarreraAsync(carreraSeleccionada, documentos, 10003);
+
+                if (registroResultado)
+                {
+                    mensaje = "✅ ¡Corredores agregados exitosamente! Redirigiendo a la carrera...";
+                    esExito = true;
+                    await Task.Delay(2000);
+                    NavigationManager.NavigateTo($"/info-carreras/{carreraSeleccionada}");
+                }
+                else
+                {
+                    mensaje = "⚠️ Corredores agregados pero hubo un error al registrarlos en la carrera";
+                    esExito = false;
+                }
+            }
+            else
+            {
+                mensaje = "❌ Error al agregar los corredores de prueba";
+                esExito = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            mensaje = $"❌ Error: {ex.Message}";
+            esExito = false;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void Volver()
+    {
+        NavigationManager.NavigateTo("/info-carreras");
+    }
+}

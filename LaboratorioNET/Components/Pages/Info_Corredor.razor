@@ -1,0 +1,443 @@
+﻿@page "/info_corredor"
+@rendermode InteractiveServer
+@inject LaboratorioNET.Services.MongoDbService MongoDbS
+@using LaboratorioNET.Entities
+
+<PageTitle>Información Corredor</PageTitle>
+
+<div class="background-container">
+    <div class="container-box">
+        <aside class="sidebar">
+            <h2>SportEvent<br />Manager,</h2>
+        </aside>
+
+        <main class="content">
+            <h1 class="title">Información del Corredor</h1>
+
+            <!-- Búsqueda de corredor -->
+            <div class="search-section">
+                <p><strong>Buscar por Nombre de Corredor:</strong></p>
+                <div class="search-container">
+                    <InputText @bind-Value="nombreBusqueda" class="search-input" placeholder="Ej: Enzo Brun" />
+                    <button class="btn-buscar" @onclick="BuscarCorredor" disabled="@isLoading">
+                        @(isLoading ? "Buscando..." : "Buscar")
+                    </button>
+                </div>
+            </div>
+
+            @if (mensajeError != null)
+            {
+                <div class="error-message">
+                    <p>@mensajeError</p>
+                </div>
+            }
+
+            @if (corredorSeleccionado != null)
+            {
+                <div class="info-section">
+                    <!-- <p><strong>Documento:</strong> @corredorSeleccionado.DocumentoIdentidad</p>  -->
+                    <p><strong>Nombre:</strong> @corredorSeleccionado.Nombre</p>
+                    <p><strong>Nacionalidad:</strong> @corredorSeleccionado.Nacionalidad</p>
+                    <!-- <p><strong>Teléfono:</strong> @corredorSeleccionado.Telefono</p> -->
+                </div>
+
+                <h3>Tiempos de carreras actuales:</h3>
+                @if (registrosActuales.Any())
+                {
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Carrera</th>
+                                <th>Tipo</th>
+                                <th>N° Dorsal</th>
+                                <th>Último Tiempo</th>
+                                <th>Posición</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in registrosActuales)
+                            {
+                                <tr>
+                                    <td>@item.NombreCarrera</td>
+                                    <td>@item.TipoCarrera</td>
+                                    <td>@item.NumDorsal</td>
+                                    <td>@item.UltimoTiempo</td>
+                                    <td>@item.Posicion</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="no-data">
+                        <p>No hay registros de carreras para este corredor.</p>
+                    </div>
+                }
+
+                <h3>Historial de participaciones:</h3>
+                @if (historialRegistros.Any())
+                {
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Carrera</th>
+                                <th>Tipo</th>
+                                <th>N° Dorsal</th>
+                                <th>Tiempos Registrados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in historialRegistros)
+                            {
+                                <tr>
+                                    <td>@item.NombreCarrera</td>
+                                    <td>@item.TipoCarrera</td>
+                                    <td>@item.NumDorsal</td>
+                                    <td>@item.CantidadTiempos</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="no-data">
+                        <p>No hay historial de participaciones.</p>
+                    </div>
+                }
+            }
+            else if (!string.IsNullOrEmpty(nombreBusqueda) && !isLoading)
+            {
+                <div class="info-message">
+                    <p>Ingrese un documento de identidad y presione "Buscar".</p>
+                </div>
+            }
+        </main>
+    </div>
+</div>
+
+<style>
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #79c9e0;
+}
+
+.background-container {
+        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+.page {
+    background-color: #79c9e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.container-box {
+    display: flex;
+    background-color: #79c9e0;
+    border: 2px solid #79c9e0;
+    border-radius: 20px;
+    width: 95%;
+    min-height: 90vh;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.sidebar {
+    background-color: #efefef;
+    border-right: 2px solid #79c9e0;
+    border-radius: 20px 0 0 20px;
+    width: 25%;
+    min-width: 220px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.content {
+    flex: 1;
+    background-color: #efefef;
+    border-radius: 0 20px 20px 0;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.title {
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 2px solid #000;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    font-size: 24px;
+}
+
+.search-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-section p {
+    margin: 0 0 10px 0;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #999;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #79c9e0;
+    box-shadow: 0 0 5px rgba(121, 201, 224, 0.5);
+}
+
+.btn-buscar {
+    padding: 10px 25px;
+    background-color: #6da571;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-buscar:hover:not(:disabled) {
+    background-color: #578a5b;
+}
+
+.btn-buscar:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.info-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-section p {
+    margin: 8px 0;
+    font-size: 15px;
+}
+
+.error-message {
+    background-color: #ffebee;
+    border-left: 4px solid #f44336;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.error-message p {
+    color: #c62828;
+    margin: 0;
+    font-weight: bold;
+}
+
+.info-message {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.info-message p {
+    color: #1565c0;
+    margin: 0;
+}
+
+h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+    background-color: #fff;
+    border: 1px solid #999;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-table thead {
+    background-color: #d5d2f3;
+}
+
+.info-table th,
+.info-table td {
+    border: 1px solid #999;
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.info-table th {
+    font-weight: bold;
+    color: #333;
+}
+
+.info-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.info-table tbody tr:hover {
+    background-color: #e8e8e8;
+}
+
+.no-data {
+    text-align: center;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.no-data p {
+    color: #666;
+    font-size: 15px;
+}
+</style>
+
+@code {
+    private string nombreBusqueda = "";
+    private bool isLoading = false;
+    private string? mensajeError = null;
+
+    private Corredor? corredorSeleccionado = null;
+    private List<RegistroConDetalles> registrosActuales = new();
+    private List<RegistroConDetalles> historialRegistros = new();
+
+    private class RegistroConDetalles
+    {
+        public string NombreCarrera { get; set; } = "";
+        public string TipoCarrera { get; set; } = "";
+        public int NumDorsal { get; set; }
+        public string UltimoTiempo { get; set; } = "";
+        public int Posicion { get; set; }
+        public int CantidadTiempos { get; set; }
+    }
+
+    private async Task BuscarCorredor()
+    {
+        if (string.IsNullOrWhiteSpace(nombreBusqueda))
+        {
+            mensajeError = "Por favor ingrese un Nombre de Corredor.";
+            return;
+        }
+
+        isLoading = true;
+        mensajeError = null;
+        corredorSeleccionado = null;
+        registrosActuales.Clear();
+        historialRegistros.Clear();
+        StateHasChanged();
+
+        try
+        {
+            // Buscar corredor
+            corredorSeleccionado = await MongoDbS.ObtenerCorredorPorNombreAsync(nombreBusqueda.Trim());
+
+            if (corredorSeleccionado == null)
+            {
+                mensajeError = "No se encontró ningún corredor con ese Nombre.";
+                return;
+            }
+
+            // Verificar si el rol es "admin"
+            if (corredorSeleccionado.Rol == "admin")
+            {
+                mensajeError = "No se encontró ningún corredor con ese Nombre.";
+                corredorSeleccionado = null;
+                return;
+            }
+
+            // Obtener registros del corredor
+            var registros = await MongoDbS.ObtenerRegistrosPorCorredorAsync(corredorSeleccionado.DocumentoIdentidad);
+
+            if (registros.Any())
+            {
+                // Procesar cada registro
+                foreach (var registro in registros)
+                {
+                    var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(registro.IDCarrera);
+                    
+                    if (carrera != null)
+                    {
+                        var detalles = new RegistroConDetalles
+                        {
+                            NombreCarrera = carrera.Nombre,
+                            TipoCarrera = carrera.Tipo,
+                            NumDorsal = registro.NumDorsal,
+                            CantidadTiempos = registro.Tiempos.Count,
+                            UltimoTiempo = registro.Tiempos.Any() 
+                                ? registro.Tiempos.Last().ToString("dd/MM/yyyy HH:mm:ss") 
+                                : "Sin tiempos",
+                            Posicion = 0 // Calcular posición si es necesario
+                        };
+
+                        // Separar en actuales e historial (por ejemplo, carreras con fecha reciente)
+                        if (carrera.FechaInicio > DateTime.Now.AddMonths(-3))
+                        {
+                            registrosActuales.Add(detalles);
+                        }
+                        else
+                        {
+                            historialRegistros.Add(detalles);
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error al buscar información: {ex.Message}";
+            Console.WriteLine($"Error: {ex}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

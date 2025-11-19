@@ -1,0 +1,239 @@
+﻿@page "/preinscripcion"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject LaboratorioNET.Services.MongoDbService MongoDbS
+@using LaboratorioNET.Entities
+
+<PageTitle>Preinscripción</PageTitle>
+
+<div class=" background-container">
+<div class="main-container">
+    <div class="form-container">
+        <h2>Preinscripción</h2>
+        <div class="subtitle">Carreras Disponibles</div>
+
+        <div class="form-group">
+            <label>Carreras Disponibles</label>
+            <select @bind="FormData.IDCarrera">
+                <option value="">Seleccione una carrera</option>
+                @foreach (var carrera in CarrerasDisponibles)
+                {
+                    <option value="@carrera.IdCarrera">@carrera.Nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Nombre Completo</label>
+            <input type="text" placeholder="Ingrese su nombre completo" @bind="FormData.NombreCompleto" />
+        </div>
+
+        <div class="form-group">
+            <label>Documento de Identidad</label>
+            <input type="text" placeholder="Ingrese su documento" @bind="FormData.IdentifiCorredor" />
+        </div>
+
+        <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" placeholder="Ingrese su teléfono" @bind="FormData.Telefono" />
+        </div>
+
+        <button class="btn" @onclick="SubmitForm" disabled="@IsLoading">
+            @(IsLoading ? "Enviando..." : "Inscribir")
+        </button>
+
+        @if (!string.IsNullOrEmpty(Message))
+        {
+            <div class="message @MessageType">
+                @Message
+            </div>
+        }
+    </div>
+</div>
+</div>
+@code {
+    private PreinscripcionForm FormData = new PreinscripcionForm();
+    private List<CarreraInfo> CarrerasDisponibles = new List<CarreraInfo>();
+    
+    
+    private bool IsLoading = false;
+    private string Message = "";
+    private string MessageType = "";
+
+    private class PreinscripcionForm
+    {
+        public string IDCarrera { get; set; } = "";
+        public string IdentifiCorredor { get; set; } = "";
+        public string NombreCompleto { get; set; } = "";
+        public string Telefono { get; set; } = "";
+    }
+
+    private class CarreraInfo
+    {
+        public string IdCarrera { get; set; } = "";
+        public string Nombre { get; set; } = "";
+        public int LimiteParticipantes { get; set; }
+        public DateTime FechaInicio { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await CargarCarreras();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error inicializando: {ex.Message}");
+            Message = "Error al cargar las carreras disponibles";
+            MessageType = "error";
+        }
+    }
+
+    private async Task CargarCarreras()
+    {
+        try
+        {
+            var all = await MongoDbS.ObtenerTodasCarrerasAsync();
+
+            CarrerasDisponibles = all
+                .Where(c => DateTime.Now >= c.FechaInicioInsc && DateTime.Now < c.FechaInicio)
+                .Select(c => new CarreraInfo
+                {
+                    IdCarrera = c.IdCarrera,
+                    Nombre = c.Nombre,
+                    LimiteParticipantes = c.LimiteParticipantes,
+                    FechaInicio = c.FechaInicio
+                })
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando carreras: {ex.Message}");
+        }
+    }
+
+    private async Task SubmitForm()
+    {
+        if (string.IsNullOrWhiteSpace(FormData.IDCarrera))
+        {
+            Message = "Por favor seleccione una carrera";
+            MessageType = "error";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FormData.NombreCompleto))
+        {
+            Message = "Por favor ingrese su nombre completo";
+            MessageType = "error";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FormData.IdentifiCorredor))
+        {
+            Message = "Por favor ingrese su documento";
+            MessageType = "error";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(FormData.Telefono))
+        {
+            Message = "Por favor ingrese su teléfono";
+            MessageType = "error";
+            return;
+        }
+
+
+        IsLoading = true;
+        Message = "";
+
+        try
+        {
+            
+            var registrosExistentes = await MongoDbS.ObtenerRegistrosPorCarreraAsync(FormData.IDCarrera);
+            if (registrosExistentes.Any(r => r.IdentifiCorredor == FormData.IdentifiCorredor))
+            {
+                Message = "Ya está inscrito en esta carrera";
+                MessageType = "error";
+                IsLoading = false;
+                return;
+            }
+
+            var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(FormData.IDCarrera);
+            if (carrera == null)
+            {
+                Message = "Carrera no encontrada";
+                MessageType = "error";
+                IsLoading = false;
+                return;
+            }
+
+            if (registrosExistentes.Count >= carrera.LimiteParticipantes)
+            {
+                Message = "Lo sentimos, esta carrera ya alcanzó el límite de participantes";
+                MessageType = "error";
+                IsLoading = false;
+                return;
+            }
+
+            string numDorsal = await GenerarNumDorsalUnico(FormData.IDCarrera);
+
+            var corredorExistente = await MongoDbS.ObtenerCorredorPorDocumentoAsync(FormData.IdentifiCorredor);
+            if (corredorExistente == null)
+            {
+                var nuevoCorredor = new Corredor
+                {
+                    Nombre = FormData.NombreCompleto,
+                    DocumentoIdentidad = FormData.IdentifiCorredor,
+                    Telefono = FormData.Telefono,
+                    Nacionalidad = "", 
+                    FechaNacimiento = "" 
+                };
+                await MongoDbS.AgregarCorredorAsync(nuevoCorredor);
+            }
+
+            var nuevoRegistro = new Registro
+            {
+                IDCarrera = FormData.IDCarrera,
+                IdentifiCorredor = FormData.IdentifiCorredor,
+                NumDorsal = int.TryParse(numDorsal, out var n) ? n : 0,
+                Tiempos = new List<DateTime>()
+            };
+            await MongoDbS.AgregarRegistroAsync(nuevoRegistro);
+
+            Message = $"¡Preinscripción exitosa! Su número de dorsal es: {numDorsal}";
+            MessageType = "success";
+
+            await Task.Delay(3000);
+            FormData = new PreinscripcionForm();
+            Message = "";
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error guardando: {ex.Message}");
+            Message = "Error al guardar la preinscripción. Intente nuevamente.";
+            MessageType = "error";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task<string> GenerarNumDorsalUnico(string idCarrera)
+    {
+        Random random = new Random();
+        string numDorsal;
+        bool existe;
+
+        do
+        {
+            numDorsal = random.Next(1000, 9999).ToString();
+            var registros = await MongoDbS.ObtenerRegistrosPorCarreraAsync(idCarrera);
+            existe = registros.Any(r => r.NumDorsal.ToString() == numDorsal);
+        } while (existe);
+
+        return numDorsal;
+    }
+}

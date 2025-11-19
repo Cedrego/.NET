@@ -1,0 +1,320 @@
+﻿@page "/estado-carrera"
+@rendermode InteractiveServer
+@using MongoDB.Driver
+@using LaboratorioNET.Entities
+@inject NavigationManager Navigation
+@inject LaboratorioNET.Services.MongoDbService MongoDbS
+
+<PageTitle>Estado de la Carrera</PageTitle>
+
+<style>
+    .tiempos-container {
+        background: #f0f8ff;
+        border-left: 4px solid #667eea;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .tiempos-container h3 {
+        color: #667eea;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+</style>
+
+<div class="main-container">
+    
+    <div class="info-text">
+        El corredor ingresará su documento de Identidad y se le mostrará el estado de las carreras en la que esta inscripto.
+    </div>
+
+    <div class="forms-wrapper">
+        <div class="form-container">
+            <h2>Corredor</h2>
+
+            <div class="form-group">
+                <label>Documento de Identidad</label>
+                <input type="text" placeholder="Ingrese documento" @bind="BusquedaInput" />
+            </div>
+
+            <button class="btn" @onclick="BuscarCorredor" disabled="@IsSearching">
+                @(IsSearching ? "Buscando..." : "Buscar Carreras inscritas")
+            </button>
+
+            @if (!string.IsNullOrEmpty(SearchMessage))
+            {
+                <div class="message @SearchMessageType">
+                    @SearchMessage
+                </div>
+            }
+        </div>
+
+        <div class="form-container">
+            <h2>Estado de la Carrera</h2>
+
+            <div class="form-group">
+                <label>Carreras Inscripto</label>
+                <select @bind="CarreraSeleccionada" @bind:after="CargarDetallesCarrera">
+                    <option value="">Seleccione una carrera</option>
+                    @foreach (var carrera in CarrerasInscrito)
+                    {
+                        <option value="@carrera.IdCarrera">@carrera.NombreCarrera (Dorsal: @carrera.NumDorsal)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha y hora de inicio</label>
+                <input type="text" placeholder="Fecha de inicio" @bind="DetalleCarrera.FechaInicio" readonly />
+            </div>
+            
+            <div class="form-group">
+                <label>Estado</label>
+                <input type="text" placeholder="Estado de la carrera" @bind="DetalleCarrera.Estado" readonly />
+            </div>
+
+            <div class="form-group">
+                <label>Número de Dorsal</label>
+                <input type="text" placeholder="Número de dorsal" @bind="DetalleCarrera.NumDorsal" readonly />
+            </div>
+
+            @if (!string.IsNullOrEmpty(CarreraSeleccionada) && !string.IsNullOrEmpty(BusquedaInput))
+            {
+                <button class="btn" @onclick="MostrarTiempos">
+                    📊 Ver Tiempos
+                </button>
+
+                @if (!string.IsNullOrEmpty(TiemposFormato))
+                {
+                    <div class="tiempos-container">
+                        <h3>Tiempos Registrados</h3>
+                        <p style="font-family: monospace; background: #f0f0f0; padding: 15px; border-radius: 8px; word-break: break-all;">
+                            @TiemposFormato
+                        </p>
+                    </div>
+                }
+            }
+
+            <button class="btn" @onclick="IrAlMenu">
+                Volver
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string BusquedaInput = "";
+    private string CarreraSeleccionada = "";
+    private string TiemposFormato = "";
+    private List<CarreraInscrita> CarrerasInscrito = new List<CarreraInscrita>();
+    private DetalleCarreraInfo DetalleCarrera = new DetalleCarreraInfo();
+    private bool IsSearching = false;
+    private string SearchMessage = "";
+    private string SearchMessageType = "";
+
+    private class CarreraInscrita
+    {
+        public string IdCarrera { get; set; } = "";
+        public string NombreCarrera { get; set; } = "";
+        public string NumDorsal { get; set; } = "";
+        public string IdentifiCorredor { get; set; } = "";
+    }
+
+    private class DetalleCarreraInfo
+    {
+        public string FechaInicio { get; set; } = "";
+        public string Estado { get; set; } = "";
+        public string NumDorsal { get; set; } = "";
+    }
+
+    private async Task MostrarTiempos()
+    {
+        try
+        {
+            TiemposFormato = "";
+
+            // Obtener registro del corredor
+            var filterRegistro = Builders<Registro>.Filter.And(
+                Builders<Registro>.Filter.Eq(r => r.IdentifiCorredor, BusquedaInput),
+                Builders<Registro>.Filter.Eq(r => r.IDCarrera, CarreraSeleccionada)
+            );
+
+            var registro = await MongoDbS.Registros
+                .Find(filterRegistro)
+                .FirstOrDefaultAsync();
+
+            if (registro == null || !registro.Tiempos.Any())
+            {
+                TiemposFormato = "Sin tiempos registrados";
+                return;
+            }
+
+            // Obtener carrera para CantSecciones
+            var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(CarreraSeleccionada);
+            if (carrera == null)
+            {
+                TiemposFormato = "Error: Carrera no encontrada";
+                return;
+            }
+
+            // Obtener todos los registros de la carrera para encontrar tiempo mínimo
+            var todosRegistros = await MongoDbS.ObtenerRegistrosPorCarreraAsync(CarreraSeleccionada);
+            var tiempoMinimo = todosRegistros
+                .Where(r => r.Tiempos.Any())
+                .SelectMany(r => r.Tiempos)
+                .OrderBy(t => t)
+                .FirstOrDefault();
+
+            if (tiempoMinimo == default)
+            {
+                TiemposFormato = "Sin datos de tiempo";
+                return;
+            }
+
+            // Calcular tiempos relativos
+            var tiemposFormateados = new List<string>();
+            for (int i = 0; i < registro.Tiempos.Count; i++)
+            {
+                var diferencia = registro.Tiempos[i] - tiempoMinimo;
+                tiemposFormateados.Add($"Sección {i + 1}: {diferencia.Hours:D2}:{diferencia.Minutes:D2}:{diferencia.Seconds:D2}");
+            }
+
+            TiemposFormato = string.Join(" | ", tiemposFormateados);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error mostrando tiempos: {ex.Message}");
+            TiemposFormato = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task BuscarCorredor()
+    {
+        if (string.IsNullOrWhiteSpace(BusquedaInput))
+        {
+            SearchMessage = "Por favor ingrese un documento";
+            SearchMessageType = "error";
+            return;
+        }
+
+        IsSearching = true;
+        SearchMessage = "";
+        CarrerasInscrito.Clear();
+        DetalleCarrera = new DetalleCarreraInfo();
+        CarreraSeleccionada = "";
+
+        try
+        {
+            var filter = Builders<Registro>.Filter.Eq(r => r.IdentifiCorredor, BusquedaInput);
+            
+            var registros = await MongoDbS.Registros
+                .Find(filter)
+                .ToListAsync();
+
+            if (!registros.Any())
+            {
+                SearchMessage = "No se encontraron registros con ese documento";
+                SearchMessageType = "error";
+                return;
+            }
+
+            foreach (var registro in registros)
+            {
+                var filterCarrera = Builders<Carrera>.Filter.Eq(c => c.IdCarrera, registro.IDCarrera);
+                var carrera = await MongoDbS.Carreras
+                    .Find(filterCarrera)
+                    .FirstOrDefaultAsync();
+
+                if (carrera != null)
+                {
+                    CarrerasInscrito.Add(new CarreraInscrita
+                    {
+                        IdCarrera = registro.IDCarrera,
+                        NombreCarrera = carrera.Nombre,
+                        NumDorsal = registro.NumDorsal.ToString(),
+                        IdentifiCorredor = registro.IdentifiCorredor
+                    });
+                }
+            }
+            
+            var carrerasConFecha = new List<(CarreraInscrita inscrita, DateTime fechaInicio)>();
+            foreach (var inscrita in CarrerasInscrito)
+            {
+                var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(inscrita.IdCarrera);
+                if(carrera != null)
+                {
+                    carrerasConFecha.Add((inscrita, carrera.FechaInicio));
+                }
+            }
+            
+            CarrerasInscrito = carrerasConFecha.OrderBy(c => c.fechaInicio).Select(c => c.inscrita).ToList();
+
+
+            if (CarrerasInscrito.Any())
+            {
+                SearchMessage = $"Se encontraron {CarrerasInscrito.Count} carrera(s)";
+                SearchMessageType = "success";
+
+                // Seleccionar automáticamente la primera carrera (la más próxima)
+                CarreraSeleccionada = CarrerasInscrito[0].IdCarrera;
+                await CargarDetallesCarrera();
+            }
+            else
+            {
+                SearchMessage = "No se encontraron carreras asociadas";
+                SearchMessageType = "info";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error buscando corredor: {ex.Message}");
+            SearchMessage = "Error al buscar. Intente nuevamente.";
+            SearchMessageType = "error";
+        }
+        finally
+        {
+            IsSearching = false;
+        }
+    }
+
+    private async Task CargarDetallesCarrera()
+    {
+        if (string.IsNullOrWhiteSpace(CarreraSeleccionada))
+        {
+            DetalleCarrera = new DetalleCarreraInfo();
+            return;
+        }
+
+        try
+        {
+            var filter = Builders<Carrera>.Filter.Eq(c => c.IdCarrera, CarreraSeleccionada);
+            var carrera = await MongoDbS.Carreras
+                .Find(filter)
+                .FirstOrDefaultAsync();
+
+            if (carrera != null)
+            {
+                var carreraInscrita = CarrerasInscrito.FirstOrDefault(c => c.IdCarrera == CarreraSeleccionada);
+
+                string estado = (carrera.FechaInicio < DateTime.Now) ? "Terminada" : "Pendiente";
+
+                DetalleCarrera = new DetalleCarreraInfo
+                {
+                    FechaInicio = carrera.FechaInicio.ToString("dd/MM/yyyy HH:mm"),
+                    Estado = estado, // Nuevo campo
+                    NumDorsal = carreraInscrita?.NumDorsal ?? ""
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cargando detalles: {ex.Message}");
+        }
+    }
+
+    private void IrAlMenu()
+    {
+        Navigation.NavigateTo("/menu-corredor"); 
+    }
+}

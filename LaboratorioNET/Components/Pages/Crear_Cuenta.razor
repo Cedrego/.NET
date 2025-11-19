@@ -1,0 +1,277 @@
+﻿@page "/crear_cuenta"
+@rendermode InteractiveServer
+@using LaboratorioNET.Entities
+@using LaboratorioNET.Services 
+@using MongoDB.Driver
+@inject NavigationManager NavigationManager
+@inject MongoDbService MongoDb
+@inject SesionService SesionService
+
+<PageTitle>Crear Cuenta</PageTitle>
+<div class="background-container">
+<div class="main-container">
+
+    <header class="page-title-box">
+        <h1>SportEvent Manager</h1>
+    </header>
+
+    <div class="menu-box">
+        <h2>Crear Cuenta</h2>
+
+        <div class="form-container">
+
+            <!-- Documento de Identidad -->
+            <p><strong>Documento de Identidad:</strong></p>
+            <InputText @bind-Value="documentoIdentidad" class="form-input" />
+
+            <!-- Nombre -->
+            <p><strong>Nombre completo:</strong></p>
+            <InputText @bind-Value="nombre" class="form-input" />
+
+            <!-- Correo -->
+            <p><strong>Correo electrónico:</strong></p>
+            <InputText @bind-Value="correo" class="form-input" type="email" />
+
+            <!-- Contraseña -->
+            <p><strong>Contraseña:</strong></p>
+            <InputText @bind-Value="contrasena" class="form-input" type="password" />
+
+            <!-- Teléfono -->
+            <p><strong>Teléfono:</strong></p>
+            <InputText @bind-Value="telefono" class="form-input" />
+
+            <!-- Fecha de nacimiento -->
+            <p><strong>Fecha de nacimiento:</strong></p>
+            <InputDate @bind-Value="fechaNacimiento" class="form-input" />
+
+            <!-- Nacionalidad -->
+            <p><strong>Nacionalidad:</strong></p>
+            <InputSelect @bind-Value="nacionalidad" class="form-input">
+                <option value="">Seleccione...</option>
+                @foreach (var pais in paises)
+                {
+                    <option value="@pais">@pais</option>
+                }
+            </InputSelect>
+
+            <br><br>
+            
+            @if (!string.IsNullOrEmpty(mensajeError))
+            {
+                <p style="color:@(mensajeError.StartsWith("✅") ? "green" : "red");">@mensajeError</p>
+            }
+            
+           <button type="button" class="submit-button" @onclick="CrearCuenta" disabled="@estaCargando">
+                @if (estaCargando)
+                {
+                    <span>Guardando...</span>
+                }
+                else
+                {
+                    <span>Crear cuenta</span>
+                }
+            </button>
+
+            <!-- Enlace para iniciar sesión -->
+            <div class="login-link">
+                <p>¿Ya tienes una cuenta? <a href="/iniciar_sesion">Iniciar Sesión</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<style>
+    .background-container {
+        background-image: url('images/2.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .main-container {
+        max-height: 90vh;
+        overflow-y: auto;
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .form-container {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 8px;
+    }
+
+    .submit-button {
+        position: relative;
+        z-index: 10;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        box-sizing: border-box;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .error-message {
+        color: red;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .success-message {
+        color: green;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+</style>
+@code {
+    // Campos del formulario
+    private string documentoIdentidad = string.Empty;
+    private string nombre = string.Empty;
+    private string correo = string.Empty;
+    private string contrasena = string.Empty;
+    private string telefono = string.Empty;
+    private DateTime? fechaNacimiento = null;
+    private string nacionalidad = string.Empty;
+
+    private string mensajeError = string.Empty;
+    private bool estaCargando = false;
+
+    private List<string> paises = new()
+    {
+        "Uruguay", "Argentina", "Chile", "Brasil", "Paraguay", "Perú", "México", "España"
+    };
+
+     private async Task CrearCuenta()
+    {
+        mensajeError = string.Empty;
+
+        // === 1. Validaciones ===
+        if (string.IsNullOrWhiteSpace(documentoIdentidad))
+            mensajeError = "El campo Documento de Identidad está vacío.";
+        else if (string.IsNullOrWhiteSpace(nombre))
+            mensajeError = "El campo Nombre está vacío.";
+        else if (string.IsNullOrWhiteSpace(correo))
+            mensajeError = "El campo Correo está vacío.";
+        else if (!correo.Contains("@") || !correo.Contains("."))
+            mensajeError = "El correo no es válido. Debe contener '@' y un dominio.";
+        else if (string.IsNullOrWhiteSpace(contrasena))
+            mensajeError = "El campo Contraseña está vacío.";
+        else if (contrasena.Length < 6)
+            mensajeError = "La contraseña debe tener al menos 6 caracteres.";
+        else if (string.IsNullOrWhiteSpace(telefono))
+            mensajeError = "El campo Teléfono está vacío.";
+        else if (fechaNacimiento == null)
+            mensajeError = "Debe ingresar una Fecha de Nacimiento.";
+        else if (fechaNacimiento.Value > DateTime.Now.AddYears(-13))
+            mensajeError = "Debes tener al menos 13 años para registrarte.";
+        else if (string.IsNullOrWhiteSpace(nacionalidad))
+            mensajeError = "Debe seleccionar una Nacionalidad.";
+
+        if (!string.IsNullOrWhiteSpace(mensajeError))
+        {
+            StateHasChanged();
+            return;
+        }
+
+        estaCargando = true;
+        StateHasChanged();
+
+        try
+        {
+            // === 2. Verificar si el documento ya existe ===
+            var existentePorDocumento = await MongoDb.ObtenerCorredorPorDocumentoAsync(documentoIdentidad);
+            if (existentePorDocumento != null)
+            {
+                mensajeError = "❌ Ya existe una cuenta con este documento de identidad.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // === 3. Verificar si el correo ya existe ===
+            var existentePorCorreo = await MongoDb.ObtenerCorredorPorCorreoAsync(correo);
+            if (existentePorCorreo != null)
+            {
+                mensajeError = "❌ Ya existe una cuenta con este correo electrónico.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // === 4. Crear objeto Corredor con contraseña hasheada ===
+            var nuevoCorredor = new Corredor
+            {
+                DocumentoIdentidad = documentoIdentidad,
+                Nacionalidad = nacionalidad,
+                FechaNacimiento = fechaNacimiento.Value.ToString("yyyy-MM-dd"),
+                Nombre = nombre,
+                Contraseña = contrasena,
+                                Telefono = telefono,
+                Correo = correo,
+                Rol = "Corredor",
+                Registros = new List<string>()
+            };
+
+            // === 5. Guardar usando el método del servicio (ya hashea automáticamente) ===
+            bool resultado = await MongoDb.AgregarCorredorAsync(nuevoCorredor);
+            
+            if (!resultado)
+            {
+                mensajeError = "❌ No se pudo crear la cuenta. Intenta nuevamente.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+            
+            mensajeError = $"✅ ¡Cuenta creada con éxito para {nuevoCorredor.Nombre}!";
+            
+            // Iniciar sesión automáticamente
+            SesionService.IniciarSesion(nuevoCorredor.DocumentoIdentidad, nuevoCorredor.Nombre, nuevoCorredor.Rol);
+            
+            // Limpiar campos
+            ResetearCampos();
+            
+            // Esperar un momento para que se vea el mensaje de éxito
+            await Task.Delay(1500);
+            
+            // Redirigir a la página principal del corredor
+            NavigationManager.NavigateTo("/menu-corredor", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"❌ Error al guardar: {ex.Message}";
+            Console.WriteLine($"[ERROR AL CREAR CUENTA]: {ex}");
+        }
+
+        estaCargando = false;
+        StateHasChanged();
+    }
+
+    private void ResetearCampos()
+    {
+        documentoIdentidad = string.Empty;
+        nombre = string.Empty;
+        correo = string.Empty;
+        contrasena = string.Empty;
+        telefono = string.Empty;
+        fechaNacimiento = null;
+        nacionalidad = string.Empty;
+    }
+}

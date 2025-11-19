@@ -1,0 +1,326 @@
+@page "/iniciar_sesion"
+@rendermode InteractiveServer
+@using LaboratorioNET.Services
+@using LaboratorioNET.Entities
+
+@inject NavigationManager Navigation
+@inject MongoDbService MongoDb
+@inject SesionService SesionService
+
+<PageTitle>Iniciar Sesión</PageTitle>
+<div class="background-container">
+    <div class="main-container">
+        <header class="page-title-box">
+            <h1>SportEvent Manager</h1>
+        </header>
+
+        <div class="login-box">
+            <h2>Iniciar Sesión</h2>
+
+            <div class="form-container">
+                <!-- Documento de Identidad O Correo -->
+                <div class="form-group">
+                    <label><strong>Documento de Identidad o Correo:</strong></label>
+                    <input @bind="identificador" type="text"
+                            class="form-input" 
+                            placeholder="Ingrese su documento o correo" />
+                </div>
+
+                <!-- Contraseña -->
+                <div class="form-group">
+                    <label><strong>Contraseña:</strong></label>
+                    <input @bind="contrasena" 
+                            type="password" 
+                            class="form-input" 
+                            placeholder="Ingrese su contraseña" />
+                </div>
+
+                <!-- Mensaje de error -->
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="error-message">
+                        <p>@mensajeError</p>
+                    </div>
+                }
+
+                <!-- Botones -->
+                <div class="button-container">
+                    <button type="button" 
+                            class="btn-primary" 
+                            @onclick="IniciarSesion" 
+                            disabled="@estaCargando">
+                        @if (estaCargando)
+                        {
+                            <span>Verificando...</span>
+                        }
+                        else
+                        {
+                            <span>Iniciar Sesión</span>
+                        }
+                    </button>
+
+                    <button type="button" 
+                            class="btn-secondary" 
+                            @onclick='() => Navigation.NavigateTo("/crear_cuenta")'>
+                        Crear Cuenta
+                    </button>
+                </div>
+
+                <div class="footer-links">
+                    <a href="/">Volver al inicio</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .background-container {
+        background-image: url('images/2.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .main-container {
+        max-height: 90vh;
+        overflow-y: auto;
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .page-title-box {
+        text-align: center;
+        margin-bottom: 20px;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .login-box {
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .login-box h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    .form-container {
+        width: 100%;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+
+    .error-message {
+        background-color: #ffebee;
+        border: 1px solid #ef5350;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 15px;
+    }
+
+    .error-message p {
+        color: #c62828;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background-color: #0056b3;
+    }
+
+    .btn-primary:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+
+    .footer-links {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .footer-links a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .footer-links a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+@code {
+    private string identificador = string.Empty;
+    private string contrasena = string.Empty;
+    private string mensajeError = string.Empty;
+    private bool estaCargando = false;
+
+    private async Task IniciarSesion()
+    {
+        mensajeError = string.Empty;
+
+        // === 1. Validaciones básicas ===
+        if (string.IsNullOrWhiteSpace(identificador))
+        {
+            mensajeError = "Por favor ingrese su documento de identidad o correo.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(contrasena))
+        {
+            mensajeError = "Por favor ingrese su contraseña.";
+            return;
+        }
+
+        estaCargando = true;
+        StateHasChanged();
+
+        try
+        {
+            Corredor? corredor = null;
+            
+            // === 2. Buscar por documento o correo ===
+            // Determinar si es un correo (contiene @) o documento
+            if (identificador.Contains("@"))
+            {
+                corredor = await MongoDb.ObtenerCorredorPorCorreoAsync(identificador.Trim());
+            }
+            else
+            {
+                corredor = await MongoDb.ObtenerCorredorPorDocumentoAsync(identificador.Trim());
+            }
+
+            // === 3. Verificar si el usuario existe ===
+            if (corredor == null)
+            {
+                mensajeError = "❌ Usuario no encontrado. Verifique sus datos.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // === 4. Verificar contraseña con BCrypt ===
+            Console.WriteLine($"DEBUG - Contraseña ingresada: {contrasena}");
+            Console.WriteLine($"DEBUG - Hash en BD: {corredor.Contraseña}");
+            Console.WriteLine($"DEBUG - Largo del hash: {corredor.Contraseña?.Length}");
+
+            bool contrasenaValida = BCrypt.Net.BCrypt.Verify(contrasena, corredor.Contraseña?.Trim());
+
+            Console.WriteLine($"DEBUG - ¿Válida?: {contrasenaValida}");
+            if (!contrasenaValida)
+            {
+                mensajeError = "❌ Contraseña incorrecta.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // === 5. Verificar que no sea administrador ===
+            if (corredor.Rol.ToLower() == "admin")
+            {
+                mensajeError = "❌ Los administradores no pueden acceder desde esta página.";
+                estaCargando = false;
+                StateHasChanged();
+                return;
+            }
+
+            // === 6. Login exitoso ===
+            Console.WriteLine($"✅ Login exitoso: {corredor.Nombre} ({corredor.Rol})");
+            
+            SesionService.IniciarSesion(corredor.DocumentoIdentidad, corredor.Nombre, corredor.Rol);
+            
+            StateHasChanged();
+            
+            // Navegar según el rol
+            string rutaDestino = corredor.Rol.ToLower() switch
+            {
+                "corredor" => "/menu-corredor",
+                "admin" => "/menu-admin",
+                _ => "/menu-corredor"
+            };
+            
+            Navigation.NavigateTo(rutaDestino, forceLoad: true);
+        }
+        catch (BCrypt.Net.SaltParseException)
+        {
+            // La contraseña en la base de datos no está hasheada correctamente
+            mensajeError = "❌ Error de autenticación. Contacte al administrador.";
+            Console.WriteLine("⚠️ La contraseña en la BD no está hasheada correctamente");
+            estaCargando = false;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"❌ Error al iniciar sesión: {ex.Message}";
+            Console.WriteLine($"❌ Error en login: {ex}");
+            estaCargando = false;
+            StateHasChanged();
+        }
+    }
+}

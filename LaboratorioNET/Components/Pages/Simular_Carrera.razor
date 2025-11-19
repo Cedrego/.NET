@@ -1,0 +1,718 @@
+@page "/simular_carrera"
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+@using LaboratorioNET.Services
+@using LaboratorioNET.Models
+@using LaboratorioNET.Entities
+@using Microsoft.AspNetCore.SignalR.Client
+@* Usamos MongoDbService inyectado *@
+@inject MongoDbService MongoDb
+@inject BucketService BucketService
+@inject NavigationManager Navigation
+
+<PageTitle>Simular Carrera</PageTitle>
+
+<div class="simular-container">
+    <h2>Simular Carrera</h2>
+
+    <div class="search-box">
+        <input placeholder="Buscar carrera por nombre..." @bind="searchTerm" />
+        <button class="menu-button" @onclick="BuscarCarreras">Buscar</button>
+    </div>
+
+    @if (carreras != null && carreras.Any())
+    {
+        <div class="results">
+            <h3>Resultados</h3>
+            <ul>
+                @foreach (var c in carreras)
+                {
+                    <li>
+                        <b>@c.Nombre</b> (@c.IdCarrera) - Secciones: @c.CantSecciones
+                        <button class="menu-button" @onclick="() => SeleccionarCarrera(c)">Seleccionar</button>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+    @if (selectedCarrera != null)
+    {
+        <div class="selected">
+            <h3>Seleccionada: @selectedCarrera.Nombre</h3>
+            <p>Secciones: @selectedCarrera.CantSecciones</p>
+            <p>Corredores registrados: @registros?.Count</p>
+
+            <div class="button-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="menu-button success" disabled="@(isSimulating)" @onclick="IniciarSimulacion">Iniciar Simulación</button>
+                <button class="menu-button danger" disabled="!isSimulating" @onclick="DetenerSimulacion">Detener</button>
+                <button class="menu-button warning" disabled="@(isSimulating)" @onclick="ResetearCarrera">🔄 Resetear Carrera</button>
+                <button class="menu-button" disabled="@(isSimulating)" @onclick="MostrarRanking">🏁 Ver Ranking</button>
+            </div>
+
+            <div class="progress-list">
+                @if (registros != null)
+                {
+                    <table class="table">
+                        <thead>
+                            <tr><th>Corredor</th><th>Dorsal</th><th>Progreso</th><th>Tiempos</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in registros)
+                            {
+                                var porcentaje = selectedCarrera != null && selectedCarrera.CantSecciones > 0
+                                    ? Math.Min((int)Math.Round((r.Tiempos.Count * 100.0) / selectedCarrera.CantSecciones), 100)
+                                    : 0;
+                                <tr>
+                                    <td>@GetCorredorNombre(r.IdentifiCorredor)</td>
+                                    <td>@r.NumDorsal</td>
+                                    <td>
+                                        <div class="progress-bar-outer">
+                                            <div class="progress-bar-inner" style="width:@porcentaje%">@porcentaje%</div>
+                                        </div>
+                                    </td>
+                                    <td>@(r.Tiempos.Any() ? string.Join(", ", r.Tiempos.Select(t => t.ToString("HH:mm:ss.fff"))) : "-")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                @if (ranking != null && ranking.Any())
+                {
+                    <h4 style="margin-top:20px;color:white">Ranking (mejor tiempo primero)</h4>
+                    <table class="table">
+                        <thead>
+                            <tr><th>Pos</th><th>Corredor</th><th>Dorsal</th><th>Tiempo</th><th>Secciones</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in ranking)
+                            {
+                                <tr>
+                                    <td>@r.position</td>
+                                    <td>@r.nombre</td>
+                                    <td>@r.dorsal</td>
+                                    <td>@(r.totalTime.HasValue ? r.totalTime.Value.ToString("hh\\:mm\\:ss") : "-")</td>
+                                    <td>@r.completed</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+
+</div>
+
+<style>
+    .simular-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 30px 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .simular-container h2 {
+        color: white;
+        text-align: center;
+        font-size: 36px;
+        margin-bottom: 30px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .search-box {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        gap: 10px;
+    }
+
+    .search-box input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .results {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .results h3 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 15px;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+    }
+
+    .results ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .results li {
+        background: #f9f9f9;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 4px solid #667eea;
+        transition: all 0.3s;
+    }
+
+    .results li:hover {
+        background: #f0f0f0;
+        transform: translateX(5px);
+    }
+
+    .results li b {
+        color: #333;
+        flex: 1;
+    }
+
+    .selected {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        max-width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .selected h3 {
+        color: #667eea;
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+
+    .selected p {
+        color: #666;
+        margin: 10px 0;
+        font-size: 16px;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin: 25px 0;
+    }
+
+    .menu-button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .menu-button.success {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .menu-button.success:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    }
+
+    .menu-button.danger {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+
+    .menu-button.danger:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+    }
+
+    .menu-button.warning {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
+    }
+
+    .menu-button.warning:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(250, 112, 154, 0.6);
+    }
+
+    .menu-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .progress-list {
+        margin-top: 30px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #f9f9f9;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    .table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+        color: #333;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s;
+    }
+
+    .table tbody tr:hover {
+        background: #f0f0f0;
+    }
+
+    .progress-bar-outer {
+        background: #e0e0e0;
+        border-radius: 20px;
+        height: 30px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-bar-inner {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        transition: width 0.3s ease;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+@code {
+    private string searchTerm = string.Empty;
+    private List<Carrera> carreras = new();
+    private Carrera? selectedCarrera;
+    private List<Registro>? registros;
+    private Dictionary<string, Corredor> corredoresMap = new();
+    private bool isSimulating = false;
+    private CancellationTokenSource? cts;
+    private HubConnection? hubConnection;
+    private Random rng = new Random();
+    private readonly object rngLock = new();
+    private List<(int position, string nombre, string dorsal, TimeSpan? totalTime, int completed)> ranking = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InitializeSignalRAsync();
+    }
+
+    private async Task InitializeSignalRAsync()
+    {
+        try
+        {
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(Navigation.ToAbsoluteUri("/raceSimulationHub"))
+                .WithAutomaticReconnect()
+                .Build();
+
+            // Escuchar eventos de SimulationStarted para actualizar otros tabs
+            hubConnection.On<dynamic>("SimulationStarted", async (data) =>
+            {
+                if (selectedCarrera?.IdCarrera == data.carreraId)
+                {
+                    // Refrescar registros para mostrar cambios
+                    if (selectedCarrera != null)
+                    {
+                        registros = await MongoDb.ObtenerRegistrosPorCarreraAsync(selectedCarrera.IdCarrera);
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+            });
+
+            hubConnection.On<dynamic>("SimulationStopped", async (data) =>
+            {
+                if (selectedCarrera?.IdCarrera == data.carreraId)
+                {
+                    isSimulating = false;
+                    if (selectedCarrera != null)
+                    {
+                        registros = await MongoDb.ObtenerRegistrosPorCarreraAsync(selectedCarrera.IdCarrera);
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+            });
+
+            await hubConnection.StartAsync();
+            Console.WriteLine("[SignalR Simular_Carrera] Conectado al hub");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SignalR Error Simular_Carrera] {ex.Message}");
+        }
+    }
+
+    private async Task BuscarCarreras()
+    {
+        var all = await MongoDb.ObtenerTodasCarrerasAsync();
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            carreras = all;
+        }
+        else
+        {
+            carreras = all.Where(c => c.Nombre != null && c.Nombre.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private async Task SeleccionarCarrera(Carrera c)
+    {
+        selectedCarrera = c;
+        registros = await MongoDb.ObtenerRegistrosPorCarreraAsync(c.IdCarrera);
+
+        // cargar corredores y mapear por documento
+        var corredores = await MongoDb.ObtenerCorredoresFiltradosAsync(c.IdCarrera);
+        corredoresMap = corredores.ToDictionary(x => x.DocumentoIdentidad, x => x);
+
+        StateHasChanged();
+    }
+
+    private string GetCorredorNombre(string documento)
+    {
+        if (corredoresMap != null && corredoresMap.TryGetValue(documento, out var c)) return c.Nombre;
+        return documento;
+    }
+
+    private async Task IniciarSimulacion()
+    {
+        if (selectedCarrera == null || registros == null || registros.Count == 0)
+        {
+            Console.WriteLine("[Simulación] Carrera no seleccionada o sin corredores");
+            return;
+        }
+
+        isSimulating = true;
+        cts = new CancellationTokenSource();
+        var token = cts.Token;
+        var carreraId = selectedCarrera.IdCarrera;
+        var cantSecciones = selectedCarrera.CantSecciones;
+        
+        // IMPORTANTE: Hacer copia de registros para evitar "Collection was modified" exception
+        var registrosCopia = new List<Registro>(registros);
+
+        // Notificar a través de SignalR que la simulación comenzó
+        if (hubConnection != null)
+        {
+            try
+            {
+                await hubConnection.SendAsync("NotifySimulationStarted", new { carreraId });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SignalR Error] Error notificando simulación: {ex.Message}");
+            }
+        }
+
+        // Ejecutar la simulación en background sin esperar
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                Console.WriteLine($"[Simulación] Iniciando para carrera {carreraId} con {registrosCopia.Count} corredores y {cantSecciones} secciones");
+
+                // Por cada sección/checkpoint
+                for (int checkpoint = 1; checkpoint <= cantSecciones; checkpoint++)
+                {
+                    if (token.IsCancellationRequested) break;
+
+                    Console.WriteLine($"[Simulación] Iniciando Checkpoint {checkpoint}/{cantSecciones}");
+
+                    // Procesar todos los corredores EN PARALELO en este checkpoint
+                    var taskList = new List<Task>();
+
+                    foreach (var reg in registrosCopia)
+                    {
+                        if (token.IsCancellationRequested) break;
+
+                        // Agregar tarea con variación aleatoria por corredor para evitar tiempos idénticos
+                        taskList.Add(ProcesarCorredorEnCheckpointAsync(reg, checkpoint, carreraId, token));
+                    }
+
+                    // Esperar a que todos los corredores terminen este checkpoint
+                    try
+                    {
+                        await Task.WhenAll(taskList);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Simulación Error] Error en checkpoint {checkpoint}: {ex.Message}");
+                    }
+
+                    // Pausa entre checkpoints
+                    await Task.Delay(2000, token);
+
+                    // Actualizar UI después de cada checkpoint
+                    if (selectedCarrera != null)
+                    {
+                        registros = await MongoDb.ObtenerRegistrosPorCarreraAsync(carreraId);
+                        await InvokeAsync(StateHasChanged);
+                    }
+                }
+
+                // Verificar carrera terminada
+                if (selectedCarrera != null)
+                {
+                    await MongoDb.VerificarCarreraTerminadaAsync(carreraId);
+
+                    // Notificar estado de carrera cambiado
+                    if (hubConnection != null)
+                    {
+                        try
+                        {
+                            await hubConnection.SendAsync("NotifyCarreraStatusChanged", new { carreraId });
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[SignalR Error] Error notificando estado: {ex.Message}");
+                        }
+                    }
+                }
+
+                Console.WriteLine("[Simulación] Completada");
+            }
+            catch (TaskCanceledException)
+            {
+                Console.WriteLine("[Simulación] Cancelada por usuario");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Simulación Error] {ex.Message}");
+            }
+            finally
+            {
+                isSimulating = false;
+
+                // Notificar que la simulación se detuvo
+                if (hubConnection != null)
+                {
+                    try
+                    {
+                        await hubConnection.SendAsync("NotifySimulationStopped", new { carreraId });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[SignalR Error] Error notificando parada: {ex.Message}");
+                    }
+                }
+
+                await InvokeAsync(StateHasChanged);
+            }
+        }, token);
+    }
+
+    private async Task ProcesarCorredorEnCheckpointAsync(Registro reg, int checkpoint, string carreraId, CancellationToken token)
+    {
+        if (token.IsCancellationRequested) return;
+
+        try
+        {
+            // Introducir un jitter aleatorio por corredor/por checkpoint para diferenciar tiempos
+            int jitterMs;
+            lock (rngLock)
+            {
+                // Entre 500ms y 3000ms de variación (mayor diferencia entre corredores)
+                jitterMs = rng.Next(500, 3000);
+            }
+            if (jitterMs > 0)
+            {
+                try { await Task.Delay(jitterMs, token); } catch (TaskCanceledException) { return; }
+            }
+
+            Console.WriteLine($"[Simulación] Corredor {reg.IdentifiCorredor} - Checkpoint {checkpoint} (jitter {jitterMs}ms)");
+
+            // Crear tiempo simulado
+            var tiempo = DateTime.UtcNow;
+
+            // Guardar backup en bucket
+            await BucketService.GuardarDatosSensorAsync(carreraId, reg.IdentifiCorredor, tiempo);
+
+            // Agregar tiempo al registro en MongoDB
+            await MongoDb.AgregarTiempoAlRegistroAsync(carreraId, reg.IdentifiCorredor, tiempo);
+
+            // Si es el primer tiempo de cualquier corredor, cambiar carrera a iniciada
+            if (checkpoint == 1)
+            {
+                await MongoDb.ActualizarCarreraAIniciada(carreraId);
+            }
+
+            // Notificar a través de SignalR que se agregó un tiempo
+            if (hubConnection != null && hubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Connected)
+            {
+                try
+                {
+                    await hubConnection.SendAsync("NotifyTimeAdded", new { carreraId, corredorId = reg.IdentifiCorredor, tiempo });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[SignalR Error] Error notificando tiempo: {ex.Message}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Simulación Error] Error procesando corredor {reg.IdentifiCorredor} en checkpoint {checkpoint}: {ex.Message}");
+        }
+    }
+
+    private async Task ResetearCarrera()
+    {
+        if (selectedCarrera == null)
+        {
+            Console.WriteLine("[Resetear] No hay carrera seleccionada");
+            return;
+        }
+
+        try
+        {
+            var confirmReset = await Task.Run(() =>
+            {
+                Console.WriteLine("[Resetear] ¿Estás seguro de que deseas resetear todos los tiempos de esta carrera?");
+                return true; // En una app real, aquí iría un diálogo de confirmación
+            });
+
+            if (!confirmReset) return;
+
+            var resultado = await MongoDb.ResetearRegistrosCarreraAsync(selectedCarrera.IdCarrera);
+
+            if (resultado)
+            {
+                Console.WriteLine("[Resetear] Carrera reseteada exitosamente");
+                // Recargar registros
+                registros = await MongoDb.ObtenerRegistrosPorCarreraAsync(selectedCarrera.IdCarrera);
+                
+                // Notificar a través de SignalR
+                if (hubConnection != null && hubConnection.State == Microsoft.AspNetCore.SignalR.Client.HubConnectionState.Connected)
+                {
+                    try
+                    {
+                        await hubConnection.SendAsync("NotifySimulationStopped", new { carreraId = selectedCarrera.IdCarrera });
+                    }
+                    catch { }
+                }
+
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                Console.WriteLine("[Resetear] Error al resetear la carrera");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Resetear Error] {ex.Message}");
+        }
+    }
+
+    private async Task MostrarRanking()
+    {
+        if (selectedCarrera == null) return;
+
+        // Asegurar que tenemos los registros más recientes
+        registros = await MongoDb.ObtenerRegistrosPorCarreraAsync(selectedCarrera.IdCarrera);
+
+        var list = new List<(string nombre, string dorsal, TimeSpan? totalTime, int completed)>();
+
+        foreach (var r in registros)
+        {
+            var completed = r.Tiempos?.Count ?? 0;
+            TimeSpan? total = null;
+            if (completed >= selectedCarrera.CantSecciones && r.Tiempos?.Count > 0)
+            {
+                var first = r.Tiempos!.First();
+                var last = r.Tiempos!.Last();
+                total = last - first;
+            }
+
+            corredoresMap.TryGetValue(r.IdentifiCorredor, out var cor);
+            list.Add((cor?.Nombre ?? r.IdentifiCorredor, r.NumDorsal.ToString(), total, completed));
+        }
+
+        ranking = list
+            .OrderBy(x => x.totalTime ?? TimeSpan.MaxValue)
+            .Select((x, i) => (position: i + 1, nombre: x.nombre, dorsal: x.dorsal, totalTime: x.totalTime, completed: x.completed))
+            .ToList();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void DetenerSimulacion()
+    {
+        if (cts != null && !cts.IsCancellationRequested)
+        {
+            cts.Cancel();
+            Console.WriteLine("[Simulación] Solicitud de cancelación enviada");
+        }
+    }
+
+    private void NavigateToSimularCarrera()
+    {
+        Navigation.NavigateTo("/simular_carrera");
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

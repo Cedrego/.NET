@@ -1,0 +1,619 @@
+@page "/info_carreras"
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+
+@using LaboratorioNET.Entities
+@using LaboratorioNET.Services
+@using Microsoft.AspNetCore.SignalR.Client
+@inject MongoDbService MongoDbService
+@inject NavigationManager Navigation
+@inject SesionService SesionService
+
+<PageTitle>Información Carreras</PageTitle>
+
+<style>
+    .background-container {
+        background-image: url('images/2.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .main-container {
+        background-color: #79c9e0;
+        min-height: 100vh;
+        padding: 20px;
+        width: 100%;
+    }
+
+    .page-title-box {
+        background-color: #efefef;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title-box h1 {
+        font-size: 32px;
+        font-weight: bold;
+        color: #333;
+        margin: 0;
+    }
+
+    .back-button {
+        padding: 10px 20px;
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .back-button:hover {
+        background-color: #1976D2;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .loading-message {
+        text-align: center;
+        color: white;
+        font-size: 18px;
+        padding: 40px;
+    }
+
+    .error-message {
+        background-color: #ffebee;
+        border-left: 4px solid #f44336;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 4px;
+        color: #c62828;
+    }
+
+    .carreras-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+        gap: 25px;
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .carrera-card {
+        background-color: #fff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .carrera-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .carrera-header {
+        border-bottom: 3px solid #79c9e0;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+
+    .carrera-header h3 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 22px;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .status-programada {
+        background-color: #E3F2FD;
+        color: #1976D2;
+    }
+
+    .status-progreso {
+        background-color: #FFF3E0;
+        color: #F57C00;
+    }
+
+    .status-terminada {
+        background-color: #E8F5E9;
+        color: #388E3C;
+    }
+
+    .carrera-info {
+        margin-bottom: 20px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .carrera-info div {
+        margin-bottom: 8px;
+    }
+
+    .carrera-info strong {
+        color: #333;
+    }
+
+    .corredores-tabla {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    .corredores-tabla th {
+        background-color: #f5f5f5;
+        padding: 10px;
+        text-align: left;
+        font-weight: bold;
+        border-bottom: 2px solid #79c9e0;
+        color: #333;
+    }
+
+    .corredores-tabla td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        color: #666;
+    }
+
+    .corredores-tabla tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .progress-bar {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 25px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    .no-carreras {
+        text-align: center;
+        color: white;
+        padding: 40px;
+        font-size: 18px;
+    }
+
+    .btn-ranking {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 14px;
+        transition: all 0.3s;
+    }
+
+    .btn-ranking:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .ranking-tabla {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .ranking-tabla thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .ranking-tabla th,
+    .ranking-tabla td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .ranking-tabla tbody tr:hover {
+        background-color: #f0f0f0;
+    }
+</style>
+
+<div class="background-container">
+    <div class="main-container">
+        <div class="page-title-box">
+            <h1>Información de Carreras</h1>
+            <button class="back-button" @onclick="NavigateToHome">🏠 Volver al Home</button>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="loading-message">
+                ⏳ Cargando carreras...
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-message">
+                ❌ @errorMessage
+            </div>
+        }
+        else if (carreras != null && carreras.Any())
+        {
+            <div class="carreras-container">
+                @foreach (var carrera in carreras)
+                {
+                    var registros = registrosPorCarrera.ContainsKey(carrera.IdCarrera) 
+                        ? registrosPorCarrera[carrera.IdCarrera] 
+                        : new List<Registro>();
+                    var status = GetCarreraStatus(carrera, registros);
+                    var statusClass = status switch
+                    {
+                        "Programada" => "status-programada",
+                        "En Progreso" => "status-progreso",
+                        "Terminada" => "status-terminada",
+                        _ => "status-programada"
+                    };
+                    var statusIcon = status switch
+                    {
+                        "Programada" => "📅",
+                        "En Progreso" => "⏱️",
+                        "Terminada" => "✓",
+                        _ => "❓"
+                    };
+
+                    <div class="carrera-card">
+                        <div class="carrera-header">
+                            <h3>@carrera.Nombre</h3>
+                            <span class="status-badge @statusClass">@statusIcon @status</span>
+                        </div>
+
+                        <div class="carrera-info">
+                            <div><strong>Secciones:</strong> @carrera.CantSecciones</div>
+                            <div><strong>Fecha Inicio:</strong> @carrera.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+                            <div><strong>Lugar:</strong> @carrera.LugarSalida</div>
+                            <div><strong>Corredores:</strong> @registros.Count</div>
+                        </div>
+
+                        @if (registros.Any())
+                        {
+                            <table class="corredores-tabla">
+                                <thead>
+                                    <tr>
+                                        <th>Corredor</th>
+                                        <th>Dorsal</th>
+                                        <th>Progreso</th>
+                                        <th>Tiempo Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var registro in registros)
+                                    {
+                                        var progreso = Math.Min((registro.Tiempos.Count * 100) / carrera.CantSecciones, 100);
+                                        var completado = registro.Tiempos.Count == carrera.CantSecciones;
+                                        var progressColor = completado ? "#4caf50" : "#ff9800";
+                                        var tiempoTotal = "";
+                                        if (registro.Tiempos.Any())
+                                        {
+                                            var primero = registro.Tiempos.First();
+                                            var ultimo = registro.Tiempos.Last();
+                                            var diferencia = ultimo - primero;
+                                            tiempoTotal = $"{diferencia.Hours:D2}:{diferencia.Minutes:D2}:{diferencia.Seconds:D2}.{diferencia.Milliseconds:D3}";
+                                        }
+                                        else
+                                        {
+                                            tiempoTotal = "-";
+                                        }
+
+                                        <tr>
+                                            <td>@GetCorredorNombre(registro.IdentifiCorredor, carrera.IdCarrera)</td>
+                                            <td>@registro.NumDorsal</td>
+                                            <td>
+                                                <div class="progress-bar">
+                                                    <div class="progress-fill" style="width: @progreso%; background-color: @progressColor;">
+                                                        @progreso%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="font-size: 12px;">@tiempoTotal</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <p style="text-align: center; color: #999; margin-top: 15px;">Sin corredores registrados</p>
+                        }
+
+                        @if (registros.Any() && registros.Any(r => r.Tiempos.Count >= carrera.CantSecciones))
+                        {
+                            <div style="margin-top: 20px;">
+                                <button class="btn-ranking" @onclick="() => MostrarRankingCarrera(carrera.IdCarrera)">🏁 Ver Ranking</button>
+                            </div>
+                            @if (rankingActual != null && rankingCarreraActual == carrera.IdCarrera)
+                            {
+                                <table class="ranking-tabla" style="margin-top: 20px;">
+                                    <thead>
+                                        <tr><th>Pos</th><th>Corredor</th><th>Dorsal</th><th>Tiempo</th><th>Secciones</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var r in rankingActual)
+                                        {
+                                            <tr>
+                                                <td>@r.position</td>
+                                                <td>@r.nombre</td>
+                                                <td>@r.dorsal</td>
+                                                <td>@(r.totalTime.HasValue ? r.totalTime.Value.ToString("hh\\:mm\\:ss\\.fff") : "-")</td>
+                                                <td>@r.completed/@carrera.CantSecciones</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="no-carreras">
+                📭 No hay carreras disponibles
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+
+    private List<Carrera> carreras = new List<Carrera>();
+    private Dictionary<string, List<Registro>> registrosPorCarrera = new Dictionary<string, List<Registro>>();
+    private Dictionary<string, Corredor> corredoresMap = new Dictionary<string, Corredor>();
+    private string errorMessage = string.Empty;
+    private bool isLoading = true;
+    private HubConnection? hubConnection;
+    private List<(int position, string nombre, string dorsal, TimeSpan? totalTime, int completed)>? rankingActual;
+    private string? rankingCarreraActual;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllCarrerasAndRegistrosAsync();
+        await InitializeSignalRAsync();
+    }
+
+    private async Task LoadAllCarrerasAndRegistrosAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = string.Empty;
+
+            // Cargar todas las carreras
+            carreras = await MongoDbService.ObtenerTodasCarrerasAsync();
+            Console.WriteLine($"✓ Cargadas {carreras.Count} carreras");
+
+            // Cargar todos los corredores para la búsqueda
+            var allCorredores = await MongoDbService.ObtenerTodosCorredoresAsync();
+            corredoresMap = allCorredores.ToDictionary(c => c.DocumentoIdentidad, c => c);
+            Console.WriteLine($"✓ Cargados {corredoresMap.Count} corredores al mapa");
+
+            // Para cada carrera, cargar sus registros
+            registrosPorCarrera.Clear();
+            foreach (var carrera in carreras)
+            {
+                var registros = await MongoDbService.ObtenerRegistrosPorCarreraAsync(carrera.IdCarrera);
+                registrosPorCarrera[carrera.IdCarrera] = registros;
+                Console.WriteLine($"✓ Carrera '{carrera.Nombre}': {registros.Count} registros");
+            }
+
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error cargando carreras: {ex.Message}";
+            Console.WriteLine($"❌ {errorMessage}");
+            isLoading = false;
+        }
+    }
+
+    private async Task InitializeSignalRAsync()
+    {
+        try
+        {
+            hubConnection = new HubConnectionBuilder()
+                .WithUrl(Navigation.ToAbsoluteUri("/raceSimulationHub"))
+                .WithAutomaticReconnect()
+                .Build();
+
+            // Escuchar TimeAdded - refrescar registros de TODAS las carreras
+            hubConnection.On<dynamic>("TimeAdded", async (data) =>
+            {
+                try
+                {
+                    Console.WriteLine($"[SignalR TimeAdded] Evento recibido");
+                    await LoadAllCarrerasAndRegistrosAsync();
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Error en TimeAdded handler: {ex.Message}");
+                }
+            });
+
+            // Escuchar CarreraStatusChanged - refrescar todas las carreras
+            hubConnection.On<dynamic>("CarreraStatusChanged", async (data) =>
+            {
+                try
+                {
+                    Console.WriteLine($"[SignalR CarreraStatusChanged] Evento recibido");
+                    await LoadAllCarrerasAndRegistrosAsync();
+                    await InvokeAsync(StateHasChanged);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Error en CarreraStatusChanged handler: {ex.Message}");
+                }
+            });
+
+            // Escuchar SimulationStarted
+            hubConnection.On("SimulationStarted", async () =>
+            {
+                Console.WriteLine("[SignalR] Simulación iniciada");
+                await InvokeAsync(StateHasChanged);
+            });
+
+            // Escuchar SimulationStopped
+            hubConnection.On("SimulationStopped", async () =>
+            {
+                Console.WriteLine("[SignalR] Simulación detenida");
+                await LoadAllCarrerasAndRegistrosAsync();
+                await InvokeAsync(StateHasChanged);
+            });
+
+            await hubConnection.StartAsync();
+            Console.WriteLine("[SignalR Info_Carrera] Conectado al hub");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[SignalR Error] {ex.Message}");
+        }
+    }
+
+    private string GetCarreraStatus(Carrera carrera, List<Registro> registros)
+    {
+        // Si está marcada como terminada, mostrar terminada
+        if (carrera.Terminada)
+            return "Terminada";
+
+        // Si la fecha de inicio es futura, está programada
+        if (DateTime.UtcNow < carrera.FechaInicio)
+            return "Programada";
+
+        // Si hay tiempos registrados, está en progreso
+        if (registros.Any(r => r.Tiempos.Count > 0))
+            return "En Progreso";
+
+        // Si la fecha pasó pero sin tiempos, aún está programada
+        return "Programada";
+    }
+
+    private string GetCorredorNombre(string documento, string carreraId)
+    {
+        if (corredoresMap.ContainsKey(documento))
+        {
+            return corredoresMap[documento].Nombre;
+        }
+        return documento; // Fallback al documento si no se encuentra
+    }
+
+    private string FormatTiemposRelativos(List<DateTime> tiempos, List<Registro> registros, int cantSecciones)
+    {
+        if (!tiempos.Any())
+            return "Sin tiempos";
+
+        // Encontrar el tiempo mínimo de TODOS los corredores
+        var tiempoMinimo = registros
+            .Where(r => r.Tiempos.Any())
+            .SelectMany(r => r.Tiempos)
+            .OrderBy(t => t)
+            .FirstOrDefault();
+
+        if (tiempoMinimo == default)
+            return "Sin datos";
+
+        var tiemposFormateados = new List<string>();
+        for (int i = 0; i < tiempos.Count; i++)
+        {
+            var diferencia = tiempos[i] - tiempoMinimo;
+            tiemposFormateados.Add($"S{i + 1}: {diferencia.Hours:D2}:{diferencia.Minutes:D2}:{diferencia.Seconds:D2}.{diferencia.Milliseconds:D3}");
+        }
+
+        return string.Join(" | ", tiemposFormateados);
+    }
+
+    private void NavigateToHome()
+    {
+        if (SesionService.EstaAutenticado)
+        {
+            Navigation.NavigateTo("/menu-corredor");
+        }
+        else
+        {
+            Navigation.NavigateTo("/");
+        }
+    }
+
+    private async Task MostrarRankingCarrera(string carreraId)
+    {
+        var carrera = carreras.FirstOrDefault(c => c.IdCarrera == carreraId);
+        if (carrera == null) return;
+
+        var registros = registrosPorCarrera.ContainsKey(carreraId) 
+            ? registrosPorCarrera[carreraId] 
+            : new List<Registro>();
+
+        var list = new List<(string nombre, string dorsal, TimeSpan? totalTime, int completed)>();
+
+        foreach (var r in registros)
+        {
+            var completed = r.Tiempos?.Count ?? 0;
+            TimeSpan? total = null;
+            if (completed >= carrera.CantSecciones && r.Tiempos?.Count > 0)
+            {
+                var first = r.Tiempos!.First();
+                var last = r.Tiempos!.Last();
+                total = last - first;
+            }
+
+            corredoresMap.TryGetValue(r.IdentifiCorredor, out var cor);
+            list.Add((cor?.Nombre ?? r.IdentifiCorredor, r.NumDorsal.ToString(), total, completed));
+        }
+
+        rankingActual = list
+            .OrderBy(x => x.totalTime ?? TimeSpan.MaxValue)
+            .Select((x, i) => (position: i + 1, nombre: x.nombre, dorsal: x.dorsal, totalTime: x.totalTime, completed: x.completed))
+            .ToList();
+
+        rankingCarreraActual = carreraId;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
