@@ -1,0 +1,651 @@
+﻿@page "/mis-inscripciones"
+@rendermode InteractiveServer
+@inject LaboratorioNET.Services.SesionService Sesion
+@inject LaboratorioNET.Services.MongoDbService MongoDbS
+@inject NavigationManager Navigation
+@using LaboratorioNET.Entities 
+
+<PageTitle>Mis Inscripciones</PageTitle>
+
+<div class="background-container">
+    <div class="main-container">
+        <div class="form-container">
+            <h2>Mis Inscripciones</h2>
+            <div class="subtitle">Carreras en las que estás inscrito</div>
+
+            @if (!Sesion.EstaAutenticado)
+            {
+                <div class="warning-message">
+                    <p>⚠️ Debes iniciar sesión para ver tus inscripciones</p>
+                    <button class="btn btn-secondary" @onclick='() => Navigation.NavigateTo("/iniciar_sesion")'>
+                        Ir a Iniciar Sesión
+                    </button>
+                </div>
+            }
+            else
+            {
+                @if (IsLoading)
+                {
+                    <div class="loading-container">
+                        <div class="spinner"></div>
+                        <p>Cargando tus inscripciones...</p>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(Message))
+                {
+                    <div class="message @MessageType">
+                        @Message
+                    </div>
+                    
+                    @if (MessageType == "info")
+                    {
+                        <div class="button-container">
+                            <button class="btn btn-primary" @onclick='() => Navigation.NavigateTo("/preinscripcion")'>
+                                📝 Inscribirme a una Carrera
+                            </button>
+                        </div>
+                    }
+                }
+                else if (Inscripciones.Any())
+                {
+                    <div class="user-info">
+                        <p><strong>📊 Total de inscripciones:</strong> @Inscripciones.Count</p>
+                    </div>
+
+                    <div class="inscripciones-grid">
+                        @foreach (var inscripcion in Inscripciones)
+                        {
+                            <div class="carrera-card @(inscripcion.Terminada ? "terminada" : "activa")">
+                                <div class="card-header">
+                                    <div class="header-content">
+                                        <h3>@inscripcion.Nombre</h3>
+                                        <span class="badge @(inscripcion.Terminada ? "badge-terminada" : "badge-activa")">
+                                            @(inscripcion.Terminada ? "✓ Terminada" : "⏱️ Activa")
+                                        </span>
+                                    </div>
+                                    <div class="dorsal-badge">
+                                        <span class="dorsal-label">Dorsal</span>
+                                        <span class="dorsal-number">#@inscripcion.NumDorsal</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <div class="info-row">
+                                        <span class="icon">📅</span>
+                                        <div class="info-content">
+                                            <strong>Fecha de Carrera:</strong>
+                                            <span>@inscripcion.FechaInicio.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <span class="icon">🏁</span>
+                                        <div class="info-content">
+                                            <strong>Tipo:</strong>
+                                            <span>@inscripcion.Tipo</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <span class="icon">📍</span>
+                                        <div class="info-content">
+                                            <strong>Lugar de Salida:</strong>
+                                            <span>@inscripcion.LugarSalida</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <span class="icon">📋</span>
+                                        <div class="info-content">
+                                            <strong>Inscripciones desde:</strong>
+                                            <span>@inscripcion.FechaInicioInsc.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="stats-row">
+                                        <div class="stat-box">
+                                            <span class="stat-value">@inscripcion.LimiteParticipantes</span>
+                                            <span class="stat-label">👥 Límite</span>
+                                        </div>
+                                        <div class="stat-box">
+                                            <span class="stat-value">@inscripcion.CantSecciones</span>
+                                            <span class="stat-label">🚩 Checkpoints</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <div class="button-container">
+                    <button class="btn btn-primary" @onclick='() => Navigation.NavigateTo("/preinscripcion")'>
+                        ➕ Nueva Inscripción
+                    </button>
+                    <button class="btn btn-secondary" @onclick='() => Navigation.NavigateTo("/menu-corredor")'>
+                        ← Volver al Menú
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .background-container {
+        background-image: url('images/2.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .background-container::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    .background-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .background-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .background-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        box-shadow: 0 0 6px rgba(102, 126, 234, 0.5);
+    }
+
+    .main-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: auto;
+        padding: 20px 0;
+    }
+
+    .form-container {
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 12px;
+        padding: 20px;
+        max-width: 650px;
+        width: 100%;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        border-top: 4px solid #667eea;
+        animation: slideUp 0.4s ease-out forwards;
+    }
+
+    @@keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-container h2 {
+        text-align: center;
+        color: #333;
+        margin: 0 0 5px 0;
+        font-size: 22px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #999;
+        margin-bottom: 15px;
+        font-size: 12px;
+    }
+
+    .loading-container {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loading-container p {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .user-info {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border-left: 4px solid #667eea;
+        padding: 10px 12px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+    }
+
+    .user-info p {
+        margin: 0;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .user-info strong {
+        color: #667eea;
+    }
+
+    .warning-message {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 6px;
+        padding: 15px;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .warning-message p {
+        color: #856404;
+        font-weight: 500;
+        margin: 0 0 10px 0;
+        font-size: 13px;
+    }
+
+    .inscripciones-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .carrera-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+        border: 2px solid transparent;
+    }
+
+    .carrera-card.activa {
+        border-color: #667eea;
+    }
+
+    .carrera-card.terminada {
+        opacity: 0.85;
+        border-color: #6c757d;
+    }
+
+    .carrera-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 12px 15px;
+        color: white;
+    }
+
+    .carrera-card.terminada .card-header {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .header-content h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        flex: 1;
+    }
+
+    .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-activa {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+    }
+
+    .badge-terminada {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    .dorsal-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+
+    .dorsal-label {
+        font-size: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        opacity: 0.9;
+    }
+
+    .dorsal-number {
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-row:last-of-type {
+        border-bottom: none;
+        margin-bottom: 12px;
+    }
+
+    .info-row .icon {
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .info-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .info-content strong {
+        font-size: 11px;
+        color: #666;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .info-content span {
+        font-size: 13px;
+        color: #333;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .stat-box {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 10px;
+        border-radius: 6px;
+        text-align: center;
+        border: 1px solid #dee2e6;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 20px;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 2px;
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 10px;
+        color: #666;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .message {
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+    }
+
+    .message.info {
+        background-color: #e3f2fd;
+        border: 1px solid #90caf9;
+        color: #1976d2;
+    }
+
+    .message.error {
+        background-color: #ffebee;
+        border: 1px solid #ef5350;
+        color: #c62828;
+    }
+
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+
+    @@media (max-width: 768px) {
+        .form-container {
+            width: 95%;
+            padding: 16px;
+        }
+
+        .form-container h2 {
+            font-size: 20px;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .stats-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@code {
+    private List<CarreraInscritaViewModel> Inscripciones = new List<CarreraInscritaViewModel>();
+    private bool IsLoading = true;
+    private string Message = "";
+    private string MessageType = "";
+
+    private class CarreraInscritaViewModel
+    {
+        public string Nombre { get; set; } = "";
+        public int NumDorsal { get; set; }
+        public DateTime FechaInicio { get; set; }
+        public string LugarSalida { get; set; } = "";
+        public DateTime FechaInicioInsc { get; set; }
+        public int LimiteParticipantes { get; set; }
+        public int CantSecciones { get; set; }
+        public string Tipo { get; set; } = "";
+        public bool Terminada { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Sesion.OnCambioSesion += StateHasChanged;
+
+        if (Sesion.EstaAutenticado)
+        {
+            await CargarMisInscripciones();
+        }
+        else
+        {
+            IsLoading = false;
+        }
+    }
+
+    public void Dispose()
+    {
+        Sesion.OnCambioSesion -= StateHasChanged;
+    }
+
+    private async Task CargarMisInscripciones()
+    {
+        IsLoading = true;
+        Message = "";
+        
+        try
+        {
+            var documentoCorredor = Sesion.DocumentoIdentidad;
+            
+            if (string.IsNullOrEmpty(documentoCorredor))
+            {
+                Message = "❌ No se pudo obtener tu información. Por favor, inicia sesión nuevamente.";
+                MessageType = "error";
+                return;
+            }
+
+            var registrosDelCorredor = await MongoDbS.ObtenerRegistrosPorCorredorAsync(documentoCorredor);
+
+            if (registrosDelCorredor == null || !registrosDelCorredor.Any())
+            {
+                Message = "📋 No estás inscrito en ninguna carrera actualmente.";
+                MessageType = "info";
+                return;
+            }
+
+            // Cargar detalles de cada carrera
+            foreach (var registro in registrosDelCorredor)
+            {
+                var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(registro.IDCarrera);
+                
+                if (carrera != null)
+                {
+                    Inscripciones.Add(new CarreraInscritaViewModel
+                    {
+                        Nombre = carrera.Nombre,
+                        NumDorsal = registro.NumDorsal,
+                        FechaInicio = carrera.FechaInicio,
+                        LugarSalida = carrera.LugarSalida,
+                        FechaInicioInsc = carrera.FechaInicioInsc,
+                        LimiteParticipantes = carrera.LimiteParticipantes,
+                        CantSecciones = carrera.CantSecciones,
+                        Tipo = carrera.Tipo,
+                        Terminada = carrera.Terminada
+                    });
+                }
+            }
+
+            // Ordenar: carreras activas primero, luego por fecha
+            Inscripciones = Inscripciones
+                .OrderBy(i => i.Terminada)
+                .ThenBy(i => i.FechaInicio)
+                .ToList();
+
+            Console.WriteLine($"✅ Se cargaron {Inscripciones.Count} inscripciones");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error cargando inscripciones: {ex.Message}");
+            Message = "❌ Error al cargar tus inscripciones. Intenta nuevamente.";
+            MessageType = "error";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}
