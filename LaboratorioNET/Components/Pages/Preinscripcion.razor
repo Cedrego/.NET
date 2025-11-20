@@ -664,17 +664,63 @@
 
     private async Task<int> GenerarNumDorsalUnico(string idCarrera)
     {
-        Random random = new Random();
-        int numDorsal;
-        bool existe;
-
-        do
+        try
         {
-            numDorsal = random.Next(1, 99);//cambiar 
-            var registros = await MongoDbS.ObtenerRegistrosPorCarreraAsync(idCarrera);
-            existe = registros.Any(r => r.NumDorsal == numDorsal);
-        } while (existe);
+            // Obtener la carrera para conocer el límite
+            var carrera = await MongoDbS.ObtenerCarreraPorIdCarreraAsync(idCarrera);
+            
+            if (carrera == null)
+            {
+                Console.WriteLine($"❌ Carrera no encontrada: {idCarrera}");
+                throw new Exception("Carrera no encontrada");
+            }
 
-        return numDorsal;
+            // Obtener todos los registros de la carrera
+            var registros = await MongoDbS.ObtenerRegistrosPorCarreraAsync(idCarrera);
+
+            // Verificar que no se haya alcanzado el límite
+            if (registros.Count >= carrera.LimiteParticipantes)
+            {
+                Console.WriteLine($"❌ Límite de participantes alcanzado ({carrera.LimiteParticipantes})");
+                throw new Exception($"La carrera ha alcanzado el límite de {carrera.LimiteParticipantes} participantes");
+            }
+
+            // Si no hay registros, empezar desde 1
+            if (!registros.Any())
+            {
+                Console.WriteLine($"✅ Primer dorsal asignado: 1");
+                return 1;
+            }
+
+            // Obtener el último dorsal asignado y sumar 1
+            var ultimoDorsal = registros.Max(r => r.NumDorsal);
+            var nuevoDorsal = ultimoDorsal + 1;
+
+            // Validar que no exceda el límite de participantes
+            if (nuevoDorsal > carrera.LimiteParticipantes)
+            {
+                // Buscar huecos (si alguien se desuscribió)
+                var dorsalesUsados = registros.Select(r => r.NumDorsal).OrderBy(d => d).ToList();
+                
+                for (int i = 1; i <= carrera.LimiteParticipantes; i++)
+                {
+                    if (!dorsalesUsados.Contains(i))
+                    {
+                        Console.WriteLine($"✅ Dorsal asignado (hueco encontrado): {i}");
+                        return i;
+                    }
+                }
+                
+                throw new Exception("No hay dorsales disponibles");
+            }
+
+            Console.WriteLine($"✅ Dorsal asignado secuencialmente: {nuevoDorsal} (Total inscritos: {registros.Count + 1}/{carrera.LimiteParticipantes})");
+            return nuevoDorsal;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error al generar dorsal: {ex.Message}");
+            throw;
+        }
     }
 }
