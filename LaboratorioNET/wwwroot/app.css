@@ -65,10 +65,10 @@ body {
 
 .menu-box, .content-box, .login-box {
     background: rgba(255, 255, 255, 0.95);
-    padding: 30px;
+    padding: 20px;
     border-radius: 15px;
     width: 90%;
-    max-width: 500px;
+    max-width: 450px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     margin-bottom: 20px;
 }
@@ -76,8 +76,8 @@ body {
 .menu-box h2, .content-box h2, .login-box h2 {
     text-align: center;
     color: #333;
-    margin-bottom: 25px;
-    font-size: 1.8em;
+    margin-bottom: 15px;
+    font-size: 1.4em;
     font-family: "Times New Roman", Times, serif;
 }
 
@@ -85,28 +85,28 @@ body {
 .form-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 12px;
     width: 100%;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .form-group label {
-    font-size: 14px;
+    font-size: 12px;
     color: #333;
     font-weight: bold;
 }
 
 .form-input {
     width: 100%;
-    padding: 12px;
+    padding: 8px;
     border: 2px solid #ccc;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 12px;
     transition: border-color 0.3s;
     background-color: white;
 }
@@ -133,16 +133,16 @@ body {
 .button-container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-top: 20px;
+    gap: 8px;
+    margin-top: 12px;
 }
 
 .btn-primary, .btn-secondary {
     width: 100%;
-    padding: 14px;
+    padding: 10px;
     border: none;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s;
