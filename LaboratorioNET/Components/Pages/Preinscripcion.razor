@@ -3,11 +3,14 @@
 @inject NavigationManager Navigation
 @inject LaboratorioNET.Services.MongoDbService MongoDbS
 @inject LaboratorioNET.Services.SesionService SesionService
+@inject IJSRuntime JS
 @using LaboratorioNET.Entities
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Routing
 
-<PageTitle>Preinscripción</PageTitle>
+<!-- Preinscripción -->
 
-<div class="background-container">
+<div class="background-container" @ref="scrollContainer">
     <div class="main-container">
         <div class="form-container">
             <h2>Preinscripción a Carrera</h2>
@@ -31,7 +34,7 @@
 
                 <div class="form-group">
                     <label><strong>🏃 Selecciona una Carrera:</strong></label>
-                    <select @bind="FormData.IDCarrera" class="form-select">
+                    <select @bind="FormData.IDCarrera" @bind:after="OnCarreraSeleccionada" class="form-select">
                         <option value="">-- Seleccione una carrera --</option>
                         @foreach (var carrera in CarrerasDisponibles)
                         {
@@ -130,172 +133,241 @@
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
+        background-attachment: fixed;
         min-height: 100vh;
-        padding: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 15px;
         box-sizing: border-box;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Barra de scroll mejorada */
+    .background-container::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    .background-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .background-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .background-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        box-shadow: 0 0 6px rgba(102, 126, 234, 0.5);
     }
 
     .main-container {
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 90vh;
+        width: 100%;
+        min-height: auto;
+        padding: 20px 0;
+        flex-direction: column;
     }
 
     .form-container {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
-        padding: 30px;
-        max-width: 600px;
+        background: rgba(255, 255, 255, 0.98);
+        border-radius: 12px;
+        padding: 16px;
+        max-width: 420px;
         width: 100%;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        border-top: 4px solid #667eea;
+        animation: slideUp 0.4s ease-out forwards;
+    }
+
+    @@keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .form-container h2 {
         text-align: center;
         color: #333;
-        margin-bottom: 10px;
+        margin: 0 0 3px 0;
+        font-size: 19px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .subtitle {
         text-align: center;
-        color: #666;
-        margin-bottom: 25px;
-        font-size: 14px;
+        color: #999;
+        margin-bottom: 10px;
+        font-size: 11px;
     }
 
     .user-info {
-        background: #e3f2fd;
-        border-left: 4px solid #2196f3;
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 5px;
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border-left: 4px solid #667eea;
+        padding: 8px 10px;
+        margin-bottom: 10px;
+        border-radius: 6px;
     }
 
     .user-info p {
-        margin: 5px 0;
-        color: #1976d2;
+        margin: 2px 0;
+        color: #666;
+        font-size: 11px;
+    }
+
+    .user-info strong {
+        color: #667eea;
     }
 
     .warning-message {
         background: #fff3cd;
         border: 1px solid #ffc107;
-        border-radius: 5px;
-        padding: 20px;
+        border-radius: 6px;
+        padding: 10px;
         text-align: center;
     }
 
     .warning-message p {
         color: #856404;
         font-weight: 500;
-        margin-bottom: 15px;
+        margin: 0 0 6px 0;
+        font-size: 11px;
     }
 
     .carrera-info {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 15px;
-        margin-bottom: 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-left: 4px solid #667eea;
+        border-radius: 6px;
+        padding: 8px 10px;
+        margin-bottom: 10px;
     }
 
     .carrera-info h3 {
-        margin-top: 0;
-        color: #495057;
-        font-size: 1.2em;
+        margin: 0 0 4px 0;
+        color: #667eea;
+        font-size: 11px;
     }
 
     .carrera-info p {
-        margin: 8px 0;
-        color: #495057;
+        margin: 2px 0;
+        color: #666;
+        font-size: 10px;
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     .form-group label {
         display: block;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
         color: #333;
         font-weight: 500;
+        font-size: 11px;
     }
 
     .form-input, .form-select {
         width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
+        padding: 6px 7px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 11px;
         box-sizing: border-box;
+        transition: all 0.3s;
     }
 
     .form-input:focus, .form-select:focus {
         outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-input:disabled {
+        background-color: #f5f5f5;
+        cursor: not-allowed;
     }
 
     .helper-text {
         display: block;
-        margin-top: 5px;
-        font-size: 12px;
-        color: #666;
+        margin-top: 2px;
+        font-size: 9px;
+        color: #aaa;
         font-style: italic;
     }
 
     .button-container {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        margin-top: 25px;
+        gap: 6px;
+        margin-top: 12px;
     }
 
     .btn {
         width: 100%;
-        padding: 12px;
+        padding: 7px;
         border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        font-weight: 500;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
         cursor: pointer;
         transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
     }
 
     .btn-primary {
-        background-color: #28a745;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     }
 
     .btn-primary:hover:not(:disabled) {
-        background-color: #218838;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
 
     .btn-primary:disabled {
-        background-color: #ccc;
+        background: #ccc;
         cursor: not-allowed;
         transform: none;
+        box-shadow: none;
     }
 
     .btn-secondary {
-        background-color: #6c757d;
+        background: #6c757d;
         color: white;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
     }
 
     .btn-secondary:hover {
-        background-color: #545b62;
+        background: #5a6268;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
     }
 
     .message {
-        margin-top: 20px;
-        padding: 15px;
-        border-radius: 5px;
+        margin-top: 10px;
+        padding: 8px;
+        border-radius: 6px;
         font-weight: 500;
         text-align: center;
+        font-size: 11px;
+        animation: slideIn 0.3s ease;
     }
 
     .message.success {
@@ -310,9 +382,25 @@
         border: 1px solid #f5c6cb;
     }
 
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     @@media (max-width: 768px) {
         .form-container {
-            padding: 20px;
+            width: 95%;
+            padding: 18px;
+        }
+
+        .form-container h2 {
+            font-size: 20px;
         }
     }
 </style>
@@ -322,6 +410,7 @@
     private List<CarreraInfo> CarrerasDisponibles = new List<CarreraInfo>();
     private Dictionary<string, int> registrosPorCarrera = new Dictionary<string, int>();
     private Corredor? corredorActual;
+    private ElementReference scrollContainer;
     
     private bool IsLoading = false;
     private string Message = "";
@@ -385,6 +474,9 @@
 
             // Cargar carreras disponibles
             await CargarCarreras();
+            
+            // Hacer scroll al inicio
+            await ScrollToTop();
         }
         catch (Exception ex)
         {
@@ -392,6 +484,27 @@
             Message = "❌ Error al cargar la información";
             MessageType = "error";
         }
+    }
+
+    private async Task ScrollToTop()
+    {
+        try
+        {
+            await Task.Delay(100);
+            // Scroll al inicio de la página
+        }
+        catch { }
+    }
+
+    private async Task OnCarreraSeleccionada()
+    {
+        // Hacer scroll hacia arriba cuando se selecciona una carrera
+        try
+        {
+            await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
+            await Task.Delay(150);
+        }
+        catch { }
     }
 
     private async Task CargarCarreras()

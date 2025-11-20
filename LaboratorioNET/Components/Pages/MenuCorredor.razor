@@ -54,112 +54,156 @@ else
 }
 </div>
 <style>
-.background-container {
-        background-image: url('images/2.jpg'); /* Reemplaza 'fondo.jpg' con el nombre de tu imagen */
+    .background-container {
+        background-image: url('images/2.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
+        background-attachment: fixed;
         min-height: 100vh;
         width: 100%;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
+        padding: 15px;
+        box-sizing: border-box;
+        overflow-y: scroll;
+        overflow-x: hidden;
     }
+
+    /* Barra de scroll mejorada */
+    .background-container::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    .background-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .background-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .background-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        box-shadow: 0 0 6px rgba(102, 126, 234, 0.5);
+    }
+
     .main-container {
-        background-color: #79c9e0;
-        min-height: 100vh;
-        padding: 20px;
+        width: 100%;
+        max-width: 900px;
+        padding: 15px 0;
+        box-sizing: border-box;
     }
 
     .page-title-box {
-        background-color: #efefef;
-        padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 30px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        border-left: 5px solid #007bff;
     }
 
     .page-title-box h1 {
-        font-size: 32px;
+        font-size: 24px;
         font-weight: bold;
         color: #333;
         margin: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 
     .user-info {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 12px;
     }
 
     .user-info span {
-        font-size: 16px;
-        color: #333;
+        font-size: 13px;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .user-info strong {
+        color: #007bff;
     }
 
     .btn-cerrar-sesion {
-        padding: 10px 20px;
-        background-color: #f44336;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         color: white;
         border: none;
-        border-radius: 8px;
-        font-size: 14px;
+        border-radius: 7px;
+        font-size: 11px;
         font-weight: bold;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 12px rgba(245, 87, 108, 0.25);
     }
 
     .btn-cerrar-sesion:hover {
-        background-color: #d32f2f;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 5px 18px rgba(245, 87, 108, 0.4);
     }
 
     .menu-box {
-        background-color: #efefef;
-        padding: 40px;
-        border-radius: 15px;
-        max-width: 800px;
-        margin: 0 auto;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.97);
+        padding: 32px;
+        border-radius: 14px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(10px);
+        border-top: 5px solid #667eea;
     }
 
     .menu-box h2 {
         text-align: center;
-        font-size: 28px;
+        font-size: 24px;
         font-weight: bold;
         color: #333;
-        margin-bottom: 40px;
-        border-bottom: 3px solid #79c9e0;
-        padding-bottom: 15px;
+        margin: 0 0 28px 0;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 12px;
     }
 
     .menu-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
     }
 
     .menu-button {
-        padding: 30px 20px;
-        background-color: #6da571;
+        padding: 20px 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
-        border-radius: 12px;
-        font-size: 18px;
+        border-radius: 10px;
+        font-size: 13px;
         font-weight: bold;
         cursor: pointer;
-        transition: all 0.3s;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        text-align: center;
+        line-height: 1.4;
     }
 
     .menu-button:hover {
-        background-color: #578a5b;
         transform: translateY(-5px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+
+    .menu-button:active {
+        transform: translateY(-2px);
     }
 
     .no-autenticado {
@@ -168,31 +212,43 @@ else
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background-color: #79c9e0;
-        gap: 20px;
+        gap: 16px;
+        text-align: center;
     }
 
     .no-autenticado p {
-        font-size: 24px;
-        color: #333;
+        font-size: 20px;
+        color: white;
         font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.3);
+        padding: 16px 32px;
+        border-radius: 10px;
     }
 
     .no-autenticado button {
-        padding: 15px 30px;
-        background-color: #6da571;
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border: none;
         border-radius: 8px;
-        font-size: 16px;
+        font-size: 13px;
         font-weight: bold;
         cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .no-autenticado button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
     }
 
     @@media (max-width: 768px) {
         .page-title-box {
             flex-direction: column;
             gap: 15px;
+            text-align: center;
         }
 
         .user-info {
@@ -203,6 +259,14 @@ else
 
         .menu-grid {
             grid-template-columns: 1fr;
+        }
+
+        .menu-box {
+            padding: 25px;
+        }
+
+        .page-title-box h1 {
+            font-size: 24px;
         }
     }
 </style>

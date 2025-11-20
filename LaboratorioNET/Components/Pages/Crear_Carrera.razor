@@ -133,25 +133,26 @@
 
 <style>
     .background-container {
-        background-image: url('images/2.jpg');
+        background-image: url('images/1.jpg');
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
+        background-attachment: fixed;
         min-height: 100vh;
         width: 100%;
         display: flex;
         justify-content: center;
-        align-items: center;
-        padding: 20px;
+        align-items: flex-start;
+        padding: 15px;
         box-sizing: border-box;
+        overflow-y: auto;
     }
 
     .main-container {
-        max-height: 90vh;
-        overflow-y: auto;
         width: 100%;
         max-width: 700px;
         margin: 0 auto;
+        padding: 15px 0;
     }
 
     .page-title-box {
