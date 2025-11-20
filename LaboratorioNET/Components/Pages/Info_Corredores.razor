@@ -323,13 +323,26 @@ h3 {
     private List<Carrera> carreras = new();
     private List<string> origenes = new();
 
-    // Filtros seleccionados
     private string? carreraSeleccionada = null;
     private string? origenSeleccionado = null;
 
     protected override async Task OnInitializedAsync()
     {
+        // ✅ Suscribirse a cambios de sesión
+        SesionService.OnCambioSesion += StateHasChanged;
+        
+        // ✅ Debug: Verificar estado de sesión
+        Console.WriteLine($"🔍 Info Corredores - EstaAutenticado: {SesionService.EstaAutenticado}");
+        Console.WriteLine($"🔍 Info Corredores - EsAdmin: {SesionService.EsAdmin}");
+        Console.WriteLine($"🔍 Info Corredores - Rol: {SesionService.Rol}");
+        
         await CargarDatos();
+    }
+
+    // ✅ IMPORTANTE: Desuscribirse al destruir el componente
+    public void Dispose()
+    {
+        SesionService.OnCambioSesion -= StateHasChanged;
     }
 
     private async Task CargarDatos()
@@ -339,7 +352,6 @@ h3 {
 
         try
         {
-            // Cargar todos los datos en paralelo (MongoDB)
             var tareaCorredores = MongoDbS.ObtenerTodosCorredoresAsync();
             var tareaCarreras = MongoDbS.ObtenerTodasCarrerasAsync();
             var tareaOrigenes = MongoDbS.ObtenerNacionalidadesUnicasAsync();
@@ -350,12 +362,16 @@ h3 {
             carreras = await tareaCarreras;
             origenes = await tareaOrigenes;
 
-            // Filtrar corredores para excluir los que tienen rol "admin"
-            corredoresFiltrados = todosCorredores.Where(corredor => corredor.Rol != "admin").ToList();
+            // Filtrar admins
+            corredoresFiltrados = todosCorredores
+                .Where(c => !c.Rol.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+                
+            Console.WriteLine($"✅ Cargados {corredoresFiltrados.Count} corredores (sin admins)");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al cargar datos: {ex.Message}");
+            Console.WriteLine($"❌ Error al cargar datos: {ex.Message}");
         }
         finally
         {
@@ -363,7 +379,6 @@ h3 {
             StateHasChanged();
         }
     }
-
 
     private void OnCarreraChange(ChangeEventArgs e)
     {
@@ -382,14 +397,19 @@ h3 {
 
         try
         {
-            corredoresFiltrados = await MongoDbS.ObtenerCorredoresFiltradosAsync(
+            var corredores = await MongoDbS.ObtenerCorredoresFiltradosAsync(
                 carreraSeleccionada,
                 origenSeleccionado
             );
+            
+            // Filtrar admins también en los resultados filtrados
+            corredoresFiltrados = corredores
+                .Where(c => !c.Rol.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al aplicar filtros: {ex.Message}");
+            Console.WriteLine($"❌ Error al aplicar filtros: {ex.Message}");
         }
         finally
         {
@@ -398,12 +418,16 @@ h3 {
         }
     }
 
-    private async Task LimpiarFiltros()
+    private Task LimpiarFiltros()
     {
         carreraSeleccionada = null;
         origenSeleccionado = null;
         
-        corredoresFiltrados = todosCorredores;
+        corredoresFiltrados = todosCorredores
+            .Where(c => !c.Rol.Equals("admin", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+            
         StateHasChanged();
+        return Task.CompletedTask;
     }
 }

@@ -74,8 +74,7 @@
     private string mensajeError = string.Empty;
     private bool estaCargando = false;
 
-    private async Task IniciarSesion()
-    {
+    private async Task IniciarSesion(){
         mensajeError = string.Empty;
 
         if (string.IsNullOrWhiteSpace(documentoIdentidad))
@@ -99,14 +98,14 @@
 
             if (usuario == null)
             {
-                mensajeError = "Usuario no encontrado. Verifique su documento de identidad.";
+                mensajeError = "❌ Usuario no encontrado. Verifique su documento de identidad.";
                 estaCargando = false;
                 StateHasChanged();
                 return;
             }
 
-            // Verificar que la contraseña coincida
-            bool contrasenaValida = BCrypt.Net.BCrypt.Verify(contrasena, usuario.Contraseña?.Trim());
+            // Verificar que la contraseña coincida con BCrypt
+            bool contrasenaValida = BCrypt.Net.BCrypt.Verify(contrasena, usuario.Contraseña);
 
             if (!contrasenaValida)
             {
@@ -117,14 +116,18 @@
             }
 
             // Verificar el rol del usuario
-            if (usuario.Rol?.ToLower() == "admin")
+            if (usuario.Rol?.Equals("admin", StringComparison.OrdinalIgnoreCase) == true)
             {
-                SesionService.IniciarSesion(usuario.DocumentoIdentidad, usuario.Nombre);
-                Navigation.NavigateTo("/admin");
+                // ✅ CORRECCIÓN: Pasar el rol "admin" como tercer parámetro
+                SesionService.IniciarSesion(usuario.DocumentoIdentidad, usuario.Nombre, "admin");
+                
+                Console.WriteLine($"✅ Admin login exitoso: {usuario.Nombre}");
+                
+                Navigation.NavigateTo("/admin", forceLoad: true);
             }
             else
             {
-                mensajeError = "Error: admin no existente.";
+                mensajeError = "❌ Error: Esta cuenta no tiene permisos de administrador.";
                 estaCargando = false;
                 StateHasChanged();
                 return;
@@ -132,11 +135,10 @@
         }
         catch (Exception ex)
         {
-            mensajeError = $"Error al iniciar sesión: {ex.Message}";
-            Console.WriteLine($"❌ Error: {ex}");
+            mensajeError = $"❌ Error al iniciar sesión: {ex.Message}";
+            Console.WriteLine($"❌ Error en login admin: {ex}");
+            estaCargando = false;
+            StateHasChanged();
         }
-
-        estaCargando = false;
-        StateHasChanged();
     }
 }

@@ -542,9 +542,12 @@
         return string.Join(" | ", tiemposFormateados);
     }
 
-    private void NavigateToHome()
-    {
-        if (SesionService.EstaAutenticado)
+   private void NavigateToHome() {
+        if (SesionService.EsAdmin)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else if (SesionService.EstaAutenticado)
         {
             Navigation.NavigateTo("/menu-corredor");
         }
