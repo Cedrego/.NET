@@ -9,317 +9,141 @@
 - ✅ Objetivos cumplidos
 - 🎯 Características implementadas
 - 📊 Estadísticas del proyecto
-- 🚀 Próximos pasos
-- **Mejor para**: Visión general rápida
+# LaboratorioNET — Sistema de gestión y simulación de carreras
 
----
+Este repositorio contiene una aplicación web desarrollada con ASP.NET Core + Blazor que permite gestionar carreras, corredores y puntos de control basados en datos de sensores. Incluye servicios para persistencia (MongoDB), almacenamiento de ficheros (BucketService), validación de sensores y una capa en tiempo real (SignalR) para la simulación de carreras.
 
-#### 2. **GUIA_VISUAL.md** 🎨 RÁPIDO Y VISUAL
-- 🚀 Comenzar en 5 minutos
-- 📋 Ejemplo de flujo completo
-- 🎮 Comandos del simulador
-- 🌐 Endpoints API rápida
-- 🐛 Troubleshooting visual
-- **Mejor para**: Usuarios que quieren empezar rápido
+Este `README` actúa como la documentación principal: tecnologías usadas, guía de uso, arquitectura, ejecución y notas de despliegue.
 
----
+**Estado:** Mantenimiento activo
+**Lenguaje:** C# / Blazor
+**Solución:** `LaboratorioNET.sln`
 
-#### 3. **INICIO_RAPIDO.md** 🏃 PASO A PASO
-- 🔧 Configuración inicial
-- 💾 Compilación y ejecución
-- 🧪 Configurar datos de prueba
-- ✅ Probar el sistema
-- 📋 Verificar resultados
-- **Mejor para**: Setup y configuración
+----
 
----
+**Índice rápido**
+- **Visión general**: descripción del proyecto.
+- **Tecnologías**: lista de tecnologías y librerías clave.
+- **Requisitos**: dependencias y servicios externos (MongoDB, etc.).
+- **Instalación y ejecución**: pasos para ejecutar localmente.
+- **Arquitectura**: capas y responsabilidades.
+- **Estructura del repositorio**: rutas principales de código.
+- **Desarrollo**: cómo contribuir y ejecutar en modo desarrollo.
+- **Despliegue**: recomendaciones para producción.
 
-#### 4. **SENSOR_SYSTEM_DOCUMENTATION.md** 📖 REFERENCIA COMPLETA
-- 📋 Descripción general
-- 🏗️ Arquitectura de cambios
-- 📡 API Endpoints (7 endpoints)
-- 🧪 Usar el simulador
-- 🗂️ Almacenamiento en Bucket
-- 🔄 Flujo de procesamiento
-- 📊 Lógica de finalización
-- ⚙️ Configuración
-- 🔐 Notas de seguridad
-- 📝 Cambios en UI
-- ✅ Testing
-- **Mejor para**: Consulta de referencia técnica
+----
 
----
+**Visión general**
 
-#### 5. **CAMBIOS_IMPLEMENTADOS.md** 🔧 DETALLES TÉCNICOS
-- ✅ Cambios realizados
-- 🎯 Objetivo
-- 📊 Cambios por archivo
-- 🔄 Flujo de procesamiento
-- 📊 Lógica de finalización
-- 🔧 Requisitos previos
-- 📦 Dependencias
-- 🚀 Próximos pasos
-- ✨ Ventajas del sistema
-- **Mejor para**: Desarrolladores que quieren entender los cambios
+LaboratorioNET es una aplicación diseñada para administrar competiciones atléticas y simular carreras usando datos de sensores. Funciona como una SPA con Blazor (componentes UI) y ofrece una API REST para ingestión y consulta de datos de sensores. La aplicación también incluye una parte en tiempo real mediante SignalR (`RaceSimulationHub`) que facilita la simulación y notificaciones en vivo.
 
----
+**Casos de uso principales**
+- Crear y listar carreras.
+- Registrar corredores y preinscripciones.
+- Ingestar eventos de checkpoints desde sensores.
+- Simular una carrera en tiempo real y visualizar resultados y ranking.
 
-#### 6. **ARQUITECTURA.md** 🏗️ DIAGRAMAS Y FLUJOS
-- 📊 Componentes implementados
-- 🔄 Flujo de datos paso a paso
-- 📝 Estados de la carrera
-- 💾 Estructura de datos Firestore
-- 🔄 Comparación antes/después
-- 📈 Métricas de monitoreo
-- **Mejor para**: Entender la arquitectura completa
+----
 
----
+**Tecnologías y dependencias clave**
+- `ASP.NET Core` — backend y servidor web.
+- `Blazor` — UI de cliente (componentes en `Components/Pages`).
+- `MongoDB` — base de datos NoSQL para entidades (`MongoDbService`, `MongoDbSettings`).
+- `SignalR` — comunicación en tiempo real (`RaceSimulationHub`).
+- Servicios propios: `SensorValidationService`, `BucketService`, `SesionService`.
+- `C#` 10+ (según SDK instalado) y `dotnet` CLI para compilación/ejecución.
 
-#### 7. **TROUBLESHOOTING.md** 🔧 SOLUCIÓN DE PROBLEMAS
-- 🚨 10 problemas comunes
-- 🔧 Soluciones paso-a-paso
-- 📊 Tabla de error codes
-- 🔍 Debug logging
-- 📞 Escalación
-- **Mejor para**: Resolver problemas
+----
 
----
+**Requisitos**
+- .NET SDK instalado (versión compatible con el proyecto).
+- MongoDB (local o Atlas). Se usa desde `Services/MongoDbService.cs`.
+- Opcional: servicio de almacenamiento compatible con `BucketService` (configuración en `appsettings.json`).
 
-#### 8. **CHANGELOG.md** 📝 HISTORIAL DE CAMBIOS
-- 🎯 Versión 2.0
-- ✅ Nuevas características
-- 📊 Comparativa v1.0 vs v2.0
-- 🔄 Detalles de cambios
-- 🚀 Performance
-- 🐛 Bugs solucionados
-- 📋 Roadmap futuro
-- **Mejor para**: Seguimiento de versiones
+----
 
----
+**Configuración**
 
-#### 9. **ESTRUCTURA_PROYECTO.md** 📦 LAYOUT DEL PROYECTO
-- 🗂️ Árbol de carpetas
-- 📊 Estadísticas
-- 🔧 Componentes técnicos
-- 📈 Índices de calidad
-- 🔐 Seguridad implementada
-- 📚 Documentación incluida
-- **Mejor para**: Entender la estructura completa
+1. Copia el fichero de configuración y actualiza los valores necesarios:
 
----
+    - Edita `appsettings.json` y ajusta `MongoDbSettings` con tu conexión (ej. MongoDB Atlas URI o `mongodb://localhost:27017`).
 
-### 📋 Archivos Adicionales
+2. Variables importantes en `appsettings.json`:
 
-#### 10. **api-requests.http** 🧪 EJEMPLOS HTTP
-- 18 ejemplos de requests
-- POST, GET completos
-- Casos de éxito y error
-- Datos de prueba
-- **Mejor para**: Testing en REST Client
+    - `MongoDbSettings:ConnectionString` — cadena de conexión a MongoDB.
+    - `MongoDbSettings:DatabaseName` — nombre de la base de datos.
+    - Ajustes para `BucketService` si usas almacenamiento externo.
 
----
+----
 
-#### 11. **sensor-simulator.ps1** 🎮 SIMULADOR
-- Script PowerShell parametrizable
-- Simula múltiples sensores
-- Configurable
-- **Mejor para**: Testing sin sensores reales
+**Instalación y ejecución local (PowerShell)**
 
----
+1. Abrir PowerShell en la carpeta raíz del repositorio (donde está `LaboratorioNET.sln`).
 
-## 🗺️ Mapa de Lectura Recomendado
+2. Restaurar dependencias y compilar:
 
-### 👤 Usuario Nuevo
-```
-1. RESUMEN_IMPLEMENTACION.md
-2. GUIA_VISUAL.md
-3. INICIO_RAPIDO.md
-4. Ejecutar proyecto y probar
+```powershell
+dotnet restore; 
+dotnet build
 ```
 
-### 👨‍💻 Desarrollador
-```
-1. CAMBIOS_IMPLEMENTADOS.md
-2. SENSOR_SYSTEM_DOCUMENTATION.md
-3. ARQUITECTURA.md
-4. Revisar código fuente
-5. TROUBLESHOOTING.md (si hay issues)
+3. Ejecutar la aplicación (modo desarrollo):
+
+```powershell
+dotnet run --project .\LaboratorioNET\LaboratorioNET.csproj
 ```
 
-### 🔧 DevOps/Administrador
-```
-1. INICIO_RAPIDO.md
-2. ARQUITECTURA.md
-3. TROUBLESHOOTING.md
-4. Configurar en producción
-5. CHANGELOG.md para futuras actualizaciones
-```
+4. Abrir el navegador en `https://localhost:5001` o la URL indicada por la salida de `dotnet run`.
 
-### 🐛 Si Tienes Problemas
-```
-1. GUIA_VISUAL.md (diagnosticar rápido)
-2. TROUBLESHOOTING.md (solución detallada)
-3. SENSOR_SYSTEM_DOCUMENTATION.md (referencia API)
-```
+----
 
----
+**Estructura del proyecto (resumen)**
 
-## 🎯 Buscar por Tema
+- `Program.cs` — arranque de la aplicación y registro de servicios.
+- `Controllers/` — controladores Web API (por ejemplo `SensorController.cs`).
+- `Services/` — lógica de negocio y acceso a datos (`MongoDbService.cs`, `SensorValidationService.cs`, `BucketService.cs`, `SesionService.cs`).
+- `Entities/` — modelos del dominio (`Admin.cs`, `Carrera.cs`, `Corredor.cs`, `Registro.cs`).
+- `Components/Pages/` — páginas Blazor para la interfaz.
+- `Models/` — modelos auxiliares y DTOs (`MongoDbSettings.cs`, `SensorCheckpointData.cs`).
+- `wwwroot/` — activos estáticos (CSS, imágenes, libs).
 
-### Configuración & Setup
-- ➡️ INICIO_RAPIDO.md
-- ➡️ GUIA_VISUAL.md
+----
 
-### Cómo Usar la API
-- ➡️ SENSOR_SYSTEM_DOCUMENTATION.md
-- ➡️ api-requests.http
-- ➡️ GUIA_VISUAL.md
+**Arquitectura (alto nivel)**
 
-### Entender la Arquitectura
-- ➡️ ARQUITECTURA.md
-- ➡️ CAMBIOS_IMPLEMENTADOS.md
-- ➡️ ESTRUCTURA_PROYECTO.md
+La aplicación sigue una arquitectura en capas sencilla:
 
-### Resolver Problemas
-- ➡️ TROUBLESHOOTING.md
-- ➡️ GUIA_VISUAL.md
+- Capa de Presentación: Blazor (componentes en `Components/Pages`).
+- Capa de Controladores/API: recibe peticiones REST (`Controllers/`).
+- Capa de Servicios: lógica del dominio y abstracción de datos (`Services/`).
+- Persistencia: MongoDB a través de `MongoDbService`.
+- Integración en tiempo real: SignalR (`RaceSimulationHub`) para push de eventos y simulación.
 
-### Detalles Técnicos
-- ➡️ SENSOR_SYSTEM_DOCUMENTATION.md
-- ➡️ CAMBIOS_IMPLEMENTADOS.md
-- ➡️ ARQUITECTURA.md
+Los servicios se inyectan con DI (registrados en `Program.cs`). La separación facilita pruebas unitarias y evolución del sistema.
 
-### Testing
-- ➡️ api-requests.http
-- ➡️ GUIA_VISUAL.md
-- ➡️ SENSOR_SYSTEM_DOCUMENTATION.md
+----
 
----
+**Endpoints y puntos de entrada**
 
-## 📊 Estadísticas de Documentación
+- Las APIs REST principales están en `Controllers/SensorController.cs` (consultar ese archivo para rutas y payloads concretos).
+- La UI Blazor expone páginas en `Components/Pages/` para administración, inscripción y simulación.
 
-| Archivo | KB | Líneas | Propósito |
-|---------|----|---------| ---------|
-| RESUMEN_IMPLEMENTACION.md | 12 | 400 | Visión general |
-| GUIA_VISUAL.md | 10 | 380 | Referencia rápida |
-| INICIO_RAPIDO.md | 8 | 280 | Setup |
-| SENSOR_SYSTEM_DOCUMENTATION.md | 15 | 450 | Referencia técnica |
-| CAMBIOS_IMPLEMENTADOS.md | 12 | 380 | Detalles técnicos |
-| ARQUITECTURA.md | 10 | 350 | Diagramas |
-| TROUBLESHOOTING.md | 14 | 420 | Solución problemas |
-| CHANGELOG.md | 8 | 250 | Historial |
-| ESTRUCTURA_PROYECTO.md | 10 | 320 | Layout |
-| **TOTAL** | **99** | **3430** | **~35 minutos lectura** |
+Si necesitas ejemplos de requests, revisa el archivo `api-requests.http` incluido en el repositorio.
 
----
 
-## 🔗 Enlaces Rápidos
+----
+Comandos útiles:
 
-### Dentro de la Documentación
-- [Cambios implementados](CAMBIOS_IMPLEMENTADOS.md)
-- [Endpoints API](SENSOR_SYSTEM_DOCUMENTATION.md#-api-endpoints)
-- [Troubleshooting](TROUBLESHOOTING.md)
-- [Ejemplos HTTP](api-requests.http)
-
-### Externos
-- [Firebase Console](https://console.firebase.google.com/)
-- [Google Cloud Console](https://console.cloud.google.com/)
-- [ASP.NET Core Docs](https://learn.microsoft.com/en-us/aspnet/core)
-
----
-
-## 💡 Tips de Navegación
-
-### En VS Code
-```
-Ctrl+F: Buscar en archivo
-Ctrl+Shift+F: Buscar en todos los archivos
-Ctrl+P: Ir a archivo rápido
+```powershell
+dotnet restore
+dotnet build
+dotnet run --project .\LaboratorioNET\LaboratorioNET.csproj
 ```
 
-### En PowerShell
-```
-Get-Content RESUMEN_IMPLEMENTACION.md | Out-Host -Paging
-ls -Filter "*.md" | % {Write-Host $_.Name}
-```
+----
 
-### En Navegador
-```
-GitHub: Markdown se renderiza automáticamente
-Local: Abrir .html o usar markdown viewer
-```
+**Problemas comunes y debugging**
 
----
-
-## ✅ Checklist de Lectura
-
-- [ ] RESUMEN_IMPLEMENTACION.md (visión general)
-- [ ] GUIA_VISUAL.md (rápida)
-- [ ] INICIO_RAPIDO.md (setup)
-- [ ] SENSOR_SYSTEM_DOCUMENTATION.md (API)
-- [ ] ARQUITECTURA.md (diseño)
-- [ ] Ejecutar simulador
-- [ ] Verificar en UI
-- [ ] Revisar TROUBLESHOOTING si hay issues
-
----
-
-## 📞 Estructura de Capas
-
-```
-┌─────────────────────────────────────┐
-│   USUARIO / DESARROLLADOR            │
-└────────────┬────────────────────────┘
-             │
-┌────────────▼────────────────────────┐
-│   GUIAS VISUALES                    │
-│   - GUIA_VISUAL.md                  │
-│   - INICIO_RAPIDO.md                │
-└────────────┬────────────────────────┘
-             │
-┌────────────▼────────────────────────┐
-│   REFERENCIA TÉCNICA                │
-│   - SENSOR_SYSTEM_DOCUMENTATION.md  │
-│   - ARQUITECTURA.md                 │
-└────────────┬────────────────────────┘
-             │
-┌────────────▼────────────────────────┐
-│   CÓDIGO FUENTE                     │
-│   - Services/                       │
-│   - Controllers/                    │
-│   - Entities/                       │
-└────────────┬────────────────────────┘
-             │
-┌────────────▼────────────────────────┐
-│   GOOGLE CLOUD & FIRESTORE          │
-│   - Bucket Storage                  │
-│   - Database                        │
-└─────────────────────────────────────┘
-```
-
----
-
-## 🚀 Próximos Pasos
-
-1. **Lectura** → Elegir documento según necesidad
-2. **Configuración** → Seguir INICIO_RAPIDO.md
-3. **Testing** → Usar GUIA_VISUAL.md
-4. **Desarrollo** → Consultar SENSOR_SYSTEM_DOCUMENTATION.md
-5. **Problemas** → Revisar TROUBLESHOOTING.md
-
----
-
-## 📞 Soporte
-
-- **Preguntas generales**: RESUMEN_IMPLEMENTACION.md
-- **Cómo usar**: GUIA_VISUAL.md + INICIO_RAPIDO.md
-- **API Reference**: SENSOR_SYSTEM_DOCUMENTATION.md
-- **Problemas**: TROUBLESHOOTING.md
-- **Arquitectura**: ARQUITECTURA.md + CAMBIOS_IMPLEMENTADOS.md
-
----
-
-**Última Actualización**: Noviembre 12, 2025  
-**Versión**: 2.0  
-**Estado**: ✅ Completamente Documentado
-
+- Si la app no conecta a MongoDB: revisar `MongoDbSettings:ConnectionString` y comprobar que MongoDB acepta conexiones desde la IP del host.
+- Errores en la UI: abrir la consola del navegador para ver errores JS/SignalR.
+- Revisar logs de la aplicación (nivel de logging ajustable en `Program.cs` / `appsettings.json`).
