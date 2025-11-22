@@ -147,3 +147,9 @@ dotnet run --project .\LaboratorioNET\LaboratorioNET.csproj
 - Si la app no conecta a MongoDB: revisar `MongoDbSettings:ConnectionString` y comprobar que MongoDB acepta conexiones desde la IP del host.
 - Errores en la UI: abrir la consola del navegador para ver errores JS/SignalR.
 - Revisar logs de la aplicación (nivel de logging ajustable en `Program.cs` / `appsettings.json`).
+
+----
+
+**Ingresar como Admin**
+
+-Si desea ingresar como admin deberá crear una cuenta de corredor y cambiar manuelmente desde la Mongodb el campo rol de Corredore -> admin.
